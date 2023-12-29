@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import { useState } from "react";
 import { LoadingPage } from "~/components/Loading";
 import { PageLayout } from "~/components/PageLayout";
@@ -13,7 +14,7 @@ const ResourceList = ({ filter }: { filter?: string }) => {
   }
 
   if (!data) {
-    return <div>Something went wrong</div>;
+    return <div>Something went wrong. Please try again later.</div>;
   }
 
   const filterString = filter?.toLowerCase();
@@ -28,9 +29,10 @@ const ResourceList = ({ filter }: { filter?: string }) => {
   return (
     <div className="flex flex-col gap-1">
       {resources.map((resource) => (
-        <div
+        <Link
           key={resource.id}
-          className="flex w-full flex-col gap-0 rounded-sm border border-slate-200  p-4"
+          className="flex w-full flex-col gap-0 rounded-sm border border-slate-200  p-4 hover:shadow-sm"
+          href={`/resource/${resource.id}`}
         >
           <div className="font-bold">{resource.title}</div>
           {resource.categories.length > 0 && (
@@ -38,7 +40,7 @@ const ResourceList = ({ filter }: { filter?: string }) => {
               ", ",
             )}`}</span>
           )}
-        </div>
+        </Link>
       ))}
     </div>
   );
@@ -60,7 +62,7 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <PageLayout title="The Improvitory">
+      <PageLayout>
         <input
           type="text"
           value={filter}
