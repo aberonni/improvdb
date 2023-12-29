@@ -6,8 +6,16 @@ generator client {
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Category {
+    id String @id
+    name String
+
+    resources CategoriesOnResources[]
 }
 
 model Resource {
@@ -15,7 +23,7 @@ model Resource {
     title             String
     description       String    @db.Text
     href              String
-    categories        String[]
+    categories CategoriesOnResources[]
 
     examples          String?   @db.Text
     extra             String?   @db.Text
@@ -29,6 +37,18 @@ model Resource {
 
     createdAt         DateTime @default(now())
     updatedAt         DateTime @updatedAt
+}
 
-    @@index([title])
+
+model CategoriesOnResources {
+  resource              Resource     @relation(fields: [resourceId], references: [id])
+  resourceId            String // relation scalar field (used in the `@relation` attribute above)
+  category          Category @relation(fields: [categoryId], references: [id])
+  categoryId        String // relation scalar field (used in the `@relation` attribute above)
+  assignedAt        DateTime @default(now())
+  assignedBy        String
+
+  @@id([resourceId, categoryId])
+  @@index([categoryId])
+  @@index([resourceId])
 }

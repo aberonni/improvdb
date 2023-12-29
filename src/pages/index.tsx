@@ -36,9 +36,9 @@ const ResourceList = ({ filter }: { filter?: string }) => {
         >
           <div className="font-bold">{resource.title}</div>
           {resource.categories.length > 0 && (
-            <span className="mt-1 inline-block font-light text-slate-700">{`Categories: ${resource.categories.join(
-              ", ",
-            )}`}</span>
+            <span className="mt-1 inline-block font-light text-slate-700">{`Categories: ${resource.categories
+              .map(({ category }) => category.name)
+              .join(", ")}`}</span>
           )}
         </Link>
       ))}

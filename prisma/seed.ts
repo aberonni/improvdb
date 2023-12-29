@@ -1,5 +1,15 @@
 import fs from "fs";
+import lodash from "lodash";
+// necessary because of https://stackoverflow.com/a/54302557
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const { startCase } = lodash;
+
 import { db } from "~/server/db";
+
+import type { RouterOutputs } from "~/utils/api";
+type JSONResource = RouterOutputs["resource"]["getById"] & {
+  categories: string[];
+};
 
 async function main() {
   console.log("Start seeding...");
@@ -7,7 +17,7 @@ async function main() {
   const seedData = Object.entries(
     JSON.parse(fs.readFileSync("./prisma/seed.json", "utf8")) as Record<
       string,
-      unknown
+      JSONResource
     >,
   );
 
@@ -22,11 +32,34 @@ async function main() {
 
     const [id, resource] = seed;
 
+    let categories = {};
+
+    if (resource.categories) {
+      categories = {
+        create: resource.categories.map((category: string) => {
+          return {
+            assignedBy: "admin",
+            assignedAt: new Date(),
+            category: {
+              connectOrCreate: {
+                where: { id: category },
+                create: { id: category, name: startCase(category) },
+              },
+            },
+          };
+        }),
+      };
+    }
+
+    const createResource = {
+      ...resource,
+      categories,
+    };
+
     await db.resource.upsert({
       where: { id },
-      update: {},
-      // @ts-expect-error resource is not actually unknown
-      create: resource,
+      update: createResource,
+      create: createResource,
     });
   }
 

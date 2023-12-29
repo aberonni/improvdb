@@ -9,6 +9,7 @@ import type { GetStaticProps, NextPage } from "next";
 import { PageLayout } from "~/components/PageLayout";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import Link from "next/link";
+import { LoadingPage } from "~/components/Loading";
 
 type Resource = RouterOutputs["resource"]["getById"];
 const MarkdownBlock = (props: {
@@ -35,7 +36,11 @@ const MarkdownBlock = (props: {
         //     }
         //     // return <a {...props} />;
 
-        //     return <Link href={"/stocazzo/" + href} {...props} />;
+        //     return (
+        //       <Link href={"/stocazzo/" + href} {...props}>
+        //         sadjkhskajhd
+        //       </Link>
+        //     );
         //   },
         // }}
       />
@@ -44,9 +49,13 @@ const MarkdownBlock = (props: {
 };
 
 export const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
-  const { data: resource } = api.resource.getById.useQuery({
+  const { data: resource, isLoading } = api.resource.getById.useQuery({
     id,
   });
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   if (!resource) {
     return <div>404</div>;

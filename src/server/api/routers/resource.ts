@@ -10,6 +10,13 @@ export const resourceRouter = createTRPCRouter({
       orderBy: {
         title: "asc",
       },
+      include: {
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
     });
   }),
   getById: publicProcedure
@@ -18,6 +25,13 @@ export const resourceRouter = createTRPCRouter({
       const post = await ctx.db.resource.findUnique({
         where: {
           id: input.id,
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
+          },
         },
       });
 
