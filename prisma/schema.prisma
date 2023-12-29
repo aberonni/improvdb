@@ -6,15 +6,29 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+    provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Resource {
+    id                String    @id
+    title             String
+    description       String    @db.Text
+    href              String
+    categories        String[]
 
-    @@index([name])
+    examples          String?   @db.Text
+    extra             String?   @db.Text
+    format            String?   @db.Text
+    origin            String?   @db.Text
+    purpose           String?   @db.Text
+    showIntroduction  String?   @db.Text
+    tips              String?   @db.Text
+    variations        String?   @db.Text
+    video             String?
+
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+
+    @@index([title])
 }
