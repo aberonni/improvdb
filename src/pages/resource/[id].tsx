@@ -29,20 +29,15 @@ const MarkdownBlock = (props: {
       <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">{startCase(section)}</h2>
       <ReactMarkdown
         children={prefix + content}
-        // components={{
-        //   a: ({ href, ...props }) => {
-        //     if (!href || !href.startsWith("resource")) {
-        //       return <span>LALALA</span>;
-        //     }
-        //     // return <a {...props} />;
+        components={{
+          a: ({ href, ref, ...props }) => {
+            if (!href || !href.startsWith("resource/")) {
+              return <a href={href} ref={ref} {...props} />;
+            }
 
-        //     return (
-        //       <Link href={"/stocazzo/" + href} {...props}>
-        //         sadjkhskajhd
-        //       </Link>
-        //     );
-        //   },
-        // }}
+            return <Link href={"/" + href} {...props} />;
+          },
+        }}
       />
     </>
   );
