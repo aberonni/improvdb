@@ -56,11 +56,6 @@ export default function Home() {
     <>
       <Head>
         <title>The Improvitory</title>
-        <meta
-          name="description"
-          content="The ultimate repository for improv games & exercises."
-        />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <PageLayout>
         <input
