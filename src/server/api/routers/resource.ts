@@ -1,7 +1,12 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
+import { resourceCreateSchema } from "~/utils/zod";
 
 export const resourceRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -22,7 +27,7 @@ export const resourceRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const post = await ctx.db.resource.findUnique({
+      const resource = await ctx.db.resource.findUnique({
         where: {
           id: input.id,
         },
@@ -35,13 +40,59 @@ export const resourceRouter = createTRPCRouter({
         },
       });
 
-      if (!post) {
+      if (!resource) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Post ${input.id} not found`,
+          message: `Resource ${input.id} not found`,
         });
       }
 
-      return post;
+      return resource;
+    }),
+  create: privateProcedure
+    .input(resourceCreateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.userId;
+
+      // TODO: add ratelimiting
+      // Create a new ratelimiter, that allows 10 requests per 10 seconds
+      // const { success } = await ratelimit.limit(authorId);
+
+      // if (!success) {
+      //   throw new TRPCError({
+      //     code: "TOO_MANY_REQUESTS",
+      //   });
+      // }
+
+      const resourceWithSameId = await ctx.db.resource.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+
+      if (resourceWithSameId) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "This resource already exists: " + input.id,
+        });
+      }
+
+      const resource = await ctx.db.resource.create({
+        data: {
+          ...input,
+          categories: {
+            createMany: {
+              data: input.categories.map((id) => ({
+                categoryId: id,
+                assignedBy: authorId,
+              })),
+            },
+          },
+        },
+      });
+
+      return {
+        resource,
+      };
     }),
 });

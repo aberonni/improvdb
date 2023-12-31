@@ -22,7 +22,7 @@ model Resource {
     id                String    @id
     title             String
     description       String    @db.Text
-    href              String
+    href              String?
     categories CategoriesOnResources[]
 
     examples          String?   @db.Text

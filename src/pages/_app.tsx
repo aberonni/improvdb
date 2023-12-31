@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { usePreserveScroll } from "~/hooks/usePreserveScroll";
 import Head from "next/head";
+import { Toaster } from "react-hot-toast";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   usePreserveScroll();
@@ -19,6 +20,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Toaster />
       <Component {...pageProps} />
     </ClerkProvider>
   );

@@ -86,17 +86,22 @@ export const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
           <hr className="my-3 lg:my-4" />
 
           <small className="italic">
-            This resource was auto-generated from the content found at{" "}
-            <a href={resource.href}>{resource.href}</a>.
-            {resource.origin && (
+            {resource.href && (
               <>
-                <br />
-                <span className="mb-0 inline-block">
-                  Origin of the resource according to the website linked above:
-                </span>
-                <blockquote className="my-0 font-light lg:my-0">
-                  <ReactMarkdown children={resource.origin} />
-                </blockquote>
+                This resource was auto-generated from the content found at{" "}
+                <a href={resource.href}>{resource.href}</a>.
+                {resource.origin && (
+                  <>
+                    <br />
+                    <span className="mb-0 inline-block">
+                      Origin of the resource according to the website linked
+                      above:
+                    </span>
+                    <blockquote className="my-0 font-light lg:my-0">
+                      <ReactMarkdown children={resource.origin} />
+                    </blockquote>
+                  </>
+                )}
               </>
             )}
           </small>

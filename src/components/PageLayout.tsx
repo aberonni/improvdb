@@ -17,7 +17,12 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
             </Link>
             {isSignedIn ? (
               <>
-            {isSignedIn ? <UserButton /> : <SignInButton />}
+                <Link
+                  href="/create"
+                  className="mr-2 rounded bg-green-700 px-3 py-1 text-white transition-colors hover:bg-green-600"
+                >
+                  Create
+                </Link>
                 <UserButton />
               </>
             ) : (

@@ -1,8 +1,8 @@
 import { authMiddleware } from "@clerk/nextjs";
 
 export default authMiddleware({
-  // everything public
-  publicRoutes: () => true,
+  // only "/create" is private
+  publicRoutes: ["((?!^/create).*)"],
 });
 
 export const config = {
