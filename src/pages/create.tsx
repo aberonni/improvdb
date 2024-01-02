@@ -2,16 +2,17 @@ import Head from "next/head";
 import { kebabCase, startCase } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import type * as z from "zod";
 import toast from "react-hot-toast";
 
-import { LoadingPage } from "~/components/Loading";
 import { PageLayout } from "~/components/PageLayout";
 
 import { api } from "~/utils/api";
 import { resourceCreateSchema } from "~/utils/zod";
 import { useRouter } from "next/router";
+import MultiSelectDropown from "~/components/MultiSelectDropdown";
+import { ResourceType } from "@prisma/client";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -44,7 +45,7 @@ const MarkdownField = ({
         />
       </div>
       {errors[field]?.message && (
-        <p className="mt-3 text-sm leading-6 text-red-700">
+        <p className="mt-1 text-sm leading-6 text-red-700">
           {errors[field]?.message}
         </p>
       )}
@@ -55,7 +56,10 @@ const MarkdownField = ({
 export default function Create() {
   const router = useRouter();
 
-  const { data: categories, isLoading } = api.category.getAll.useQuery();
+  const { data: categories, isLoading: isLoadingCategories } =
+    api.category.getAll.useQuery();
+  const { data: resources, isLoading: isLoadingResources } =
+    api.resource.getAllOnlyIdAndTitle.useQuery();
 
   const utils = api.useUtils();
 
@@ -67,6 +71,13 @@ export default function Create() {
         void utils.resource.getAll.invalidate();
       },
       onError: (e) => {
+        if (e.data?.code === "CONFLICT") {
+          toast.error(
+            "A resource already exists at this URL. Please choose a new URL.",
+          );
+          return;
+        }
+
         const errorMessage =
           e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
         if (errorMessage) {
@@ -78,10 +89,12 @@ export default function Create() {
     });
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    getValues,
   } = useForm<CreateSchemaType>({
     resolver: zodResolver(resourceCreateSchema),
   });
@@ -94,12 +107,11 @@ export default function Create() {
     createResource(values);
   }
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
-
-  if (!categories) {
-    return <div>Something went wrong. Please try again later.</div>;
+  if (errors) {
+    console.log("Form errors:");
+    console.log(errors);
+    console.log("Form values:");
+    console.log(getValues());
   }
 
   return (
@@ -120,7 +132,7 @@ export default function Create() {
               </p>
 
               <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                <div className="sm:col-span-4">
+                <div className="col-span-full">
                   <label
                     htmlFor="title"
                     className="block text-sm font-medium leading-6 text-gray-900"
@@ -128,7 +140,7 @@ export default function Create() {
                     Title<span className="text-red-700">*</span>
                   </label>
                   <div className="mt-2">
-                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                    <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
                       <input
                         type="text"
                         {...register("title")}
@@ -141,13 +153,13 @@ export default function Create() {
                     </div>
                   </div>
                   {errors.title?.message && (
-                    <p className="mt-3 text-sm leading-6 text-red-700">
+                    <p className="mt-1 text-sm leading-6 text-red-700">
                       {errors.title?.message}
                     </p>
                   )}
                 </div>
 
-                <div className="sm:col-span-4">
+                <div className="sm:col-span-3">
                   <label
                     htmlFor="id"
                     className="block text-sm font-medium leading-6 text-gray-900"
@@ -168,10 +180,35 @@ export default function Create() {
                     </div>
                   </div>
                   {errors.id?.message && (
-                    <p className="mt-3 text-sm leading-6 text-red-700">
+                    <p className="mt-1 text-sm leading-6 text-red-700">
                       {errors.id?.message}
                     </p>
                   )}
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="type"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Resource Type<span className="text-red-700">*</span>
+                  </label>
+                  <div className="mt-2">
+                    <select
+                      {...register("type")}
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    >
+                      <option value={ResourceType.EXERCISE}>
+                        Warm-up / Exercise
+                      </option>
+                      <option value={ResourceType.SHORT_FORM}>
+                        Short Form Game
+                      </option>
+                      <option value={ResourceType.LONG_FORM}>
+                        Long Form Format
+                      </option>
+                    </select>
+                  </div>
                 </div>
 
                 <MarkdownField
@@ -181,29 +218,52 @@ export default function Create() {
                   required
                 />
 
-                <div className="sm:col-span-full">
+                <div className="sm:col-span-3">
                   <label className="block text-sm font-medium leading-6 text-gray-900">
                     Categories
                   </label>
                   <div className="mt-2">
-                    <ul>
-                      {categories.map((c) => (
-                        <div className="relative flex gap-x-3" key={c.id}>
-                          <div className="flex h-6 items-center">
-                            <input
-                              id={`category-${c.id}`}
-                              type="checkbox"
-                              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                              value={c.id}
-                              {...register("categories")}
-                            />
-                          </div>
-                          <div className="text-sm leading-6">
-                            <label htmlFor={`category-${c.id}`}>{c.name}</label>
-                          </div>
-                        </div>
-                      ))}
-                    </ul>
+                    <Controller
+                      name="categories"
+                      control={control}
+                      render={({ field }) => (
+                        <MultiSelectDropown
+                          {...field}
+                          isLoading={isLoadingCategories}
+                          loadingMessage={() => "Loading categories..."}
+                          options={categories?.map(({ id, name }) => ({
+                            label: name,
+                            value: id,
+                          }))}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="relatedResources"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Related Resources
+                  </label>
+                  <div className="mt-2">
+                    <Controller
+                      name="relatedResources"
+                      control={control}
+                      render={({ field }) => (
+                        <MultiSelectDropown
+                          {...field}
+                          isLoading={isLoadingResources}
+                          loadingMessage={() => "Loading resources..."}
+                          options={resources?.map(({ id, title }) => ({
+                            label: title,
+                            value: id,
+                          }))}
+                        />
+                      )}
+                    />
                   </div>
                 </div>
 
@@ -215,17 +275,12 @@ export default function Create() {
                 <MarkdownField
                   register={register}
                   errors={errors}
-                  field={"extra"}
+                  field={"origin"}
                 />
                 <MarkdownField
                   register={register}
                   errors={errors}
-                  field={"format"}
-                />
-                <MarkdownField
-                  register={register}
-                  errors={errors}
-                  field={"purpose"}
+                  field={"learningObjectives"}
                 />
                 <MarkdownField
                   register={register}
@@ -242,6 +297,30 @@ export default function Create() {
                   errors={errors}
                   field={"variations"}
                 />
+
+                <div className="col-span-full">
+                  <label
+                    htmlFor="video"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    YouTube Video ID
+                  </label>
+                  <div className="mt-2">
+                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                      <input
+                        type="text"
+                        {...register("video")}
+                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        placeholder="123456789AB"
+                      />
+                    </div>
+                  </div>
+                  {errors.video?.message && (
+                    <p className="mt-1 text-sm leading-6 text-red-700">
+                      {errors.video?.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -64,15 +64,27 @@ export const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
       <PageLayout>
         <article className="prose max-w-full lg:prose-lg">
           <header className="flex flex-row">
-            <h1 className="mb-4 grow">{resource.title}</h1>
+            <h1 className="mb-0 grow">{resource.title}</h1>
             <Link href="/" className="hover:underline">
               Back to Home
             </Link>
           </header>
 
+          <p className="mb-4">{resource.type}</p>
+
+          {resource.categories.length > 0 && (
+            <>
+              <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Categories</h2>
+              <ul>
+                {resource.categories.map(({ category }) => (
+                  <li>{category.name}</li>
+                ))}
+              </ul>
+            </>
+          )}
+
           <MarkdownBlock resource={resource} section={"description"} />
-          <MarkdownBlock resource={resource} section={"format"} />
-          <MarkdownBlock resource={resource} section={"purpose"} />
+          <MarkdownBlock resource={resource} section={"learningObjectives"} />
           <MarkdownBlock resource={resource} section={"examples"} />
           <MarkdownBlock resource={resource} section={"variations"} />
           <MarkdownBlock
@@ -81,30 +93,32 @@ export const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
             prefix="> "
           />
           <MarkdownBlock resource={resource} section={"tips"} />
-          <MarkdownBlock resource={resource} section={"extra"} />
+          <MarkdownBlock resource={resource} section={"origin"} />
 
-          <hr className="my-3 lg:my-4" />
+          {resource.video && (
+            <>
+              <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Example Video</h2>
+              <iframe
+                className="video aspect-video w-full"
+                title="Youtube player"
+                sandbox="allow-same-origin allow-forms allow-popups allow-scripts allow-presentation"
+                src={`https://youtube.com/embed/${resource.video}?autoplay=0`}
+              ></iframe>
+            </>
+          )}
 
-          <small className="italic">
-            {resource.href && (
-              <>
-                This resource was auto-generated from the content found at{" "}
-                <a href={resource.href}>{resource.href}</a>.
-                {resource.origin && (
-                  <>
-                    <br />
-                    <span className="mb-0 inline-block">
-                      Origin of the resource according to the website linked
-                      above:
-                    </span>
-                    <blockquote className="my-0 font-light lg:my-0">
-                      <ReactMarkdown children={resource.origin} />
-                    </blockquote>
-                  </>
-                )}
-              </>
-            )}
-          </small>
+          {resource.relatedResources.length > 0 && (
+            <>
+              <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Related Resources</h2>
+              <ul>
+                {resource.relatedResources.map(({ id, title }) => (
+                  <li>
+                    <Link href={`/resource/${id}`}>{title}</Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </article>
       </PageLayout>
     </>

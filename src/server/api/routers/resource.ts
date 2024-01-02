@@ -24,6 +24,18 @@ export const resourceRouter = createTRPCRouter({
       },
     });
   }),
+  getAllOnlyIdAndTitle: publicProcedure.query(({ ctx }) => {
+    return ctx.db.resource.findMany({
+      take: 1000,
+      orderBy: {
+        title: "asc",
+      },
+      select: {
+        id: true,
+        title: true,
+      },
+    });
+  }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -34,7 +46,18 @@ export const resourceRouter = createTRPCRouter({
         include: {
           categories: {
             include: {
-              category: true,
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          relatedResources: {
+            select: {
+              id: true,
+              title: true,
             },
           },
         },
@@ -80,13 +103,19 @@ export const resourceRouter = createTRPCRouter({
       const resource = await ctx.db.resource.create({
         data: {
           ...input,
+          createdBy: authorId,
           categories: {
             createMany: {
-              data: input.categories.map((id) => ({
-                categoryId: id,
+              data: input.categories.map(({ value }) => ({
+                categoryId: value,
                 assignedBy: authorId,
               })),
             },
+          },
+          relatedResources: {
+            connect: input.relatedResources.map(({ value }) => ({
+              id: value,
+            })),
           },
         },
       });

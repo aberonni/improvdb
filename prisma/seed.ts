@@ -1,3 +1,4 @@
+import { ResourceType } from "@prisma/client";
 import fs from "fs";
 import lodash from "lodash";
 // necessary because of https://stackoverflow.com/a/54302557
@@ -54,6 +55,11 @@ async function main() {
     const createResource = {
       ...resource,
       categories,
+      relatedResources: {
+        create: [],
+      },
+      type: ResourceType.EXERCISE,
+      createdBy: "admin",
     };
 
     await db.resource.upsert({
