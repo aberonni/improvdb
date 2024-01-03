@@ -1,4 +1,6 @@
 import { TRPCError } from "@trpc/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 import { z } from "zod";
 
 import {
@@ -7,6 +9,13 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { resourceCreateSchema } from "~/utils/zod";
+
+// Create a new ratelimiter, that allows 3 requests per 1 minute
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(3, "1 m"),
+  analytics: true,
+});
 
 export const resourceRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -77,15 +86,13 @@ export const resourceRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.userId;
 
-      // TODO: add ratelimiting
-      // Create a new ratelimiter, that allows 10 requests per 10 seconds
-      // const { success } = await ratelimit.limit(authorId);
+      const { success } = await ratelimit.limit(authorId);
 
-      // if (!success) {
-      //   throw new TRPCError({
-      //     code: "TOO_MANY_REQUESTS",
-      //   });
-      // }
+      if (!success) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+        });
+      }
 
       const resourceWithSameId = await ctx.db.resource.findUnique({
         where: {
