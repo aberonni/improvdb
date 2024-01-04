@@ -24,20 +24,27 @@ enum ResourceType {
   LONG_FORM
 }
 
-model Resource {
-  id          String                  @id
-  title       String
-  description String                  @db.Text
-  type        ResourceType
-  categories  CategoriesOnResources[]
+enum ResourceConfiguation {
+  SOLO
+  PAIRS
+  GROUPS
+  WHOLE_CLASS
+  CIRCLE
+  SCENE
+}
 
-  examples           String? @db.Text
-  origin             String? @db.Text
-  learningObjectives String? @db.Text
-  showIntroduction   String? @db.Text
-  tips               String? @db.Text
-  variations         String? @db.Text
-  video              String?
+model Resource {
+  id            String                  @id
+  title         String
+  description   String                  @db.Text
+  type          ResourceType
+  categories    CategoriesOnResources[]
+  configuration ResourceConfiguation
+  groupSize     Int
+
+  showIntroduction String? @db.Text
+  video            String?
+  alternativeNames String?
 
   relatedResources      Resource[] @relation("RelatedResources") // child Resource (Resource that are suggested)
   relatedResourceParent Resource[] @relation("RelatedResources") // parent Resource (parent Resource of a suggested Resource)

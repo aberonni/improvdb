@@ -124,6 +124,9 @@ export const resourceRouter = createTRPCRouter({
               id: value,
             })),
           },
+          alternativeNames: input.alternativeNames
+            .map(({ value }) => value)
+            .join(";"),
         },
       });
 

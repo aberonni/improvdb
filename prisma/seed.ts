@@ -1,4 +1,4 @@
-import { ResourceType } from "@prisma/client";
+import { ResourceConfiguation, ResourceType } from "@prisma/client";
 import fs from "fs";
 import lodash from "lodash";
 // necessary because of https://stackoverflow.com/a/54302557
@@ -59,6 +59,8 @@ async function main() {
         create: [],
       },
       type: ResourceType.EXERCISE,
+      configuration: ResourceConfiguation.SCENE,
+      groupSize: 4,
       createdBy: "admin",
     };
 

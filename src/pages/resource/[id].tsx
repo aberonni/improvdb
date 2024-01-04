@@ -1,7 +1,5 @@
 import Head from "next/head";
-import { startCase } from "lodash";
 import { api } from "~/utils/api";
-import type { RouterOutputs } from "~/utils/api";
 
 import ReactMarkdown from "react-markdown";
 
@@ -10,38 +8,6 @@ import { PageLayout } from "~/components/PageLayout";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import Link from "next/link";
 import { LoadingPage } from "~/components/Loading";
-
-type Resource = RouterOutputs["resource"]["getById"];
-const MarkdownBlock = (props: {
-  resource: Resource;
-  section: keyof Resource;
-  prefix?: string;
-}) => {
-  const { resource, section, prefix = "" } = props;
-  const content = resource[section] as string;
-
-  if (!content) {
-    return null;
-  }
-
-  return (
-    <>
-      <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">{startCase(section)}</h2>
-      <ReactMarkdown
-        children={prefix + content}
-        components={{
-          a: ({ href, ref, ...props }) => {
-            if (!href || !href.startsWith("resource/")) {
-              return <a href={href} ref={ref} {...props} />;
-            }
-
-            return <Link href={"/" + href} {...props} />;
-          },
-        }}
-      />
-    </>
-  );
-};
 
 export const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
   const { data: resource, isLoading } = api.resource.getById.useQuery({
@@ -83,17 +49,26 @@ export const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
             </>
           )}
 
-          <MarkdownBlock resource={resource} section={"description"} />
-          <MarkdownBlock resource={resource} section={"learningObjectives"} />
-          <MarkdownBlock resource={resource} section={"examples"} />
-          <MarkdownBlock resource={resource} section={"variations"} />
-          <MarkdownBlock
-            resource={resource}
-            section={"showIntroduction"}
-            prefix="> "
+          <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Description</h2>
+          <ReactMarkdown
+            children={resource.description}
+            components={{
+              a: ({ href, ref, ...props }) => {
+                if (!href || !href.startsWith("resource/")) {
+                  return <a href={href} ref={ref} {...props} />;
+                }
+
+                return <Link href={"/" + href} {...props} />;
+              },
+            }}
           />
-          <MarkdownBlock resource={resource} section={"tips"} />
-          <MarkdownBlock resource={resource} section={"origin"} />
+
+          {resource.showIntroduction && (
+            <>
+              <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Show Introduction</h2>
+              <blockquote>{resource.showIntroduction}</blockquote>
+            </>
+          )}
 
           {resource.video && (
             <>

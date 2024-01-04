@@ -1,7 +1,12 @@
 // Inspired by https://www.jussivirtanen.fi/writing/styling-react-select-with-tailwind
+// and https://react-select.com/creatable
 
 import clsx from "clsx";
-import Select, { Props } from "react-select";
+import type { KeyboardEventHandler } from "react";
+import { useState } from "react";
+import Select from "react-select";
+import type { Props } from "react-select";
+import CreatableSelect from "react-select/creatable";
 
 const controlStyles = {
   base: "border rounded-lg bg-white hover:cursor-pointer",
@@ -34,9 +39,58 @@ const optionStyles = {
 const noOptionsMessageStyles =
   "text-gray-500 p-2 bg-gray-50 border border-dashed border-gray-200 rounded-sm";
 
-export default function MultiSelectDropown(props: Props) {
+type MultiSelectDropdownProps = Props & {
+  isCreatable?: boolean;
+};
+
+interface Option {
+  readonly label: string;
+  readonly value: string;
+}
+
+const createOption = (label: string) => ({
+  label,
+  value: label,
+});
+
+export function MultiSelectDropown(props: MultiSelectDropdownProps) {
+  const [inputValue, setInputValue] = useState("");
+  const [value, setValue] = useState<readonly Option[]>([]);
+
+  const handleKeyDown: KeyboardEventHandler = (event) => {
+    if (!inputValue) return;
+    switch (event.key) {
+      case "Enter":
+      case "Tab":
+        setValue((prev) => [...prev, createOption(inputValue)]);
+        setInputValue("");
+        event.preventDefault();
+    }
+  };
+
+  const TagType = props.isCreatable ? CreatableSelect : Select;
+
+  let extraProps = {};
+
+  if (props.isCreatable) {
+    extraProps = {
+      ...extraProps,
+      components: {
+        DropdownIndicator: null,
+      },
+      inputValue: inputValue,
+      isClearable: true,
+      menuIsOpen: false,
+      onChange: (newValue: Option[]) => setValue(newValue),
+      onInputChange: (newValue: string) => setInputValue(newValue),
+      onKeyDown: handleKeyDown,
+      placeholder: "Type something and press enter...",
+      value: value,
+    };
+  }
+
   return (
-    <Select
+    <TagType
       isMulti
       closeMenuOnSelect={false}
       hideSelectedOptions={false}
@@ -60,7 +114,6 @@ export default function MultiSelectDropown(props: Props) {
           transition: "none",
         }),
       }}
-      // components={{ DropdownIndicator, ClearIndicator, MultiValueRemove }}
       classNames={{
         control: ({ isFocused }) =>
           clsx(
@@ -89,6 +142,7 @@ export default function MultiSelectDropown(props: Props) {
         noOptionsMessage: () => noOptionsMessageStyles,
       }}
       {...props}
+      {...extraProps}
     />
   );
 }
