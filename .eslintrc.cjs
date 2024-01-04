@@ -31,6 +31,7 @@ const config = {
         checksVoidReturn: { attributes: false },
       },
     ],
+    "@typescript-eslint/switch-exhaustiveness-check": "error",
   },
 };
 
