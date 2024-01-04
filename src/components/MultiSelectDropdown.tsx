@@ -98,7 +98,6 @@ export function MultiSelectDropown(props: MultiSelectDropdownProps) {
         isMulti
         closeMenuOnSelect={false}
         hideSelectedOptions={false}
-        defaultMenuIsOpen
         unstyled
         styles={{
           input: (base) => ({
