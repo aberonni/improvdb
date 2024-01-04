@@ -1,7 +1,6 @@
 import Head from "next/head";
-import { kebabCase, startCase } from "lodash";
+import { kebabCase } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
 import type * as z from "zod";
 import toast from "react-hot-toast";
@@ -15,6 +14,10 @@ import { MultiSelectDropown } from "~/components/MultiSelectDropdown";
 import { ResourceConfiguation, ResourceType } from "@prisma/client";
 import { useEffect } from "react";
 import clsx from "clsx";
+import {
+  ResourceConfiguationLabels,
+  ResourceTypeLabels,
+} from "~/components/Resource";
 
 const showExtra = true;
 
@@ -51,7 +54,7 @@ export default function Create() {
           toast.error(errorMessage);
           return;
         }
-        toast.error("Failed to post! Please try again later.");
+        toast.error("Failed to create resource! Please try again later.");
       },
     });
 
@@ -66,6 +69,9 @@ export default function Create() {
   } = useForm<CreateSchemaType>({
     resolver: zodResolver(resourceCreateSchema),
     defaultValues: {
+      alternativeNames: [],
+      categories: [],
+      relatedResources: [],
       description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
 
 You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button above to see what your text will look like.
@@ -196,9 +202,13 @@ Are there any variations of this activity that you want to share? For example, y
                       )}
                     />
                   </div>
-                  {errors.alternativeNames?.message && (
+                  {errors.alternativeNames?.message ? (
                     <p className="mt-1 text-sm leading-6 text-red-700">
                       {errors.alternativeNames?.message}
+                    </p>
+                  ) : (
+                    <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
+                      Press ENTER or TAB to add names
                     </p>
                   )}
                 </div>
@@ -243,13 +253,13 @@ Are there any variations of this activity that you want to share? For example, y
                       className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     >
                       <option value={ResourceType.EXERCISE}>
-                        Warm-up / Exercise
+                        {ResourceTypeLabels[ResourceType.EXERCISE]}
                       </option>
                       <option value={ResourceType.SHORT_FORM}>
-                        Short Form Game
+                        {ResourceTypeLabels[ResourceType.SHORT_FORM]}
                       </option>
                       <option value={ResourceType.LONG_FORM}>
-                        Long Form Format
+                        {ResourceTypeLabels[ResourceType.LONG_FORM]}
                       </option>
                     </select>
                   </div>
@@ -283,18 +293,38 @@ Are there any variations of this activity that you want to share? For example, y
                       }
                     >
                       <option value={ResourceConfiguation.SCENE}>
-                        {configurationDisabled ? "N/A" : "Scene with N players"}
+                        {configurationDisabled
+                          ? "N/A"
+                          : ResourceConfiguationLabels[
+                              ResourceConfiguation.SCENE
+                            ]}
                       </option>
                       <option value={ResourceConfiguation.WHOLE_CLASS}>
-                        Whole class
+                        {
+                          ResourceConfiguationLabels[
+                            ResourceConfiguation.WHOLE_CLASS
+                          ]
+                        }
                       </option>
-                      <option value={ResourceConfiguation.SOLO}>Solo</option>
-                      <option value={ResourceConfiguation.PAIRS}>Pairs</option>
+                      <option value={ResourceConfiguation.SOLO}>
+                        {ResourceConfiguationLabels[ResourceConfiguation.SOLO]}
+                      </option>
+                      <option value={ResourceConfiguation.PAIRS}>
+                        {ResourceConfiguationLabels[ResourceConfiguation.PAIRS]}
+                      </option>
                       <option value={ResourceConfiguation.GROUPS}>
-                        Groups
+                        {
+                          ResourceConfiguationLabels[
+                            ResourceConfiguation.GROUPS
+                          ]
+                        }
                       </option>
                       <option value={ResourceConfiguation.CIRCLE}>
-                        Circle
+                        {
+                          ResourceConfiguationLabels[
+                            ResourceConfiguation.CIRCLE
+                          ]
+                        }
                       </option>
                     </select>
                   </div>
@@ -318,7 +348,7 @@ Are there any variations of this activity that you want to share? For example, y
                       <input
                         type="number"
                         disabled={groupSizeDisabled}
-                        {...register("groupSize")}
+                        {...register("groupSize", { valueAsNumber: true })}
                         className={clsx(
                           groupSizeDisabled && "text-gray-200",
                           "block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
@@ -348,9 +378,20 @@ Are there any variations of this activity that you want to share? For example, y
                       className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
                   </div>
-                  {errors.description?.message && (
+                  {errors.description?.message ? (
                     <p className="mt-1 text-sm leading-6 text-red-700">
                       {errors.description?.message}
+                    </p>
+                  ) : (
+                    <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
+                      This field supports{" "}
+                      <a
+                        href="https://www.markdownguide.org/basic-syntax/"
+                        target="_blank"
+                        className="underline hover:no-underline"
+                      >
+                        Markdown
+                      </a>
                     </p>
                   )}
                 </div>
@@ -468,9 +509,9 @@ Are there any variations of this activity that you want to share? For example, y
             <button
               disabled={isCreating}
               type="submit"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Save
+              {isCreating ? "Saving..." : "Save"}
             </button>
           </div>
         </form>
