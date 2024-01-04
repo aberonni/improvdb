@@ -30,6 +30,7 @@
     "clsx": "^2.1.0",
     "lodash": "^4.17.21",
     "next": "^14.0.3",
+    "nextjs-progressbar": "^0.0.16",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.49.2",

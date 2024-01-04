@@ -1,4 +1,5 @@
 import { type AppType } from "next/app";
+import NextNProgress from "nextjs-progressbar";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
@@ -20,6 +21,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <NextNProgress />
       <Toaster />
       <Component {...pageProps} />
     </ClerkProvider>
