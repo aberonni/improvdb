@@ -1,10 +1,12 @@
 import ReactMarkdown from "react-markdown";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import type * as z from "zod";
 
 import type { RouterOutputs } from "~/utils/api";
 import type { ResourceConfiguation, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
+import { type resourceCreateSchema } from "~/utils/zod";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "Warm-up / Exercise",
@@ -22,8 +24,11 @@ export const ResourceConfiguationLabels: Record<ResourceConfiguation, string> =
     CIRCLE: "Circle",
   };
 
+type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
+type CreationResource = z.infer<typeof resourceCreateSchema>;
+
 type Props = {
-  resource: Readonly<RouterOutputs["resource"]["getById"]>;
+  resource: ApiResource | CreationResource;
   hideBackToHome?: boolean;
 };
 export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
@@ -89,9 +94,17 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
         <>
           <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Categories</h2>
           <ul>
-            {resource.categories.map(({ category }) => (
-              <li className="my-0 lg:my-0">{category.name}</li>
-            ))}
+            {resource.categories.map((category) => {
+              const name =
+                "category" in category
+                  ? category.category.name
+                  : category.label;
+              return (
+                <li key={name} className="my-0 lg:my-0">
+                  {name}
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
@@ -119,8 +132,13 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
         <>
           <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Alternative Names</h2>
           <ul>
-            {resource.alternativeNames.split(";").map((name) => (
-              <li className="my-0 lg:my-0">{name}</li>
+            {(typeof resource.alternativeNames === "string"
+              ? resource.alternativeNames.split(";")
+              : resource.alternativeNames.map((name) => name.value)
+            ).map((name) => (
+              <li key={name} className="my-0 lg:my-0">
+                {name}
+              </li>
             ))}
           </ul>
         </>
@@ -130,11 +148,24 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
         <>
           <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Related Resources</h2>
           <ul>
-            {resource.relatedResources.map(({ id, title }) => (
-              <li className="my-0 lg:my-0">
-                <Link href={`/resource/${id}`}>{title}</Link>
-              </li>
-            ))}
+            {resource.relatedResources.map((resource) => {
+              if ("id" in resource) {
+                return (
+                  <li className="my-0 lg:my-0" key={resource.id}>
+                    <Link href={`/resource/${resource.id}`}>
+                      {resource.title}
+                    </Link>
+                  </li>
+                );
+              }
+              return (
+                <li className="my-0 lg:my-0" key={resource.value}>
+                  <Link href={`/resource/${resource.value}`}>
+                    {resource.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}

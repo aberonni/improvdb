@@ -12,11 +12,11 @@ import { resourceCreateSchema } from "~/utils/zod";
 import { useRouter } from "next/router";
 import { MultiSelectDropown } from "~/components/MultiSelectDropdown";
 import { ResourceConfiguation, ResourceType } from "@prisma/client";
-import { useEffect } from "react";
-import clsx from "clsx";
+import { useEffect, useMemo, useState } from "react";
 import {
   ResourceConfiguationLabels,
   ResourceTypeLabels,
+  SingleResourceComponent,
 } from "~/components/Resource";
 
 const showExtra = true;
@@ -25,6 +25,8 @@ type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
 export default function Create() {
   const router = useRouter();
+
+  const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
 
   const { data: categories, isLoading: isLoadingCategories } =
     api.category.getAll.useQuery();
@@ -72,6 +74,8 @@ export default function Create() {
       alternativeNames: [],
       categories: [],
       relatedResources: [],
+      configuration: ResourceConfiguation.SCENE,
+      groupSize: 2,
       description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
 
 You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button above to see what your text will look like.
@@ -113,12 +117,26 @@ Are there any variations of this activity that you want to share? For example, y
     setValue("id", kebabCase(title));
   }, [watch("title")]);
 
-  const configurationDisabled = watch("type") !== ResourceType.EXERCISE;
+  const watchType = watch("type");
+  const configurationDisabled = useMemo(
+    () => watchType !== ResourceType.EXERCISE,
+    [watchType],
+  );
+
+  useEffect(() => {
+    const type = getValues("type");
+    if (type !== ResourceType.EXERCISE) {
+      setValue("configuration", ResourceConfiguation.SCENE);
+    }
+  }, [watch("type")]);
 
   const watchConfiguration = watch("configuration");
-  const groupSizeDisabled =
-    watchConfiguration === ResourceConfiguation.SOLO ||
-    watchConfiguration === ResourceConfiguation.PAIRS;
+  const groupSizeDisabled = useMemo(
+    () =>
+      watchConfiguration === ResourceConfiguation.SOLO ||
+      watchConfiguration === ResourceConfiguation.PAIRS,
+    [watchConfiguration],
+  );
 
   useEffect(() => {
     const configuration = getValues("configuration");
@@ -151,361 +169,353 @@ Are there any variations of this activity that you want to share? For example, y
       </Head>
       <PageLayout>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-12">
-            <div className="border-b border-gray-900/10 pb-12">
-              <h2 className="text-base font-semibold leading-7 text-slate-900">
-                Create New Resource
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-gray-600">
-                This information will be displayed publicly so be careful what
-                you share.
-              </p>
+          {previewData ? (
+            <SingleResourceComponent resource={previewData} hideBackToHome />
+          ) : (
+            <div className="space-y-12">
+              <div className="border-b border-gray-900/10 pb-12">
+                <h2 className="text-base font-semibold leading-7 text-slate-900">
+                  Create New Resource
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-gray-600">
+                  This information will be displayed publicly so be careful what
+                  you share.
+                </p>
 
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="title"
-                    className="block text-sm font-medium leading-6 text-slate-900"
-                  >
-                    Title<span className="text-red-700">*</span>
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <input
-                        type="text"
-                        {...register("title")}
-                        className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="My favourite game"
-                      />
-                    </div>
-                  </div>
-                  {errors.title?.message && (
-                    <p className="mt-1 text-sm leading-6 text-red-700">
-                      {errors.title?.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="alternativeNames"
-                    className="block text-sm font-medium leading-6 text-slate-900"
-                  >
-                    Alternative Names
-                  </label>
-                  <div className="mt-2">
-                    <Controller
-                      name="alternativeNames"
-                      control={control}
-                      render={({ field }) => (
-                        <MultiSelectDropown {...field} isCreatable />
-                      )}
-                    />
-                  </div>
-                  {errors.alternativeNames?.message ? (
-                    <p className="mt-1 text-sm leading-6 text-red-700">
-                      {errors.alternativeNames?.message}
-                    </p>
-                  ) : (
-                    <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
-                      Press ENTER or TAB to add names
-                    </p>
-                  )}
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="id"
-                    className="block text-sm font-medium leading-6 text-slate-900"
-                  >
-                    URL<span className="text-red-700">*</span>
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <span className="flex select-none items-center pl-3 text-gray-500 sm:text-sm">
-                        /resource/
-                      </span>
-                      <input
-                        type="text"
-                        {...register("id")}
-                        className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-slate-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="my-favourite-game"
-                      />
-                    </div>
-                  </div>
-                  {errors.id?.message && (
-                    <p className="mt-1 text-sm leading-6 text-red-700">
-                      {errors.id?.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="type"
-                    className="block text-sm font-medium leading-6 text-slate-900"
-                  >
-                    Resource Type<span className="text-red-700">*</span>
-                  </label>
-                  <div className="mt-2">
-                    <select
-                      {...register("type")}
-                      className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                  <div className="sm:col-span-3">
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-medium leading-6 text-slate-900"
                     >
-                      <option value={ResourceType.EXERCISE}>
-                        {ResourceTypeLabels[ResourceType.EXERCISE]}
-                      </option>
-                      <option value={ResourceType.SHORT_FORM}>
-                        {ResourceTypeLabels[ResourceType.SHORT_FORM]}
-                      </option>
-                      <option value={ResourceType.LONG_FORM}>
-                        {ResourceTypeLabels[ResourceType.LONG_FORM]}
-                      </option>
-                    </select>
+                      Title<span className="text-red-700">*</span>
+                    </label>
+                    <div className="mt-2">
+                      <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+                        <input
+                          type="text"
+                          {...register("title")}
+                          className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          placeholder="My favourite game"
+                        />
+                      </div>
+                    </div>
+                    {errors.title?.message && (
+                      <p className="mt-1 text-sm leading-6 text-red-700">
+                        {errors.title?.message}
+                      </p>
+                    )}
                   </div>
-                </div>
 
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="configuration"
-                    className={clsx(
-                      configurationDisabled && "text-gray-200",
-                      "block text-sm font-medium leading-6  text-slate-900",
-                    )}
-                  >
-                    Exercise Configuration
-                    {!configurationDisabled && (
-                      <span className="text-red-700">*</span>
-                    )}
-                  </label>
-                  <div className="mt-2">
-                    <select
-                      {...register("configuration")}
-                      className={clsx(
-                        configurationDisabled && "text-gray-200",
-                        "block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
-                      )}
-                      disabled={configurationDisabled}
-                      value={
-                        configurationDisabled
-                          ? ResourceConfiguation.SCENE
-                          : getValues("configuration")
-                      }
+                  <div className="sm:col-span-3">
+                    <label
+                      htmlFor="id"
+                      className="block text-sm font-medium leading-6 text-slate-900"
                     >
-                      <option value={ResourceConfiguation.SCENE}>
-                        {configurationDisabled
-                          ? "N/A"
-                          : ResourceConfiguationLabels[
-                              ResourceConfiguation.SCENE
-                            ]}
-                      </option>
-                      <option value={ResourceConfiguation.WHOLE_CLASS}>
-                        {
-                          ResourceConfiguationLabels[
-                            ResourceConfiguation.WHOLE_CLASS
-                          ]
-                        }
-                      </option>
-                      <option value={ResourceConfiguation.SOLO}>
-                        {ResourceConfiguationLabels[ResourceConfiguation.SOLO]}
-                      </option>
-                      <option value={ResourceConfiguation.PAIRS}>
-                        {ResourceConfiguationLabels[ResourceConfiguation.PAIRS]}
-                      </option>
-                      <option value={ResourceConfiguation.GROUPS}>
-                        {
-                          ResourceConfiguationLabels[
-                            ResourceConfiguation.GROUPS
-                          ]
-                        }
-                      </option>
-                      <option value={ResourceConfiguation.CIRCLE}>
-                        {
-                          ResourceConfiguationLabels[
-                            ResourceConfiguation.CIRCLE
-                          ]
-                        }
-                      </option>
-                    </select>
+                      URL<span className="text-red-700">*</span>
+                    </label>
+                    <div className="mt-2">
+                      <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+                        <span className="flex select-none items-center pl-3 text-gray-500 sm:text-sm">
+                          /resource/
+                        </span>
+                        <input
+                          type="text"
+                          {...register("id")}
+                          className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-slate-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                          placeholder="my-favourite-game"
+                        />
+                      </div>
+                    </div>
+                    {errors.id?.message && (
+                      <p className="mt-1 text-sm leading-6 text-red-700">
+                        {errors.id?.message}
+                      </p>
+                    )}
                   </div>
-                </div>
 
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="groupSize"
-                    className={clsx(
-                      groupSizeDisabled && "text-gray-200",
-                      "block text-sm font-medium leading-6  text-slate-900",
-                    )}
-                  >
-                    (Minimum) Group Size
-                    {!groupSizeDisabled && (
-                      <span className="text-red-700">*</span>
-                    )}
-                  </label>
-                  <div className="mt-2">
-                    <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                      <input
-                        type="number"
-                        disabled={groupSizeDisabled}
-                        {...register("groupSize", { valueAsNumber: true })}
-                        className={clsx(
-                          groupSizeDisabled && "text-gray-200",
-                          "block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+                  <div className="sm:col-span-3">
+                    <label
+                      htmlFor="alternativeNames"
+                      className="block text-sm font-medium leading-6 text-slate-900"
+                    >
+                      Alternative Names
+                    </label>
+                    <div className="mt-2">
+                      <Controller
+                        name="alternativeNames"
+                        control={control}
+                        render={({ field }) => (
+                          <MultiSelectDropown
+                            {...{
+                              ...field,
+                              ref: null,
+                            }}
+                            instanceId="alternativeNames"
+                            isCreatable
+                          />
                         )}
                       />
                     </div>
+                    {errors.alternativeNames?.message ? (
+                      <p className="mt-1 text-sm leading-6 text-red-700">
+                        {errors.alternativeNames?.message}
+                      </p>
+                    ) : (
+                      <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
+                        Press ENTER or TAB to add names
+                      </p>
+                    )}
                   </div>
-                  {errors.groupSize?.message && (
-                    <p className="mt-1 text-sm leading-6 text-red-700">
-                      {errors.groupSize?.message}
-                    </p>
-                  )}
-                </div>
 
-                <div className="col-span-full">
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium leading-6 text-slate-900"
-                  >
-                    Description<span className="text-red-700">*</span>
-                  </label>
-                  <div className="mt-2">
-                    <textarea
-                      id="description"
-                      {...register("description")}
-                      rows={10}
-                      className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-                  {errors.description?.message ? (
-                    <p className="mt-1 text-sm leading-6 text-red-700">
-                      {errors.description?.message}
-                    </p>
-                  ) : (
-                    <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
-                      This field supports{" "}
-                      <a
-                        href="https://www.markdownguide.org/basic-syntax/"
-                        target="_blank"
-                        className="underline hover:no-underline"
+                  <div className="sm:col-span-3">
+                    <label
+                      htmlFor="type"
+                      className="block text-sm font-medium leading-6 text-slate-900"
+                    >
+                      Resource Type<span className="text-red-700">*</span>
+                    </label>
+                    <div className="mt-2">
+                      <select
+                        {...register("type")}
+                        className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       >
-                        Markdown
-                      </a>
-                    </p>
-                  )}
-                </div>
-
-                {showExtra && (
-                  <>
-                    <div className="col-span-full">
-                      <label className="block text-sm font-medium leading-6 text-slate-900">
-                        Categories
-                      </label>
-                      <div className="mt-2">
-                        <Controller
-                          name="categories"
-                          control={control}
-                          render={({ field }) => (
-                            <MultiSelectDropown
-                              {...field}
-                              isLoading={isLoadingCategories}
-                              loadingMessage={() => "Loading categories..."}
-                              options={categories?.map(({ id, name }) => ({
-                                label: name,
-                                value: id,
-                              }))}
-                            />
-                          )}
-                        />
-                      </div>
+                        {Object.keys(ResourceType).map((typeKey) => (
+                          <option key={typeKey} value={typeKey}>
+                            {ResourceTypeLabels[typeKey as ResourceType]}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+                  </div>
 
-                    <div className="col-span-full">
+                  {!configurationDisabled && (
+                    <div
+                      className={
+                        groupSizeDisabled ? "col-span-full" : "sm:col-span-3"
+                      }
+                    >
                       <label
-                        htmlFor="showIntroduction"
-                        className="block text-sm font-medium leading-6 text-slate-900"
+                        htmlFor="configuration"
+                        className="block text-sm font-medium leading-6  text-slate-900"
                       >
-                        Show Introduction
+                        Exercise Configuration
+                        <span className="text-red-700">*</span>
                       </label>
                       <div className="mt-2">
-                        <textarea
-                          id="showIntroduction"
-                          {...register("showIntroduction")}
-                          rows={3}
+                        <select
+                          {...register("configuration")}
                           className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                      </div>
-                      {errors.showIntroduction?.message && (
-                        <p className="mt-1 text-sm leading-6 text-red-700">
-                          {errors.showIntroduction?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="sm:col-span-3">
-                      <label
-                        htmlFor="relatedResources"
-                        className="block text-sm font-medium leading-6 text-slate-900"
-                      >
-                        Related Resources
-                      </label>
-                      <div className="mt-2">
-                        <Controller
-                          name="relatedResources"
-                          control={control}
-                          render={({ field }) => (
-                            <MultiSelectDropown
-                              {...field}
-                              isLoading={isLoadingResources}
-                              loadingMessage={() => "Loading resources..."}
-                              options={resources?.map(({ id, title }) => ({
-                                label: title,
-                                value: id,
-                              }))}
-                            />
-                          )}
-                        />
+                        >
+                          {Object.keys(ResourceConfiguation).map((confKey) => (
+                            <option key={confKey} value={confKey}>
+                              {
+                                ResourceConfiguationLabels[
+                                  confKey as ResourceConfiguation
+                                ]
+                              }
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
+                  )}
 
-                    <div className="sm:col-span-3">
+                  {!groupSizeDisabled && (
+                    <div
+                      className={
+                        configurationDisabled
+                          ? "sm:col-span-full"
+                          : "sm:col-span-3"
+                      }
+                    >
                       <label
-                        htmlFor="video"
-                        className="block text-sm font-medium leading-6 text-slate-900"
+                        htmlFor="groupSize"
+                        className="block text-sm font-medium leading-6  text-slate-900"
                       >
-                        YouTube Video ID
+                        (Minimum) Group Size
+                        <span className="text-red-700">*</span>
                       </label>
                       <div className="mt-2">
-                        <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+                        <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
                           <input
-                            type="text"
-                            {...register("video")}
+                            type="number"
+                            {...register("groupSize", { valueAsNumber: true })}
                             className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="123456789AB"
                           />
                         </div>
                       </div>
-                      {errors.video?.message && (
+                      {errors.groupSize?.message && (
                         <p className="mt-1 text-sm leading-6 text-red-700">
-                          {errors.video?.message}
+                          {errors.groupSize?.message}
                         </p>
                       )}
                     </div>
-                  </>
-                )}
+                  )}
+
+                  <div className="col-span-full">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-medium leading-6 text-slate-900"
+                    >
+                      Description<span className="text-red-700">*</span>
+                    </label>
+                    <div className="mt-2">
+                      <textarea
+                        id="description"
+                        {...register("description")}
+                        rows={10}
+                        className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+                    {errors.description?.message ? (
+                      <p className="mt-1 text-sm leading-6 text-red-700">
+                        {errors.description?.message}
+                      </p>
+                    ) : (
+                      <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
+                        This field supports{" "}
+                        <a
+                          href="https://www.markdownguide.org/basic-syntax/"
+                          target="_blank"
+                          className="underline hover:no-underline"
+                        >
+                          Markdown
+                        </a>
+                      </p>
+                    )}
+                  </div>
+
+                  {showExtra && (
+                    <>
+                      <div className="col-span-full">
+                        <label className="block text-sm font-medium leading-6 text-slate-900">
+                          Categories
+                        </label>
+                        <div className="mt-2">
+                          <Controller
+                            name="categories"
+                            control={control}
+                            render={({ field }) => (
+                              <MultiSelectDropown
+                                {...{
+                                  ...field,
+                                  ref: null,
+                                }}
+                                instanceId="categories"
+                                isLoading={isLoadingCategories}
+                                loadingMessage={() => "Loading categories..."}
+                                options={categories?.map(({ id, name }) => ({
+                                  label: name,
+                                  value: id,
+                                }))}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="col-span-full">
+                        <label
+                          htmlFor="showIntroduction"
+                          className="block text-sm font-medium leading-6 text-slate-900"
+                        >
+                          Show Introduction
+                        </label>
+                        <div className="mt-2">
+                          <textarea
+                            id="showIntroduction"
+                            {...register("showIntroduction")}
+                            rows={3}
+                            className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          />
+                        </div>
+                        {errors.showIntroduction?.message && (
+                          <p className="mt-1 text-sm leading-6 text-red-700">
+                            {errors.showIntroduction?.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label
+                          htmlFor="relatedResources"
+                          className="block text-sm font-medium leading-6 text-slate-900"
+                        >
+                          Related Resources
+                        </label>
+                        <div className="mt-2">
+                          <Controller
+                            name="relatedResources"
+                            control={control}
+                            render={({ field }) => {
+                              return (
+                                <MultiSelectDropown
+                                  {...{
+                                    ...field,
+                                    ref: null,
+                                  }}
+                                  instanceId="relatedResources"
+                                  isLoading={isLoadingResources}
+                                  loadingMessage={() => "Loading resources..."}
+                                  options={resources?.map(({ id, title }) => ({
+                                    label: title,
+                                    value: id,
+                                  }))}
+                                />
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label
+                          htmlFor="video"
+                          className="block text-sm font-medium leading-6 text-slate-900"
+                        >
+                          YouTube Video ID
+                        </label>
+                        <div className="mt-2">
+                          <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+                            <input
+                              type="text"
+                              {...register("video")}
+                              className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                              placeholder="123456789AB"
+                            />
+                          </div>
+                        </div>
+                        {errors.video?.message && (
+                          <p className="mt-1 text-sm leading-6 text-red-700">
+                            {errors.video?.message}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-
+          )}
           <div className="mt-6 flex items-center justify-end gap-x-6">
-            <button
-              type="button"
-              className="text-sm font-semibold leading-6 text-slate-900"
-              onClick={() => router.back()}
-            >
-              Cancel
-            </button>
+            {previewData ? (
+              <button
+                type="button"
+                className="text-sm font-semibold leading-6 text-slate-900"
+                onClick={() => setPreviewData(null)}
+              >
+                Edit
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="text-sm font-semibold leading-6 text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => setPreviewData(getValues())}
+              >
+                Preview
+              </button>
+            )}
             <button
               disabled={isCreating}
               type="submit"

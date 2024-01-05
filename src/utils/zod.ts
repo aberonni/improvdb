@@ -12,7 +12,7 @@ export const resourceCreateSchema = z.object({
   configuration: z.nativeEnum(ResourceConfiguation),
   groupSize: z.number(),
 
-  categories: z.array(z.object({ value: z.string() })),
+  categories: z.array(z.object({ label: z.string(), value: z.string() })),
   showIntroduction: z.string().optional(),
   video: z
     .string()
@@ -23,5 +23,5 @@ export const resourceCreateSchema = z.object({
     .or(z.literal("")),
   alternativeNames: z.array(z.object({ value: z.string().regex(/([^;])/) })),
 
-  relatedResources: z.array(z.object({ value: z.string() })),
+  relatedResources: z.array(z.object({ label: z.string(), value: z.string() })),
 });
