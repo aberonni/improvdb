@@ -55,7 +55,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>The Improvitory</title>
+        <title>Improverse</title>
       </Head>
       <PageLayout>
         <input

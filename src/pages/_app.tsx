@@ -14,7 +14,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <ClerkProvider {...pageProps}>
       <Head>
-        <title>The Improvitory</title>
+        <title>Improverse</title>
         <meta
           name="description"
           content="The ultimate repository for improv games & exercises."

@@ -12,7 +12,7 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
           <div className="mx-auto flex max-w-7xl flex-row items-center px-4 py-6 sm:px-6 lg:px-8">
             <Link href="/" className="grow">
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                The Improvitory
+                Improverse
               </h1>
             </Link>
             {isSignedIn ? (
@@ -31,7 +31,7 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
           </div>
         </header>
         <main>
-          <div className="relative mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+          <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>

@@ -23,7 +23,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
   return (
     <>
       <Head>
-        <title>{`${resource.title} - The Improvitory`}</title>
+        <title>{`${resource.title} - Improverse`}</title>
       </Head>
       <PageLayout>
         <SingleResourceComponent resource={resource} />
