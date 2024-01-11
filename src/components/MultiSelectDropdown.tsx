@@ -9,7 +9,7 @@ import type { Props } from "react-select";
 import CreatableSelect from "react-select/creatable";
 
 const controlStyles = {
-  base: "block rounded-md border-0 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 border rounded-lg bg-white hover:cursor-pointer !min-h-0",
+  base: "block rounded-md border-0 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 border rounded-lg bg-background hover:cursor-pointer !min-h-0",
   focus: "ring-2 ring-inset ring-indigo-600",
 };
 const placeholderStyles = "text-gray-400 pl-2 py-0.5";
@@ -20,14 +20,14 @@ const multiValueStyles =
   "bg-gray-100 rounded items-center py-0 pl-2 pr-1 gap-1.5";
 const multiValueLabelStyles = "leading-6 py-0.5";
 const multiValueRemoveStyles =
-  "border border-gray-200 bg-white hover:bg-red-50 hover:text-red-800 text-gray-500 hover:border-red-300 rounded-md";
+  "border border-gray-200 bg-background hover:bg-red-50 hover:text-red-800 text-gray-500 hover:border-red-300 rounded-md";
 const indicatorsContainerStyles = "p-1 gap-1";
 const clearIndicatorStyles =
   "text-gray-500 p-1 rounded-md hover:bg-red-50 hover:text-red-800";
 const indicatorSeparatorStyles = "bg-gray-300";
 const dropdownIndicatorStyles =
   "p-1 hover:bg-gray-100 text-gray-500 rounded-md hover:text-black";
-const menuStyles = "p-1 mt-2 border border-gray-200 bg-white rounded-lg";
+const menuStyles = "p-1 mt-2 border border-gray-200 bg-background rounded-lg";
 const groupHeadingStyles = "ml-3 mt-2 mb-1 text-gray-500 text-sm";
 const optionStyles = {
   base: "hover:cursor-pointer px-3 py-2 rounded !text-sm",

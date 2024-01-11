@@ -9,6 +9,7 @@ import "~/styles/globals.css";
 import { usePreserveScroll } from "~/hooks/usePreserveScroll";
 import Head from "next/head";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "~/components/theme-provider";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -25,9 +26,16 @@ const MyApp: AppType<{ session: Session | null }> = ({
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <NextNProgress />
-      <Toaster />
-      <Component {...pageProps} />
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <NextNProgress />
+        <Toaster />
+        <Component {...pageProps} />
+      </ThemeProvider>
     </SessionProvider>
   );
 };

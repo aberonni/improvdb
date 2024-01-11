@@ -68,7 +68,7 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
     return str;
   }, [resource]);
   return (
-    <article className="prose max-w-full lg:prose-lg">
+    <article className="prose max-w-full lg:prose-lg dark:prose-invert">
       <header className="flex flex-row">
         <h1 className="mb-0 grow lg:mb-0">{resource.title}</h1>
         {!hideBackToHome && (
