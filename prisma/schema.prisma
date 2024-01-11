@@ -49,6 +49,7 @@ model Resource {
   relatedResources      Resource[] @relation("RelatedResources") // child Resource (Resource that are suggested)
   relatedResourceParent Resource[] @relation("RelatedResources") // parent Resource (parent Resource of a suggested Resource)
 
+  published Boolean  @default(false)
   createdBy String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

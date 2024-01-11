@@ -24,6 +24,9 @@ export const resourceRouter = createTRPCRouter({
       orderBy: {
         title: "asc",
       },
+      where: {
+        published: true,
+      },
       include: {
         categories: {
           include: {
@@ -38,6 +41,9 @@ export const resourceRouter = createTRPCRouter({
       take: 1000,
       orderBy: {
         title: "asc",
+      },
+      where: {
+        published: true,
       },
       select: {
         id: true,
@@ -90,7 +96,10 @@ export const resourceRouter = createTRPCRouter({
         },
       });
 
-      if (!resource) {
+      if (
+        !resource ||
+        (!resource.published && resource.createdBy !== ctx.userId)
+      ) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: `Resource ${input.id} not found`,
@@ -121,7 +130,7 @@ export const resourceRouter = createTRPCRouter({
       if (resourceWithSameId) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "This resource already exists: " + input.id,
+          message: "A resource with that URL already exists. Change URL",
         });
       }
 

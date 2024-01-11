@@ -10,6 +10,7 @@ import { type resourceCreateSchema } from "~/utils/zod";
 
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import { LoadingPage } from "~/components/Loading";
+import clsx from "clsx";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "Warm-up / Exercise",
@@ -179,9 +180,11 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
 export const ResourceList = ({
   filter,
   queryResult,
+  showPublishedStatus = false,
 }: {
   queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
   filter?: (resource: RouterOutputs["resource"]["getAll"][0]) => boolean;
+  showPublishedStatus?: boolean;
 }) => {
   const { data, isLoading } = queryResult;
 
@@ -196,7 +199,11 @@ export const ResourceList = ({
   const resources = !filter ? data : data.filter(filter);
 
   if (resources.length === 0) {
-    <div>No resources found.</div>;
+    return (
+      <div className="w-full grow rounded bg-slate-100 py-16 text-center text-slate-600">
+        No resources found.
+      </div>
+    );
   }
 
   return (
@@ -207,7 +214,22 @@ export const ResourceList = ({
           className="flex w-full flex-col gap-0 rounded-sm border border-slate-200  p-4 hover:shadow-sm"
           href={`/resource/${resource.id}`}
         >
-          <div className="font-bold">{resource.title}</div>
+          <div className="flex flex-row justify-between">
+            <span className="font-bold">{resource.title}</span>
+            {showPublishedStatus && (
+              <div>
+                <small
+                  className={clsx(
+                    "block rounded px-1.5 py-0.5 text-xs font-normal uppercase tracking-tight text-white",
+                    resource.published && "bg-green-700",
+                    !resource.published && "bg-orange-600",
+                  )}
+                >
+                  {resource.published ? "Published" : "Pending approval"}
+                </small>
+              </div>
+            )}
+          </div>
           {resource.categories.length > 0 && (
             <span className="mt-1 inline-block font-light text-slate-700">{`Categories: ${resource.categories
               .map(({ category }) => category.name)

@@ -13,7 +13,7 @@ export default function MyResources() {
         <title>My Resource - Improverse</title>
       </Head>
       <PageLayout>
-        <ResourceList queryResult={queryResult} />
+        <ResourceList queryResult={queryResult} showPublishedStatus />
       </PageLayout>
     </>
   );
