@@ -11,6 +11,15 @@ import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "~/components/theme-provider";
 
+import { Inter as FontSans } from "next/font/google";
+
+import { cn } from "~/lib/utils";
+
+export const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
@@ -32,9 +41,16 @@ const MyApp: AppType<{ session: Session | null }> = ({
         enableSystem
         disableTransitionOnChange
       >
-        <NextNProgress />
-        <Toaster />
-        <Component {...pageProps} />
+        <main
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            fontSans.variable,
+          )}
+        >
+          <NextNProgress />
+          <Toaster />
+          <Component {...pageProps} />
+        </main>
       </ThemeProvider>
     </SessionProvider>
   );
