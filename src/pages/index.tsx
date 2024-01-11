@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Improverse</title>
+        <title>ImprovDB</title>
       </Head>
       <PageLayout>
         <input

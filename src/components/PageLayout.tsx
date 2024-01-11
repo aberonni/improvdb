@@ -40,11 +40,11 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
           <div className="mx-auto flex max-w-7xl flex-row items-center gap-3 px-4 py-6 sm:px-6 lg:px-8">
             <Link href="/" className="grow">
               <h1 className="text-3xl font-bold tracking-tight">
-                <span className="inline-block rounded rounded-r-none border border-zinc-900 bg-zinc-900 py-1 pl-1.5 pr-1 text-white dark:border-white">
-                  impro
+                <span className="inline-block rounded rounded-r-none border border-zinc-900 bg-zinc-900 px-1.5 py-1 text-white dark:border-white">
+                  Improv
                 </span>
-                <span className="inline-block border border-zinc-900 bg-white py-1 pl-0.5 pr-1.5 text-zinc-900 dark:border-white">
-                  verse
+                <span className="inline-block border border-zinc-900 bg-white px-1 py-1 font-extrabold tracking-tight text-zinc-900 dark:border-white">
+                  DB
                 </span>
               </h1>
             </Link>

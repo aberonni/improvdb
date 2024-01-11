@@ -165,7 +165,7 @@ Are there any variations of this activity that you want to share? For example, y
   return (
     <>
       <Head>
-        <title>Create Resource - Improverse</title>
+        <title>Create Resource - ImprovDB</title>
       </Head>
       <PageLayout>
         <form onSubmit={handleSubmit(onSubmit)}>

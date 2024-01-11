@@ -28,7 +28,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <Head>
-        <title>Improverse</title>
+        <title>ImprovDB</title>
         <meta
           name="description"
           content="The ultimate repository for improv games & exercises."

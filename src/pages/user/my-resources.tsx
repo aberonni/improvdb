@@ -10,7 +10,7 @@ export default function MyResources() {
   return (
     <>
       <Head>
-        <title>My Resource - Improverse</title>
+        <title>My Resource - ImprovDB</title>
       </Head>
       <PageLayout>
         <ResourceList queryResult={queryResult} showPublishedStatus />
