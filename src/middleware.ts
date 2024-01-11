@@ -1,12 +1,3 @@
-import { authMiddleware } from "@clerk/nextjs";
+export { default } from "next-auth/middleware";
 
-export default authMiddleware({
-  // only "/create" is private
-  // publicRoutes: ["((?!^/create).*)"],
-  publicRoutes: (req) =>
-    !req.url.includes("/create") && !req.url.includes("/user/"),
-});
-
-export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
-};
+export const config = { matcher: ["/create", "/user/(.*)"] };

@@ -31,6 +31,10 @@ async function main() {
       continue;
     }
 
+    const seedUser = await db.user.findUniqueOrThrow({
+      where: { email: "domenicogemoli@gmail.com" },
+    });
+
     const [id, resource] = seed;
 
     let categories = {};
@@ -39,7 +43,7 @@ async function main() {
       categories = {
         create: resource.categories.map((category: string) => {
           return {
-            assignedBy: "admin",
+            assignedBy: seedUser.id,
             assignedAt: new Date(),
             category: {
               connectOrCreate: {
@@ -61,7 +65,7 @@ async function main() {
       type: ResourceType.EXERCISE,
       configuration: ResourceConfiguation.SCENE,
       groupSize: 4,
-      createdBy: "admin",
+      createdById: seedUser.id,
     };
 
     await db.resource.upsert({

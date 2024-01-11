@@ -1,9 +1,10 @@
 import type { PropsWithChildren } from "react";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 
 export const PageLayout = ({ children }: PropsWithChildren) => {
-  const { isSignedIn } = useUser();
+  const { data: session, status } = useSession();
 
   return (
     <>
@@ -20,7 +21,7 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
                 </span>
               </h1>
             </Link>
-            {isSignedIn ? (
+            {status === "authenticated" && (
               <>
                 <Link href="/user/my-resources">My Resources</Link>
                 <Link
@@ -29,10 +30,27 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
                 >
                   Create
                 </Link>
-                <UserButton />
+                <button
+                  onClick={() =>
+                    signOut({
+                      callbackUrl: "/",
+                    })
+                  }
+                >
+                  Sign Out
+                </button>
+                {/* {session.user?.image && (
+                  <Image
+                    src={session.user?.image}
+                    alt="Profile Picture"
+                    width={32}
+                    height={32}
+                  />
+                )} */}
               </>
-            ) : (
-              <SignInButton />
+            )}
+            {status === "unauthenticated" && (
+              <button onClick={() => signIn()}>Sign in</button>
             )}
           </div>
         </header>

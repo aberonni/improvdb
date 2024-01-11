@@ -1,6 +1,7 @@
+import { type Session } from "next-auth";
 import { type AppType } from "next/app";
+import { SessionProvider } from "next-auth/react";
 import NextNProgress from "nextjs-progressbar";
-import { ClerkProvider } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
 
@@ -9,10 +10,13 @@ import { usePreserveScroll } from "~/hooks/usePreserveScroll";
 import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+const MyApp: AppType<{ session: Session | null }> = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}) => {
   usePreserveScroll();
   return (
-    <ClerkProvider {...pageProps}>
+    <SessionProvider session={session}>
       <Head>
         <title>Improverse</title>
         <meta
@@ -24,7 +28,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <NextNProgress />
       <Toaster />
       <Component {...pageProps} />
-    </ClerkProvider>
+    </SessionProvider>
   );
 };
 

@@ -54,7 +54,7 @@ export const resourceRouter = createTRPCRouter({
   getMyResources: privateProcedure.query(({ ctx }) => {
     return ctx.db.resource.findMany({
       where: {
-        createdBy: ctx.userId,
+        createdBy: ctx.session.user,
       },
       take: 1000,
       orderBy: {
@@ -98,7 +98,7 @@ export const resourceRouter = createTRPCRouter({
 
       if (
         !resource ||
-        (!resource.published && resource.createdBy !== ctx.userId)
+        (!resource.published && resource.createdById !== ctx.session?.user.id)
       ) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -111,7 +111,7 @@ export const resourceRouter = createTRPCRouter({
   create: privateProcedure
     .input(resourceCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      const authorId = ctx.userId;
+      const authorId = ctx.session.user.id;
 
       const { success } = await ratelimit.limit(authorId);
 
@@ -137,7 +137,7 @@ export const resourceRouter = createTRPCRouter({
       const resource = await ctx.db.resource.create({
         data: {
           ...input,
-          createdBy: authorId,
+          createdById: ctx.session.user.id,
           categories: {
             createMany: {
               data: input.categories.map(({ value }) => ({
