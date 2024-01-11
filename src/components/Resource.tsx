@@ -8,6 +8,9 @@ import type { ResourceConfiguation, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
 import { type resourceCreateSchema } from "~/utils/zod";
 
+import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
+import { LoadingPage } from "~/components/Loading";
+
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "Warm-up / Exercise",
   SHORT_FORM: "Short Form Game",
@@ -172,3 +175,46 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
     </article>
   );
 }
+
+export const ResourceList = ({
+  filter,
+  queryResult,
+}: {
+  queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
+  filter?: (resource: RouterOutputs["resource"]["getAll"][0]) => boolean;
+}) => {
+  const { data, isLoading } = queryResult;
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (!data) {
+    return <div>Something went wrong. Please try again later.</div>;
+  }
+
+  const resources = !filter ? data : data.filter(filter);
+
+  if (resources.length === 0) {
+    <div>No resources found.</div>;
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {resources.map((resource) => (
+        <Link
+          key={resource.id}
+          className="flex w-full flex-col gap-0 rounded-sm border border-slate-200  p-4 hover:shadow-sm"
+          href={`/resource/${resource.id}`}
+        >
+          <div className="font-bold">{resource.title}</div>
+          {resource.categories.length > 0 && (
+            <span className="mt-1 inline-block font-light text-slate-700">{`Categories: ${resource.categories
+              .map(({ category }) => category.name)
+              .join(", ")}`}</span>
+          )}
+        </Link>
+      ))}
+    </div>
+  );
+};

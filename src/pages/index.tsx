@@ -1,54 +1,12 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useState } from "react";
-import { LoadingPage } from "~/components/Loading";
 import { PageLayout } from "~/components/PageLayout";
+import { ResourceList } from "~/components/Resource";
 
 import { api } from "~/utils/api";
 
-const ResourceList = ({ filter }: { filter?: string }) => {
-  const { data, isLoading } = api.resource.getAll.useQuery();
-
-  if (isLoading) {
-    return <LoadingPage />;
-  }
-
-  if (!data) {
-    return <div>Something went wrong. Please try again later.</div>;
-  }
-
-  const filterString = filter?.toLowerCase();
-
-  const resources =
-    !filterString || filterString === ""
-      ? data
-      : data.filter((resource) => {
-          return resource.title.toLowerCase().includes(filterString);
-        });
-
-  return (
-    <div className="flex flex-col gap-1">
-      {resources.map((resource) => (
-        <Link
-          key={resource.id}
-          className="flex w-full flex-col gap-0 rounded-sm border border-slate-200  p-4 hover:shadow-sm"
-          href={`/resource/${resource.id}`}
-        >
-          <div className="font-bold">{resource.title}</div>
-          {resource.categories.length > 0 && (
-            <span className="mt-1 inline-block font-light text-slate-700">{`Categories: ${resource.categories
-              .map(({ category }) => category.name)
-              .join(", ")}`}</span>
-          )}
-        </Link>
-      ))}
-    </div>
-  );
-};
-
 export default function Home() {
-  // start fetching asap - will used cached data later
-  api.resource.getAll.useQuery();
+  const queryResult = api.resource.getAll.useQuery();
 
   const [filter, setFilter] = useState("");
 
@@ -67,7 +25,12 @@ export default function Home() {
           }}
           className="mb-4 w-full rounded-sm  border border-slate-300 px-4 py-3"
         />
-        <ResourceList filter={filter} />
+        <ResourceList
+          queryResult={queryResult}
+          filter={(resource) => {
+            return resource.title.toLowerCase().includes(filter?.toLowerCase());
+          }}
+        />
       </PageLayout>
     </>
   );

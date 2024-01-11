@@ -45,6 +45,24 @@ export const resourceRouter = createTRPCRouter({
       },
     });
   }),
+  getMyResources: privateProcedure.query(({ ctx }) => {
+    return ctx.db.resource.findMany({
+      where: {
+        createdBy: ctx.userId,
+      },
+      take: 1000,
+      orderBy: {
+        title: "asc",
+      },
+      include: {
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+  }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
