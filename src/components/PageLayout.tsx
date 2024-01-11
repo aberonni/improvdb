@@ -11,8 +11,13 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
         <header className="sticky left-0 top-0 z-10 bg-white shadow">
           <div className="mx-auto flex max-w-7xl flex-row items-center px-4 py-6 sm:px-6 lg:px-8">
             <Link href="/" className="grow">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                Improverse
+              <h1 className="text-3xl font-bold tracking-tight">
+                <span className="inline-block rounded rounded-r-none border border-slate-800 bg-slate-800 py-1 pl-1.5 pr-1 text-white">
+                  impro
+                </span>
+                <span className="inline-block border border-slate-800 py-1 pl-0.5 pr-1.5 text-slate-800 ">
+                  verse
+                </span>
               </h1>
             </Link>
             {isSignedIn ? (
