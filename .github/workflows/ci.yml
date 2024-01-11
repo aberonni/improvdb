@@ -13,6 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create dummy env file
+        run: cp .env.example .env
+
       - name: Install Dependencies
         run: npm install
 
