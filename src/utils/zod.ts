@@ -2,10 +2,7 @@ import { ResourceType, ResourceConfiguation } from "@prisma/client";
 import * as z from "zod";
 
 export const resourceCreateSchema = z.object({
-  id: z
-    .string()
-    .min(10)
-    .regex(/([a-z-])/),
+  id: z.string().regex(/([a-z-])/),
   title: z.string().min(2).max(50),
   description: z.string().min(20),
   type: z.nativeEnum(ResourceType),

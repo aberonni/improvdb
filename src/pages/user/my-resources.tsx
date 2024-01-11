@@ -13,7 +13,11 @@ export default function MyResources() {
         <title>My Resource - ImprovDB</title>
       </Head>
       <PageLayout>
-        <ResourceList queryResult={queryResult} showPublishedStatus />
+        <ResourceList
+          noResourcesMessage="You must create resources before they can show up here."
+          queryResult={queryResult}
+          showPublishedStatus
+        />
       </PageLayout>
     </>
   );

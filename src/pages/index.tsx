@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useState } from "react";
 import { PageLayout } from "~/components/PageLayout";
 import { ResourceList } from "~/components/Resource";
+import { Input } from "~/components/ui/input";
 
 import { api } from "~/utils/api";
 
@@ -16,17 +17,18 @@ export default function Home() {
         <title>ImprovDB</title>
       </Head>
       <PageLayout>
-        <input
+        <Input
           type="text"
           value={filter}
           placeholder="Filter resources..."
           onChange={(e) => {
             setFilter(e.currentTarget.value);
           }}
-          className="mb-4 w-full rounded-sm  border border-slate-300 px-4 py-3"
+          className="mb-4"
         />
         <ResourceList
           queryResult={queryResult}
+          noResourcesMessage="Try a different search query."
           filter={(resource) => {
             return resource.title.toLowerCase().includes(filter?.toLowerCase());
           }}

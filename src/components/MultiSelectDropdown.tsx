@@ -9,7 +9,7 @@ import type { Props } from "react-select";
 import CreatableSelect from "react-select/creatable";
 
 const controlStyles = {
-  base: "block rounded-md border-0 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 border rounded-lg bg-background hover:cursor-pointer !min-h-0",
+  base: "block rounded-md border-0 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 border rounded-lg bg-background hover:cursor-pointer !min-h-0",
   focus: "ring-2 ring-inset ring-indigo-600",
 };
 const placeholderStyles = "text-gray-400 pl-2 py-0.5";

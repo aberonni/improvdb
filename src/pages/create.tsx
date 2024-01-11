@@ -3,7 +3,7 @@ import { kebabCase } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import type * as z from "zod";
-import toast from "react-hot-toast";
+import { useToast } from "~/components/ui/use-toast";
 
 import { PageLayout } from "~/components/PageLayout";
 
@@ -25,6 +25,7 @@ type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
 export default function Create() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
 
@@ -44,19 +45,30 @@ export default function Create() {
       },
       onError: (e) => {
         if (e.data?.code === "CONFLICT") {
-          toast.error(
-            "A resource already exists at this URL. Please choose a new URL.",
-          );
+          toast({
+            title: "Uh oh! Something went wrong.",
+            variant: "destructive",
+            description:
+              "A resource already exists at this URL. Please choose a new URL.",
+          });
           return;
         }
 
         const errorMessage =
           e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
         if (errorMessage) {
-          toast.error(errorMessage);
+          toast({
+            title: "Uh oh! Something went wrong.",
+            variant: "destructive",
+            description: errorMessage,
+          });
           return;
         }
-        toast.error("Failed to create resource! Please try again later.");
+        toast({
+          title: "Uh oh! Something went wrong.",
+          variant: "destructive",
+          description: "Failed to create resource! Please try again later.",
+        });
       },
     });
 

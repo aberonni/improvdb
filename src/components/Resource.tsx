@@ -11,7 +11,9 @@ import { type resourceCreateSchema } from "~/utils/zod";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import { LoadingPage } from "~/components/Loading";
 import clsx from "clsx";
-import { Badge } from "./ui/badge";
+import { Badge } from "~/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { ExclamationTriangleIcon, EyeClosedIcon } from "@radix-ui/react-icons";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "Warm-up / Exercise",
@@ -78,7 +80,7 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
         )}
       </header>
 
-      <h4 className="mb-4 mr-0 mt-1 inline-block text-slate-500 lg:mb-6 lg:mt-2">
+      <h4 className="mb-4 mr-0 mt-1 inline-block text-muted-foreground lg:mb-6 lg:mt-2">
         {subtitle}
       </h4>
 
@@ -181,11 +183,13 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
 export const ResourceList = ({
   filter,
   queryResult,
+  noResourcesMessage,
   showPublishedStatus = false,
 }: {
   queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
   filter?: (resource: RouterOutputs["resource"]["getAll"][0]) => boolean;
   showPublishedStatus?: boolean;
+  noResourcesMessage: string;
 }) => {
   const { data, isLoading } = queryResult;
 
@@ -194,16 +198,26 @@ export const ResourceList = ({
   }
 
   if (!data) {
-    return <div>Something went wrong. Please try again later.</div>;
+    return (
+      <Alert variant="destructive">
+        <ExclamationTriangleIcon className="h-4 w-4" />
+        <AlertTitle>Oh no!</AlertTitle>
+        <AlertDescription>
+          Something went wrong. Please try reloading the page.
+        </AlertDescription>
+      </Alert>
+    );
   }
 
   const resources = !filter ? data : data.filter(filter);
 
   if (resources.length === 0) {
     return (
-      <div className="w-full grow rounded bg-slate-100 py-16 text-center text-slate-600">
-        No resources found.
-      </div>
+      <Alert>
+        <EyeClosedIcon className="h-4 w-4" />
+        <AlertTitle>No resources found.</AlertTitle>
+        <AlertDescription>{noResourcesMessage}</AlertDescription>
+      </Alert>
     );
   }
 
@@ -212,28 +226,29 @@ export const ResourceList = ({
       {resources.map((resource) => (
         <Link
           key={resource.id}
-          className="flex w-full flex-col gap-0 rounded-sm border border-slate-200  p-4 hover:shadow-sm"
+          className="flex w-full flex-row items-center rounded-lg border bg-background px-4 py-3 text-foreground"
           href={`/resource/${resource.id}`}
         >
-          <div className="flex flex-row justify-between">
-            <span className="font-bold">{resource.title}</span>
-            {showPublishedStatus && (
-              <div>
-                <Badge
-                  className={clsx(
-                    resource.published && "bg-green-700",
-                    !resource.published && "bg-orange-600",
-                  )}
-                >
-                  {resource.published ? "Published" : "Pending approval"}
-                </Badge>
-              </div>
+          <div className="grow">
+            <h3 className="font-medium leading-none tracking-tight">
+              {resource.title}
+            </h3>
+            {resource.categories.length > 0 && (
+              <p className="mt-1.5 text-sm leading-none text-muted-foreground">{`Categories: ${resource.categories
+                .map(({ category }) => category.name)
+                .join(", ")}`}</p>
             )}
           </div>
-          {resource.categories.length > 0 && (
-            <span className="mt-1 inline-block font-light text-slate-700">{`Categories: ${resource.categories
-              .map(({ category }) => category.name)
-              .join(", ")}`}</span>
+          {showPublishedStatus && (
+            <Badge
+              className={clsx(
+                "self-start text-white",
+                resource.published && "bg-green-700",
+                !resource.published && "bg-orange-600",
+              )}
+            >
+              {resource.published ? "Published" : "Pending approval"}
+            </Badge>
           )}
         </Link>
       ))}

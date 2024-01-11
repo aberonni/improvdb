@@ -8,12 +8,10 @@ import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { usePreserveScroll } from "~/hooks/usePreserveScroll";
 import Head from "next/head";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "~/components/ui/toaster";
 import { ThemeProvider } from "~/components/theme-provider";
 
 import { Inter as FontSans } from "next/font/google";
-
-import { cn } from "~/lib/utils";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -35,22 +33,22 @@ const MyApp: AppType<{ session: Session | null }> = ({
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <style jsx global>{`
+        :root {
+          --font-sans: ${fontSans.variable};
+        }
+      `}</style>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
         enableSystem
         disableTransitionOnChange
       >
-        <main
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable,
-          )}
-        >
+        <div className="min-h-screen bg-background antialiased">
           <NextNProgress />
           <Toaster />
           <Component {...pageProps} />
-        </main>
+        </div>
       </ThemeProvider>
     </SessionProvider>
   );
