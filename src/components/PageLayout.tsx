@@ -1,7 +1,13 @@
 import type { PropsWithChildren } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 
 export const PageLayout = ({ children }: PropsWithChildren) => {
   const { data: session, status } = useSession();
@@ -23,30 +29,37 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
             </Link>
             {status === "authenticated" && (
               <>
-                <Link href="/user/my-resources">My Resources</Link>
                 <Link
                   href="/create"
                   className="rounded bg-green-700 px-3 py-1 text-white transition-colors hover:bg-green-600"
                 >
                   Create
                 </Link>
-                <button
-                  onClick={() =>
-                    signOut({
-                      callbackUrl: "/",
-                    })
-                  }
-                >
-                  Sign Out
-                </button>
-                {/* {session.user?.image && (
-                  <Image
-                    src={session.user?.image}
-                    alt="Profile Picture"
-                    width={32}
-                    height={32}
-                  />
-                )} */}
+                <Popover>
+                  <PopoverTrigger>
+                    <Avatar>
+                      <AvatarImage src={session.user?.image ?? undefined} />
+                      <AvatarFallback>
+                        {(session.user.name ?? "U")[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <Link href="/user/my-resources">My Resources</Link>
+                    <br />
+                    <hr />
+                    <br />
+                    <button
+                      onClick={() =>
+                        signOut({
+                          callbackUrl: "/",
+                        })
+                      }
+                    >
+                      Sign Out
+                    </button>
+                  </PopoverContent>
+                </Popover>
               </>
             )}
             {status === "unauthenticated" && (

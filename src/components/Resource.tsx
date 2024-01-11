@@ -11,6 +11,7 @@ import { type resourceCreateSchema } from "~/utils/zod";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import { LoadingPage } from "~/components/Loading";
 import clsx from "clsx";
+import { Badge } from "./ui/badge";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "Warm-up / Exercise",
@@ -218,15 +219,14 @@ export const ResourceList = ({
             <span className="font-bold">{resource.title}</span>
             {showPublishedStatus && (
               <div>
-                <small
+                <Badge
                   className={clsx(
-                    "block rounded px-1.5 py-0.5 text-xs font-normal uppercase tracking-tight text-white",
                     resource.published && "bg-green-700",
                     !resource.published && "bg-orange-600",
                   )}
                 >
                   {resource.published ? "Published" : "Pending approval"}
-                </small>
+                </Badge>
               </div>
             )}
           </div>
