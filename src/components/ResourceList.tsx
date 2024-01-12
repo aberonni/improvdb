@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { ExclamationTriangleIcon, EyeClosedIcon } from "@radix-ui/react-icons";
 
 import type { RouterOutputs } from "~/utils/api";
+import { ResourceTypeLabels } from "./Resource";
 
 export const ResourceList = ({
   filter,
@@ -67,7 +68,7 @@ export const ResourceList = ({
                 .join(", ")}`}</p>
             )}
           </div>
-          {showPublishedStatus && (
+          {showPublishedStatus ? (
             <Badge
               className={clsx(
                 "self-start text-white",
@@ -76,6 +77,10 @@ export const ResourceList = ({
               )}
             >
               {resource.published ? "Published" : "Pending approval"}
+            </Badge>
+          ) : (
+            <Badge variant="secondary">
+              {ResourceTypeLabels[resource.type]}
             </Badge>
           )}
         </Link>
