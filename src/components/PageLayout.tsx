@@ -1,7 +1,7 @@
-import type { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
-import { Disclosure } from "@headlessui/react";
+import { Disclosure, Transition } from "@headlessui/react";
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
@@ -158,65 +158,77 @@ export const PageLayout = ({
                 </div>
               </div>
             </div>
-
-            <Disclosure.Panel className="border-t border-t bg-background md:hidden ">
-              <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
-                {navigation.map((item) => {
-                  if (item.authenticated && status !== "authenticated") {
-                    return null;
-                  }
-                  return (
-                    <Disclosure.Button
-                      className={cn(
-                        buttonVariants({ variant: "link" }),
-                        "w-full justify-start",
-                      )}
-                      key={item.name}
-                      as="a"
-                      href={item.href}
-                    >
-                      {item.name}
-                    </Disclosure.Button>
-                  );
-                })}
-              </div>
-              <div className="px-2 pb-3 sm:px-3">
-                {session?.user ? (
-                  <>
-                    <Alert>
-                      <UserWidget user={session.user} />
-                    </Alert>
-                    <div className="mt-3">
+            <Transition
+              show={open}
+              enter="transition duration-100 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-75 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0"
+            >
+              <Disclosure.Panel
+                className="border-t bg-background md:hidden "
+                static
+              >
+                <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+                  {navigation.map((item) => {
+                    if (item.authenticated && status !== "authenticated") {
+                      return null;
+                    }
+                    return (
                       <Disclosure.Button
                         className={cn(
                           buttonVariants({ variant: "link" }),
                           "w-full justify-start",
                         )}
-                        onClick={() => signOut()}
+                        key={item.name}
+                        as="a"
+                        href={item.href}
                       >
-                        Sign Out
+                        {item.name}
                       </Disclosure.Button>
-                    </div>
-                  </>
-                ) : (
-                  <Disclosure.Button
-                    className={cn(
-                      buttonVariants({ variant: "link" }),
-                      "w-full justify-start",
-                    )}
-                    onClick={() => signIn()}
-                  >
-                    Sign in
-                  </Disclosure.Button>
-                )}
-              </div>
-              <div className="px-2 pb-3 sm:pb-3">
-                <ThemeToggle
-                  variant="link"
-                  className="w-full justify-start px-3"
-                />
-              </div>
-            </Disclosure.Panel>
+                    );
+                  })}
+                </div>
+                <div className="px-2 pb-3 sm:px-3">
+                  {session?.user ? (
+                    <>
+                      <Alert>
+                        <UserWidget user={session.user} />
+                      </Alert>
+                      <div className="mt-3">
+                        <Disclosure.Button
+                          className={cn(
+                            buttonVariants({ variant: "link" }),
+                            "w-full justify-start",
+                          )}
+                          onClick={() => signOut()}
+                        >
+                          Sign Out
+                        </Disclosure.Button>
+                      </div>
+                    </>
+                  ) : (
+                    <Disclosure.Button
+                      className={cn(
+                        buttonVariants({ variant: "link" }),
+                        "w-full justify-start",
+                      )}
+                      onClick={() => signIn()}
+                    >
+                      Sign in
+                    </Disclosure.Button>
+                  )}
+                </div>
+                <div className="px-2 pb-3 sm:pb-3">
+                  <ThemeToggle
+                    variant="link"
+                    className="w-full justify-start px-3"
+                  />
+                </div>
+              </Disclosure.Panel>
+            </Transition>
           </>
         )}
       </Disclosure>
@@ -229,9 +241,9 @@ export const PageLayout = ({
             </h1>
             {showBackButton && (
               <Button
-                // variant="link"
+                variant="link"
                 onClick={() => router.back()}
-                className="h-auto self-baseline py-0 text-sm"
+                className="h-auto self-baseline py-0 text-sm text-background"
               >
                 <ArrowLeftIcon className="mr-1 h-4 w-4" />
                 Back
