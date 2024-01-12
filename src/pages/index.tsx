@@ -16,7 +16,7 @@ export default function Home() {
       <Head>
         <title>ImprovDB</title>
       </Head>
-      <PageLayout>
+      <PageLayout title="Home">
         <Input
           type="text"
           value={filter}

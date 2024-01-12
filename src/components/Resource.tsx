@@ -33,9 +33,8 @@ type CreationResource = z.infer<typeof resourceCreateSchema>;
 
 type Props = {
   resource: ApiResource | CreationResource;
-  hideBackToHome?: boolean;
 };
-export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
+export function SingleResourceComponent({ resource }: Props) {
   const router = useRouter();
 
   const subtitle = useMemo(() => {
@@ -62,22 +61,9 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
   return (
     <article className="w-full">
       <div className="grid h-full items-stretch gap-0 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
-        <div className="top-28 col-span-1 flex flex-col space-y-4 self-start  md:sticky md:h-[calc(100vh-theme(spacing.28))]">
+        <div className="md:h-100vh top-0 col-span-1 flex flex-col space-y-4 self-start  md:sticky md:pt-8">
           <ScrollArea className="pt-8 md:pb-8 md:pr-16 md:pt-0">
             <div className="space-y-6">
-              {!hideBackToHome && (
-                <Button
-                  variant="link"
-                  onClick={() => router.back()}
-                  className="h-auto p-0 text-sm"
-                >
-                  <ArrowLeftIcon className="mr-1 h-4 w-4" />
-                  Back
-                </Button>
-              )}
-              <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-                {resource.title}
-              </h1>
               <h4 className="tracking-tight text-muted-foreground">
                 {ResourceTypeLabels[resource.type]}
                 <br />
@@ -165,7 +151,7 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
             </div>
           </ScrollArea>
         </div>
-        <div className="mb-6 mt-8 md:mt-20 md:border-l md:border-l-muted md:pl-8">
+        <div className="mb-6 mt-8 md:mt-8 md:border-l md:border-l-muted md:pl-8">
           <Separator className="mb-8 block md:hidden" />
           <ReactMarkdown
             children={resource.description}

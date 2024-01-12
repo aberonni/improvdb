@@ -210,15 +210,12 @@ Are there any variations of this activity that you want to share? For example, y
       <Head>
         <title>Create Resource - ImprovDB</title>
       </Head>
-      <PageLayout>
+      <PageLayout title="Create Resource">
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="h-full py-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="h-full">
             {previewData ? (
               <>
-                <SingleResourceComponent
-                  resource={previewData}
-                  hideBackToHome
-                />
+                <SingleResourceComponent resource={previewData} />
                 <Button
                   type="button"
                   variant="outline"
