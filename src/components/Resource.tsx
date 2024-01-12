@@ -9,19 +9,19 @@ import { useMemo } from "react";
 import { type resourceCreateSchema } from "~/utils/zod";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
-  EXERCISE: "Warm-up / Exercise",
-  SHORT_FORM: "Short Form Game",
-  LONG_FORM: "Long Form Format",
+  EXERCISE: "🚀 Warm-up / Exercise",
+  SHORT_FORM: "⚡️ Short Form Game",
+  LONG_FORM: "🍿 Long Form Format",
 };
 
 export const ResourceConfiguationLabels: Record<ResourceConfiguation, string> =
   {
-    SCENE: "Scene with N players",
-    WHOLE_CLASS: "Whole class",
-    SOLO: "Solo",
-    PAIRS: "Pairs",
-    GROUPS: "Groups",
-    CIRCLE: "Circle",
+    SCENE: "🎭 Scene with N players",
+    WHOLE_CLASS: "♾️ Whole Group",
+    SOLO: "🧍 Solo",
+    PAIRS: "👯 Pairs",
+    GROUPS: "👨‍👨‍👦 Groups",
+    CIRCLE: "⭕️ Circle",
   };
 
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;

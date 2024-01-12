@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { kebabCase } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import type * as z from "zod";
 import { useToast } from "~/components/ui/use-toast";
 
@@ -19,14 +19,13 @@ import {
   SingleResourceComponent,
 } from "~/components/Resource";
 
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import {
   Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -40,7 +39,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
+
 import { cn } from "~/lib/utils";
+import { ChevronDownIcon, PlusIcon, ReloadIcon } from "@radix-ui/react-icons";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -49,6 +55,7 @@ export default function Create() {
   const { toast } = useToast();
 
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
+  const [optionalFieldsOpen, setOptionalFieldsOpen] = useState(true);
 
   const { data: categories, isLoading: isLoadingCategories } =
     api.category.getAll.useQuery();
@@ -103,7 +110,7 @@ export default function Create() {
       groupSize: 2,
       description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
 
-You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button above to see what your text will look like.
+You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button to see what your text will look like.
 
 Here are some sections that you might want to include in your description:
 
@@ -211,12 +218,18 @@ Are there any variations of this activity that you want to share? For example, y
                   resource={previewData}
                   hideBackToHome
                 />
-                <Button onClick={() => setPreviewData(null)}>Edit</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setPreviewData(null)}
+                >
+                  Edit
+                </Button>
               </>
             ) : (
               <>
                 <FormField
-                  control={form.control}
+                  control={control}
                   name="title"
                   render={({ field }) => (
                     <FormItem className="mb-4">
@@ -233,7 +246,7 @@ Are there any variations of this activity that you want to share? For example, y
                 <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_300px]">
                   <div className="flex flex-col space-y-4 md:order-2">
                     <FormField
-                      control={form.control}
+                      control={control}
                       name="id"
                       render={({ field }) => (
                         <FormItem>
@@ -257,7 +270,7 @@ Are there any variations of this activity that you want to share? For example, y
                     />
 
                     <FormField
-                      control={form.control}
+                      control={control}
                       name="type"
                       render={({ field }) => (
                         <FormItem className="peer">
@@ -286,7 +299,9 @@ Are there any variations of this activity that you want to share? For example, y
                             </SelectContent>
                           </Select>
                           {errors.type?.message && (
-                            <FormMessage>{errors.type?.message}</FormMessage>
+                            <FormMessage className="!mb-2">
+                              {errors.type?.message}
+                            </FormMessage>
                           )}
                         </FormItem>
                       )}
@@ -294,7 +309,7 @@ Are there any variations of this activity that you want to share? For example, y
 
                     {!configurationDisabled && (
                       <FormField
-                        control={form.control}
+                        control={control}
                         name="configuration"
                         render={({ field }) => (
                           <FormItem className="peer !mt-0 peer-has-[button:focus]:[&_button]:border-t-transparent">
@@ -331,7 +346,7 @@ Are there any variations of this activity that you want to share? For example, y
                               </SelectContent>
                             </Select>
                             {errors.configuration?.message && (
-                              <FormMessage>
+                              <FormMessage className="!mb-2">
                                 {errors.configuration?.message}
                               </FormMessage>
                             )}
@@ -342,7 +357,7 @@ Are there any variations of this activity that you want to share? For example, y
 
                     {!groupSizeDisabled && (
                       <FormField
-                        control={form.control}
+                        control={control}
                         name="groupSize"
                         render={({ field }) => (
                           <FormItem className="!mt-0 peer-has-[button:focus]:[&_input]:border-t-transparent">
@@ -373,139 +388,160 @@ Are there any variations of this activity that you want to share? For example, y
                       />
                     )}
 
-                    <div className="col-span-full">
-                      <label className="block text-sm font-medium leading-6 text-slate-900">
-                        Categories
-                      </label>
-                      <div className="mt-2">
-                        <Controller
+                    <Collapsible
+                      open={optionalFieldsOpen}
+                      onOpenChange={setOptionalFieldsOpen}
+                    >
+                      <CollapsibleTrigger
+                        className={cn(
+                          buttonVariants({ variant: "secondary" }),
+                          "w-full",
+                        )}
+                      >
+                        Optional Fields{" "}
+                        {optionalFieldsOpen ? (
+                          <ChevronDownIcon className="ml-2 h-4 w-4" />
+                        ) : (
+                          <PlusIcon className="ml-2 h-4 w-4" />
+                        )}
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="flex flex-col space-y-4 ">
+                        <FormField
+                          control={control}
                           name="categories"
-                          control={control}
                           render={({ field }) => (
-                            <MultiSelectDropown
-                              {...{
-                                ...field,
-                                ref: null,
-                              }}
-                              instanceId="categories"
-                              isLoading={isLoadingCategories}
-                              loadingMessage={() => "Loading categories..."}
-                              options={categories?.map(({ id, name }) => ({
-                                label: name,
-                                value: id,
-                              }))}
-                            />
+                            <FormItem className="mt-4">
+                              <FormControl>
+                                <MultiSelectDropown
+                                  {...{
+                                    ...field,
+                                    ref: null,
+                                  }}
+                                  instanceId="categories"
+                                  isLoading={isLoadingCategories}
+                                  placeholder="Categories..."
+                                  loadingMessage={() => "Loading categories..."}
+                                  options={categories?.map(({ id, name }) => ({
+                                    label: name,
+                                    value: id,
+                                  }))}
+                                />
+                              </FormControl>
+                              {errors.categories?.message && (
+                                <FormMessage>
+                                  {errors.categories?.message}
+                                </FormMessage>
+                              )}
+                            </FormItem>
                           )}
                         />
-                      </div>
-                    </div>
 
-                    <div>
-                      <label
-                        htmlFor="alternativeNames"
-                        className="block text-sm font-medium leading-6 text-slate-900"
-                      >
-                        Alternative Names
-                      </label>
-                      <div className="mt-2">
-                        <Controller
+                        <FormField
+                          control={control}
                           name="alternativeNames"
-                          control={control}
                           render={({ field }) => (
-                            <MultiSelectDropown
-                              {...{
-                                ...field,
-                                ref: null,
-                              }}
-                              instanceId="alternativeNames"
-                              isCreatable
-                            />
+                            <FormItem>
+                              <FormControl>
+                                <MultiSelectDropown
+                                  {...{
+                                    ...field,
+                                    ref: null,
+                                  }}
+                                  placeholder="Alternative Names..."
+                                  instanceId="alternativeNames"
+                                  isCreatable
+                                />
+                              </FormControl>
+                              {errors.alternativeNames?.message ? (
+                                <FormMessage>
+                                  {errors.alternativeNames.message}
+                                </FormMessage>
+                              ) : (
+                                <FormDescription>
+                                  Press ENTER or TAB to add names
+                                </FormDescription>
+                              )}
+                            </FormItem>
                           )}
                         />
-                      </div>
-                      {errors.alternativeNames?.message ? (
-                        <p className="mt-1 text-sm leading-6 text-red-700">
-                          {errors.alternativeNames?.message}
-                        </p>
-                      ) : (
-                        <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
-                          Press ENTER or TAB to add names
-                        </p>
-                      )}
-                    </div>
 
-                    <FormField
-                      control={form.control}
-                      name="showIntroduction"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Show Introduction (what an MC would say before the game during a show)"
-                              rows={3}
-                              {...field}
-                            />
-                          </FormControl>
-                          {errors.showIntroduction?.message && (
-                            <FormMessage>
-                              {errors.showIntroduction?.message}
-                            </FormMessage>
-                          )}
-                        </FormItem>
-                      )}
-                    />
-
-                    <div>
-                      <label
-                        htmlFor="relatedResources"
-                        className="block text-sm font-medium leading-6 text-slate-900"
-                      >
-                        Related Resources
-                      </label>
-                      <div className="mt-2">
-                        <Controller
-                          name="relatedResources"
+                        <FormField
                           control={control}
-                          render={({ field }) => {
-                            return (
-                              <MultiSelectDropown
-                                {...{
-                                  ...field,
-                                  ref: null,
-                                }}
-                                instanceId="relatedResources"
-                                isLoading={isLoadingResources}
-                                loadingMessage={() => "Loading resources..."}
-                                options={resources?.map(({ id, title }) => ({
-                                  label: title,
-                                  value: id,
-                                }))}
-                              />
-                            );
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="video"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder="YouTube Video ID" {...field} />
-                          </FormControl>
-                          {errors.video?.message && (
-                            <FormMessage>{errors.video?.message}</FormMessage>
+                          name="showIntroduction"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Show Introduction (what an MC would say before the game during a show)"
+                                  rows={3}
+                                  {...field}
+                                />
+                              </FormControl>
+                              {errors.showIntroduction?.message && (
+                                <FormMessage>
+                                  {errors.showIntroduction?.message}
+                                </FormMessage>
+                              )}
+                            </FormItem>
                           )}
-                        </FormItem>
-                      )}
-                    />
+                        />
+
+                        <FormField
+                          control={control}
+                          name="relatedResources"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <MultiSelectDropown
+                                  {...{
+                                    ...field,
+                                    ref: null,
+                                  }}
+                                  placeholder="Related Resources..."
+                                  instanceId="relatedResources"
+                                  isLoading={isLoadingResources}
+                                  loadingMessage={() => "Loading resources..."}
+                                  options={resources?.map(({ id, title }) => ({
+                                    label: title,
+                                    value: id,
+                                  }))}
+                                />
+                              </FormControl>
+                              {errors.relatedResources?.message && (
+                                <FormMessage>
+                                  {errors.relatedResources?.message}
+                                </FormMessage>
+                              )}
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={control}
+                          name="video"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  placeholder="YouTube Video ID"
+                                  {...field}
+                                />
+                              </FormControl>
+                              {errors.video?.message && (
+                                <FormMessage>
+                                  {errors.video?.message}
+                                </FormMessage>
+                              )}
+                            </FormItem>
+                          )}
+                        />
+                      </CollapsibleContent>
+                    </Collapsible>
                   </div>
                   <div className="mt-0 border-0 p-0 md:order-1">
                     <div className="flex h-full flex-col space-y-4">
                       <FormField
-                        control={form.control}
+                        control={control}
                         name="description"
                         render={({ field }) => (
                           <FormItem>
@@ -534,10 +570,21 @@ Are there any variations of this activity that you want to share? For example, y
                         )}
                       />
                       <div className="flex items-center space-x-2">
-                        <Button disabled={isCreating}>
-                          {isCreating ? "Saving..." : "Save"}
+                        <Button disabled={isCreating} type="submit">
+                          {isCreating ? (
+                            <>
+                              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />{" "}
+                              Saving...
+                            </>
+                          ) : (
+                            "Save"
+                          )}
                         </Button>
-                        <Button onClick={() => setPreviewData(getValues())}>
+                        <Button
+                          onClick={() => setPreviewData(getValues())}
+                          type="button"
+                          variant="outline"
+                        >
                           Preview
                         </Button>
                       </div>
