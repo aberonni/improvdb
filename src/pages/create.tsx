@@ -180,6 +180,12 @@ Are there any variations of this activity that you want to share? For example, y
       watchConfiguration === ResourceConfiguation.PAIRS,
     [watchConfiguration],
   );
+  const minimumGroupSize = useMemo(
+    () =>
+      watchConfiguration === ResourceConfiguation.CIRCLE ||
+      watchConfiguration === ResourceConfiguation.WHOLE_CLASS,
+    [watchConfiguration],
+  );
 
   useEffect(() => {
     const configuration = getValues("configuration");
@@ -363,11 +369,18 @@ Are there any variations of this activity that you want to share? For example, y
                               <div className="relative">
                                 <div className="absolute left-0 top-[1px] flex h-full select-none items-center ">
                                   <span className="pl-3 text-sm">
-                                    Group size:{" "}
+                                    {minimumGroupSize
+                                      ? "Minimum group size: "
+                                      : "Group size: "}
                                   </span>
                                 </div>
                                 <Input
-                                  className="rounded-tl-none rounded-tr-none pl-[90px]"
+                                  className={cn(
+                                    "rounded-tl-none rounded-tr-none",
+                                    minimumGroupSize
+                                      ? "pl-[150px]"
+                                      : "pl-[90px]",
+                                  )}
                                   type="number"
                                   {...field}
                                   {...register("groupSize", {

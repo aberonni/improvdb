@@ -1,5 +1,4 @@
 import ReactMarkdown from "react-markdown";
-import { useRouter } from "next/router";
 import Link from "next/link";
 import type * as z from "zod";
 
@@ -7,8 +6,6 @@ import type { RouterOutputs } from "~/utils/api";
 import type { ResourceConfiguation, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
 import { type resourceCreateSchema } from "~/utils/zod";
-import { Button } from "./ui/button";
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Separator } from "./ui/separator";
 
@@ -35,8 +32,6 @@ type Props = {
   resource: ApiResource | CreationResource;
 };
 export function SingleResourceComponent({ resource }: Props) {
-  const router = useRouter();
-
   const subtitle = useMemo(() => {
     if (resource.type !== "EXERCISE") {
       return `${resource.groupSize} players`;
@@ -51,7 +46,7 @@ export function SingleResourceComponent({ resource }: Props) {
       case "SCENE":
         return confLabel.replace("N", resource.groupSize.toString());
       case "GROUPS":
-        return `${confLabel} of (minimum) ${resource.groupSize} players`;
+        return `${confLabel} of ${resource.groupSize} players`;
       case "WHOLE_CLASS":
       case "CIRCLE":
         return `${confLabel} (minimum ${resource.groupSize} players)`;
