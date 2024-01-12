@@ -25,7 +25,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
       <Head>
         <title>{`${resource.title} - ImprovDB`}</title>
       </Head>
-      <PageLayout>
+      <PageLayout className="py-0">
         <SingleResourceComponent resource={resource} />
       </PageLayout>
     </>

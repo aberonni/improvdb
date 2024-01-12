@@ -69,6 +69,7 @@ export default function Create() {
       onSuccess: ({ resource }) => {
         void router.push("/resource/" + resource.id);
         // incredible magic that makes the "getAll" automatically re-trigger
+        // XXX: do I need to invalidate all the getAlls?
         void utils.resource.getAll.invalidate();
       },
       onError: (e) => {

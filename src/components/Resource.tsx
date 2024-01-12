@@ -7,6 +7,10 @@ import type { RouterOutputs } from "~/utils/api";
 import type { ResourceConfiguation, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
 import { type resourceCreateSchema } from "~/utils/zod";
+import { Button } from "./ui/button";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Separator } from "./ui/separator";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "🚀 Warm-up / Exercise",
@@ -35,140 +39,158 @@ export function SingleResourceComponent({ resource, hideBackToHome }: Props) {
   const router = useRouter();
 
   const subtitle = useMemo(() => {
-    let str = ResourceTypeLabels[resource.type];
-
-    if (resource.type === "EXERCISE") {
-      const confLabel = ResourceConfiguationLabels[resource.configuration];
-
-      switch (resource.configuration) {
-        case "SOLO":
-        case "PAIRS":
-          str += ` - ${confLabel}`;
-          break;
-        case "SCENE":
-          str += ` - ${resource.groupSize} players`;
-          break;
-        case "GROUPS":
-          str += ` - ${confLabel} of (minimum) ${resource.groupSize} players`;
-          break;
-        case "WHOLE_CLASS":
-        case "CIRCLE":
-          str += ` - ${confLabel} (minimum ${resource.groupSize} players)`;
-          break;
-      }
-    } else {
-      str += ` - ${resource.groupSize} players`;
+    if (resource.type !== "EXERCISE") {
+      return `${resource.groupSize} players`;
     }
 
-    return str;
+    const confLabel = ResourceConfiguationLabels[resource.configuration];
+
+    switch (resource.configuration) {
+      case "SOLO":
+      case "PAIRS":
+        return confLabel;
+      case "SCENE":
+        return confLabel.replace("N", resource.groupSize.toString());
+      case "GROUPS":
+        return `${confLabel} of (minimum) ${resource.groupSize} players`;
+      case "WHOLE_CLASS":
+      case "CIRCLE":
+        return `${confLabel} (minimum ${resource.groupSize} players)`;
+    }
   }, [resource]);
+
   return (
-    <article className="prose max-w-full lg:prose-lg dark:prose-invert">
-      <header className="flex flex-row">
-        <h1 className="mb-0 grow lg:mb-0">{resource.title}</h1>
-        {!hideBackToHome && (
-          <button className="a hover:underline" onClick={() => router.back()}>
-            Back
-          </button>
-        )}
-      </header>
+    <article className="w-full">
+      <div className="grid h-full items-stretch gap-0 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+        <div className="top-28 col-span-1 flex flex-col space-y-4 self-start  md:sticky md:h-[calc(100vh-theme(spacing.28))]">
+          <ScrollArea className="pt-8 md:pb-8 md:pr-16 md:pt-0">
+            <div className="space-y-6">
+              {!hideBackToHome && (
+                <Button
+                  variant="link"
+                  onClick={() => router.back()}
+                  className="h-auto p-0 text-sm"
+                >
+                  <ArrowLeftIcon className="mr-1 h-4 w-4" />
+                  Back
+                </Button>
+              )}
+              <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+                {resource.title}
+              </h1>
+              <h4 className="tracking-tight text-muted-foreground">
+                {ResourceTypeLabels[resource.type]}
+                <br />
+                {subtitle}
+              </h4>
 
-      <h4 className="mb-4 mr-0 mt-1 inline-block text-muted-foreground lg:mb-6 lg:mt-2">
-        {subtitle}
-      </h4>
+              {resource.alternativeNames && (
+                <>
+                  <Separator />
+                  <p>
+                    Also known as:
+                    <ul className="ml-6 list-disc [&>li]:mt-0">
+                      {(typeof resource.alternativeNames === "string"
+                        ? resource.alternativeNames.split(";")
+                        : resource.alternativeNames.map((name) => name.value)
+                      ).map((name) => (
+                        <li key={name}>{name}</li>
+                      ))}
+                    </ul>
+                  </p>
+                </>
+              )}
 
-      <ReactMarkdown
-        children={resource.description}
-        components={{
-          a: ({ href, ref, ...props }) => {
-            if (!href || !href.startsWith("resource/")) {
-              return <a href={href} ref={ref} target="_blank" {...props} />;
-            }
+              {resource.categories && resource.categories.length > 0 && (
+                <>
+                  <Separator />
+                  <p>
+                    Categories:
+                    <ul className="ml-6 list-disc [&>li]:mt-0">
+                      {resource.categories.map((category) => {
+                        const name =
+                          "category" in category
+                            ? category.category.name
+                            : category.label;
+                        return <li key={name}>{name}</li>;
+                      })}
+                    </ul>
+                  </p>
+                </>
+              )}
 
-            return <Link href={"/" + href} {...props} />;
-          },
-        }}
-      />
+              {resource.relatedResources &&
+                resource.relatedResources.length > 0 && (
+                  <>
+                    <Separator />
+                    <p>
+                      Related Resources:
+                      <ul className="ml-6 list-disc [&>li]:mt-0">
+                        {resource.relatedResources.map((resource) => {
+                          let id;
+                          let label;
 
-      {resource.categories && resource.categories.length > 0 && (
-        <>
-          <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Categories</h2>
-          <ul>
-            {resource.categories.map((category) => {
-              const name =
-                "category" in category
-                  ? category.category.name
-                  : category.label;
-              return (
-                <li key={name} className="my-0 lg:my-0">
-                  {name}
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
+                          if ("id" in resource) {
+                            id = resource.id;
+                            label = resource.title;
+                          } else {
+                            id = resource.value;
+                            label = resource.label;
+                          }
 
-      {resource.showIntroduction && (
-        <>
-          <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Show Introduction</h2>
-          <blockquote>{resource.showIntroduction}</blockquote>
-        </>
-      )}
+                          return (
+                            <li key={id}>
+                              <Link
+                                href={`/resource/${id}`}
+                                className="underline hover:opacity-80"
+                              >
+                                {label}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </p>
+                  </>
+                )}
 
-      {resource.video && (
-        <>
-          <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Example Video</h2>
-          <iframe
-            className="video aspect-video w-full"
-            title="Youtube player"
-            sandbox="allow-same-origin allow-forms allow-popups allow-scripts allow-presentation"
-            src={`https://youtube.com/embed/${resource.video}?autoplay=0`}
-          ></iframe>
-        </>
-      )}
+              {resource.showIntroduction && (
+                <>
+                  <Separator />
+                  <blockquote className="mt-6 border-l-2 pl-6 italic">
+                    "{resource.showIntroduction}"
+                  </blockquote>
+                </>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+        <div className="mb-6 mt-8 md:mt-20 md:border-l md:border-l-muted md:pl-8">
+          <Separator className="mb-8 block md:hidden" />
+          <ReactMarkdown
+            children={resource.description}
+            className="prose prose-zinc max-w-full rounded-md lg:prose-lg dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
+            components={{
+              h1: ({ ...props }) => <h2 {...props} />,
+              a: ({ href, ref, ...props }) => {
+                if (!href || !href.startsWith("resource/")) {
+                  return <a href={href} ref={ref} target="_blank" {...props} />;
+                }
 
-      {resource.alternativeNames && (
-        <>
-          <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Alternative Names</h2>
-          <ul>
-            {(typeof resource.alternativeNames === "string"
-              ? resource.alternativeNames.split(";")
-              : resource.alternativeNames.map((name) => name.value)
-            ).map((name) => (
-              <li key={name} className="my-0 lg:my-0">
-                {name}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      {resource.relatedResources && resource.relatedResources.length > 0 && (
-        <>
-          <h2 className="mb-1 mt-0 lg:mb-2 lg:mt-0">Related Resources</h2>
-          <ul>
-            {resource.relatedResources.map((resource) => {
-              if ("id" in resource) {
-                return (
-                  <li className="my-0 lg:my-0" key={resource.id}>
-                    <Link href={`/resource/${resource.id}`}>
-                      {resource.title}
-                    </Link>
-                  </li>
-                );
-              }
-              return (
-                <li className="my-0 lg:my-0" key={resource.value}>
-                  <Link href={`/resource/${resource.value}`}>
-                    {resource.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
+                return <Link href={"/" + href} {...props} />;
+              },
+            }}
+          />
+          {resource.video && (
+            <iframe
+              className="video mt-6 aspect-video w-full lg:mt-8"
+              title="Youtube player"
+              sandbox="allow-same-origin allow-forms allow-popups allow-scripts allow-presentation"
+              src={`https://youtube.com/embed/${resource.video}?autoplay=0`}
+            ></iframe>
+          )}
+        </div>
+      </div>
     </article>
   );
 }

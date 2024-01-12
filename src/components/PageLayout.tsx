@@ -16,6 +16,7 @@ import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 
 import { Button, buttonVariants } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
 function ModeToggle() {
   const { setTheme, theme } = useTheme();
@@ -33,13 +34,16 @@ function ModeToggle() {
   );
 }
 
-export const PageLayout = ({ children }: PropsWithChildren) => {
+export const PageLayout = ({
+  children,
+  className,
+}: PropsWithChildren & { className?: string }) => {
   const { data: session, status } = useSession();
 
   return (
     <>
-      <header className="sticky left-0 top-0 z-10 border-b bg-background">
-        <div className="mx-auto flex max-w-7xl flex-row items-center gap-3 px-4 py-6 sm:px-6 lg:px-8">
+      <header className="sticky left-0 top-0 z-10 h-20 border-b bg-background">
+        <div className="mx-auto flex max-w-7xl flex-row items-center gap-3 px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="grow">
             <h1 className="text-3xl font-bold tracking-tight">
               <span className="inline-block rounded rounded-r-none border border-zinc-900 bg-zinc-900 px-1.5 py-1 text-white dark:border-white">
@@ -95,7 +99,12 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
         </div>
       </header>
       <main>
-        <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div
+          className={cn(
+            "relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8",
+            className,
+          )}
+        >
           {children}
         </div>
       </main>
