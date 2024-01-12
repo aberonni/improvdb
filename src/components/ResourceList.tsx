@@ -79,8 +79,13 @@ export const ResourceList = ({
               {resource.published ? "Published" : "Pending approval"}
             </Badge>
           ) : (
-            <Badge variant="secondary">
-              {ResourceTypeLabels[resource.type]}
+            <Badge variant="secondary" className="text-nowrap">
+              <span className="hidden md:block">
+                {ResourceTypeLabels[resource.type]}
+              </span>
+              <span className="block md:hidden">
+                {ResourceTypeLabels[resource.type].split(" ")[0]}
+              </span>
             </Badge>
           )}
         </Link>
