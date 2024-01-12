@@ -19,7 +19,28 @@ import {
   SingleResourceComponent,
 } from "~/components/Resource";
 
-const showExtra = true;
+import { Button } from "~/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { cn } from "~/lib/utils";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -72,15 +93,7 @@ export default function Create() {
       },
     });
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    getValues,
-    watch,
-  } = useForm<CreateSchemaType>({
+  const form = useForm<CreateSchemaType>({
     resolver: zodResolver(resourceCreateSchema),
     defaultValues: {
       alternativeNames: [],
@@ -123,6 +136,16 @@ You could consider writing a sample dialogue between you and the participants, a
 Are there any variations of this activity that you want to share? For example, you could change the rules, add/remove some constraints, change the goal of the activity, or anything else that you think is relevant.`,
     },
   });
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    getValues,
+    watch,
+  } = form;
 
   useEffect(() => {
     const title = getValues("title");
@@ -180,363 +203,351 @@ Are there any variations of this activity that you want to share? For example, y
         <title>Create Resource - ImprovDB</title>
       </Head>
       <PageLayout>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {previewData ? (
-            <SingleResourceComponent resource={previewData} hideBackToHome />
-          ) : (
-            <div className="space-y-12">
-              <div className="border-b border-gray-900/10 pb-12">
-                <h2 className="text-base font-semibold leading-7 text-slate-900">
-                  Create New Resource
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-gray-600">
-                  This information will be displayed publicly so be careful what
-                  you share.
-                </p>
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="h-full py-6">
+            {previewData ? (
+              <>
+                <SingleResourceComponent
+                  resource={previewData}
+                  hideBackToHome
+                />
+                <Button onClick={() => setPreviewData(null)}>Edit</Button>
+              </>
+            ) : (
+              <>
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem className="mb-4">
+                      <FormControl>
+                        <Input placeholder="Title" {...field} />
+                      </FormControl>
+                      {errors.title?.message && (
+                        <FormMessage>{errors.title?.message}</FormMessage>
+                      )}
+                    </FormItem>
+                  )}
+                />
 
-                <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                  <div className="sm:col-span-3">
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-medium leading-6 text-slate-900"
-                    >
-                      Title<span className="text-red-700">*</span>
-                    </label>
-                    <div className="mt-2">
-                      <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                        <input
-                          type="text"
-                          {...register("title")}
-                          className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          placeholder="My favourite game"
-                        />
-                      </div>
-                    </div>
-                    {errors.title?.message && (
-                      <p className="mt-1 text-sm leading-6 text-red-700">
-                        {errors.title?.message}
-                      </p>
-                    )}
-                  </div>
+                <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_300px]">
+                  <div className="flex flex-col space-y-4 md:order-2">
+                    <FormField
+                      control={form.control}
+                      name="id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="relative">
+                              <div className="absolute left-0 top-[1px] flex h-full select-none items-center ">
+                                <span className="pl-3 text-sm">/resource/</span>
+                              </div>
+                              <Input
+                                placeholder="id"
+                                className="pl-20"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          {errors.id?.message && (
+                            <FormMessage>{errors.id?.message}</FormMessage>
+                          )}
+                        </FormItem>
+                      )}
+                    />
 
-                  <div className="sm:col-span-3">
-                    <label
-                      htmlFor="id"
-                      className="block text-sm font-medium leading-6 text-slate-900"
-                    >
-                      URL<span className="text-red-700">*</span>
-                    </label>
-                    <div className="mt-2">
-                      <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                        <span className="flex select-none items-center pl-3 text-gray-500 sm:text-sm">
-                          /resource/
-                        </span>
-                        <input
-                          type="text"
-                          {...register("id")}
-                          className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-slate-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                          placeholder="my-favourite-game"
-                        />
-                      </div>
-                    </div>
-                    {errors.id?.message && (
-                      <p className="mt-1 text-sm leading-6 text-red-700">
-                        {errors.id?.message}
-                      </p>
-                    )}
-                  </div>
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem className="peer">
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl className="rounded-bl-none rounded-br-none">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a resource type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Resource types</SelectLabel>
+                                {Object.keys(ResourceType).map((typeKey) => (
+                                  <SelectItem key={typeKey} value={typeKey}>
+                                    {
+                                      ResourceTypeLabels[
+                                        typeKey as ResourceType
+                                      ]
+                                    }
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          {errors.type?.message && (
+                            <FormMessage>{errors.type?.message}</FormMessage>
+                          )}
+                        </FormItem>
+                      )}
+                    />
 
-                  <div className="sm:col-span-3">
-                    <label
-                      htmlFor="alternativeNames"
-                      className="block text-sm font-medium leading-6 text-slate-900"
-                    >
-                      Alternative Names
-                    </label>
-                    <div className="mt-2">
-                      <Controller
-                        name="alternativeNames"
-                        control={control}
+                    {!configurationDisabled && (
+                      <FormField
+                        control={form.control}
+                        name="configuration"
                         render={({ field }) => (
-                          <MultiSelectDropown
-                            {...{
-                              ...field,
-                              ref: null,
-                            }}
-                            instanceId="alternativeNames"
-                            isCreatable
-                          />
+                          <FormItem className="peer !mt-0 peer-has-[button:focus]:[&_button]:border-t-transparent">
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl
+                                className={cn(
+                                  "rounded-tl-none rounded-tr-none",
+                                  !groupSizeDisabled &&
+                                    "rounded-bl-none rounded-br-none",
+                                )}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a configuration" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Configurations</SelectLabel>
+                                  {Object.keys(ResourceConfiguation).map(
+                                    (confKey) => (
+                                      <SelectItem key={confKey} value={confKey}>
+                                        {
+                                          ResourceConfiguationLabels[
+                                            confKey as ResourceConfiguation
+                                          ]
+                                        }
+                                      </SelectItem>
+                                    ),
+                                  )}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                            {errors.configuration?.message && (
+                              <FormMessage>
+                                {errors.configuration?.message}
+                              </FormMessage>
+                            )}
+                          </FormItem>
                         )}
                       />
-                    </div>
-                    {errors.alternativeNames?.message ? (
-                      <p className="mt-1 text-sm leading-6 text-red-700">
-                        {errors.alternativeNames?.message}
-                      </p>
-                    ) : (
-                      <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
-                        Press ENTER or TAB to add names
-                      </p>
                     )}
-                  </div>
 
-                  <div className="sm:col-span-3">
-                    <label
-                      htmlFor="type"
-                      className="block text-sm font-medium leading-6 text-slate-900"
-                    >
-                      Resource Type<span className="text-red-700">*</span>
-                    </label>
-                    <div className="mt-2">
-                      <select
-                        {...register("type")}
-                        className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      >
-                        {Object.keys(ResourceType).map((typeKey) => (
-                          <option key={typeKey} value={typeKey}>
-                            {ResourceTypeLabels[typeKey as ResourceType]}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
+                    {!groupSizeDisabled && (
+                      <FormField
+                        control={form.control}
+                        name="groupSize"
+                        render={({ field }) => (
+                          <FormItem className="!mt-0 peer-has-[button:focus]:[&_input]:border-t-transparent">
+                            <FormControl>
+                              <div className="relative">
+                                <div className="absolute left-0 top-[1px] flex h-full select-none items-center ">
+                                  <span className="pl-3 text-sm">
+                                    Group size:{" "}
+                                  </span>
+                                </div>
+                                <Input
+                                  className="rounded-tl-none rounded-tr-none pl-[90px]"
+                                  type="number"
+                                  {...field}
+                                  {...register("groupSize", {
+                                    valueAsNumber: true,
+                                  })}
+                                />
+                              </div>
+                            </FormControl>
+                            {errors.groupSize?.message && (
+                              <FormMessage>
+                                {errors.groupSize?.message}
+                              </FormMessage>
+                            )}
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
-                  {!configurationDisabled && (
-                    <div
-                      className={
-                        groupSizeDisabled ? "col-span-full" : "sm:col-span-3"
-                      }
-                    >
-                      <label
-                        htmlFor="configuration"
-                        className="block text-sm font-medium leading-6  text-slate-900"
-                      >
-                        Exercise Configuration
-                        <span className="text-red-700">*</span>
+                    <div className="col-span-full">
+                      <label className="block text-sm font-medium leading-6 text-slate-900">
+                        Categories
                       </label>
                       <div className="mt-2">
-                        <select
-                          {...register("configuration")}
-                          className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        >
-                          {Object.keys(ResourceConfiguation).map((confKey) => (
-                            <option key={confKey} value={confKey}>
-                              {
-                                ResourceConfiguationLabels[
-                                  confKey as ResourceConfiguation
-                                ]
-                              }
-                            </option>
-                          ))}
-                        </select>
+                        <Controller
+                          name="categories"
+                          control={control}
+                          render={({ field }) => (
+                            <MultiSelectDropown
+                              {...{
+                                ...field,
+                                ref: null,
+                              }}
+                              instanceId="categories"
+                              isLoading={isLoadingCategories}
+                              loadingMessage={() => "Loading categories..."}
+                              options={categories?.map(({ id, name }) => ({
+                                label: name,
+                                value: id,
+                              }))}
+                            />
+                          )}
+                        />
                       </div>
                     </div>
-                  )}
 
-                  {!groupSizeDisabled && (
-                    <div
-                      className={
-                        configurationDisabled
-                          ? "sm:col-span-full"
-                          : "sm:col-span-3"
-                      }
-                    >
+                    <div>
                       <label
-                        htmlFor="groupSize"
-                        className="block text-sm font-medium leading-6  text-slate-900"
+                        htmlFor="alternativeNames"
+                        className="block text-sm font-medium leading-6 text-slate-900"
                       >
-                        (Minimum) Group Size
-                        <span className="text-red-700">*</span>
+                        Alternative Names
                       </label>
                       <div className="mt-2">
-                        <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                          <input
-                            type="number"
-                            {...register("groupSize", { valueAsNumber: true })}
-                            className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          />
-                        </div>
+                        <Controller
+                          name="alternativeNames"
+                          control={control}
+                          render={({ field }) => (
+                            <MultiSelectDropown
+                              {...{
+                                ...field,
+                                ref: null,
+                              }}
+                              instanceId="alternativeNames"
+                              isCreatable
+                            />
+                          )}
+                        />
                       </div>
-                      {errors.groupSize?.message && (
+                      {errors.alternativeNames?.message ? (
                         <p className="mt-1 text-sm leading-6 text-red-700">
-                          {errors.groupSize?.message}
+                          {errors.alternativeNames?.message}
+                        </p>
+                      ) : (
+                        <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
+                          Press ENTER or TAB to add names
                         </p>
                       )}
                     </div>
-                  )}
 
-                  <div className="col-span-full">
-                    <label
-                      htmlFor="description"
-                      className="block text-sm font-medium leading-6 text-slate-900"
-                    >
-                      Description<span className="text-red-700">*</span>
-                    </label>
-                    <div className="mt-2">
-                      <textarea
-                        id="description"
-                        {...register("description")}
-                        rows={10}
-                        className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    {errors.description?.message ? (
-                      <p className="mt-1 text-sm leading-6 text-red-700">
-                        {errors.description?.message}
-                      </p>
-                    ) : (
-                      <p className="mt-0 pl-1 text-xs leading-6 text-slate-500">
-                        This field supports{" "}
-                        <a
-                          href="https://www.markdownguide.org/basic-syntax/"
-                          target="_blank"
-                          className="underline hover:no-underline"
-                        >
-                          Markdown
-                        </a>
-                      </p>
-                    )}
-                  </div>
+                    <FormField
+                      control={form.control}
+                      name="showIntroduction"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Show Introduction (what an MC would say before the game during a show)"
+                              rows={3}
+                              {...field}
+                            />
+                          </FormControl>
+                          {errors.showIntroduction?.message && (
+                            <FormMessage>
+                              {errors.showIntroduction?.message}
+                            </FormMessage>
+                          )}
+                        </FormItem>
+                      )}
+                    />
 
-                  {showExtra && (
-                    <>
-                      <div className="col-span-full">
-                        <label className="block text-sm font-medium leading-6 text-slate-900">
-                          Categories
-                        </label>
-                        <div className="mt-2">
-                          <Controller
-                            name="categories"
-                            control={control}
-                            render={({ field }) => (
+                    <div>
+                      <label
+                        htmlFor="relatedResources"
+                        className="block text-sm font-medium leading-6 text-slate-900"
+                      >
+                        Related Resources
+                      </label>
+                      <div className="mt-2">
+                        <Controller
+                          name="relatedResources"
+                          control={control}
+                          render={({ field }) => {
+                            return (
                               <MultiSelectDropown
                                 {...{
                                   ...field,
                                   ref: null,
                                 }}
-                                instanceId="categories"
-                                isLoading={isLoadingCategories}
-                                loadingMessage={() => "Loading categories..."}
-                                options={categories?.map(({ id, name }) => ({
-                                  label: name,
+                                instanceId="relatedResources"
+                                isLoading={isLoadingResources}
+                                loadingMessage={() => "Loading resources..."}
+                                options={resources?.map(({ id, title }) => ({
+                                  label: title,
                                   value: id,
                                 }))}
                               />
+                            );
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="video"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="YouTube Video ID" {...field} />
+                          </FormControl>
+                          {errors.video?.message && (
+                            <FormMessage>{errors.video?.message}</FormMessage>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="mt-0 border-0 p-0 md:order-1">
+                    <div className="flex h-full flex-col space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Textarea
+                                className="min-h-[400px] flex-1 p-4 md:min-h-[700px] lg:min-h-[700px]"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              This field supports{" "}
+                              <a
+                                href="https://www.markdownguide.org/basic-syntax/"
+                                target="_blank"
+                                className="underline hover:no-underline"
+                              >
+                                Markdown
+                              </a>
+                            </FormDescription>
+                            {errors.description && (
+                              <FormMessage>
+                                {errors.description.message}
+                              </FormMessage>
                             )}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="col-span-full">
-                        <label
-                          htmlFor="showIntroduction"
-                          className="block text-sm font-medium leading-6 text-slate-900"
-                        >
-                          Show Introduction
-                        </label>
-                        <div className="mt-2">
-                          <textarea
-                            id="showIntroduction"
-                            {...register("showIntroduction")}
-                            rows={3}
-                            className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          />
-                        </div>
-                        {errors.showIntroduction?.message && (
-                          <p className="mt-1 text-sm leading-6 text-red-700">
-                            {errors.showIntroduction?.message}
-                          </p>
+                          </FormItem>
                         )}
+                      />
+                      <div className="flex items-center space-x-2">
+                        <Button disabled={isCreating}>
+                          {isCreating ? "Saving..." : "Save"}
+                        </Button>
+                        <Button onClick={() => setPreviewData(getValues())}>
+                          Preview
+                        </Button>
                       </div>
-
-                      <div className="sm:col-span-3">
-                        <label
-                          htmlFor="relatedResources"
-                          className="block text-sm font-medium leading-6 text-slate-900"
-                        >
-                          Related Resources
-                        </label>
-                        <div className="mt-2">
-                          <Controller
-                            name="relatedResources"
-                            control={control}
-                            render={({ field }) => {
-                              return (
-                                <MultiSelectDropown
-                                  {...{
-                                    ...field,
-                                    ref: null,
-                                  }}
-                                  instanceId="relatedResources"
-                                  isLoading={isLoadingResources}
-                                  loadingMessage={() => "Loading resources..."}
-                                  options={resources?.map(({ id, title }) => ({
-                                    label: title,
-                                    value: id,
-                                  }))}
-                                />
-                              );
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="sm:col-span-3">
-                        <label
-                          htmlFor="video"
-                          className="block text-sm font-medium leading-6 text-slate-900"
-                        >
-                          YouTube Video ID
-                        </label>
-                        <div className="mt-2">
-                          <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
-                            <input
-                              type="text"
-                              {...register("video")}
-                              className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                              placeholder="123456789AB"
-                            />
-                          </div>
-                        </div>
-                        {errors.video?.message && (
-                          <p className="mt-1 text-sm leading-6 text-red-700">
-                            {errors.video?.message}
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
-          <div className="mt-6 flex items-center justify-end gap-x-6">
-            {previewData ? (
-              <button
-                type="button"
-                className="text-sm font-semibold leading-6 text-slate-900"
-                onClick={() => setPreviewData(null)}
-              >
-                Edit
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="text-sm font-semibold leading-6 text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => setPreviewData(getValues())}
-              >
-                Preview
-              </button>
+              </>
             )}
-            <button
-              disabled={isCreating}
-              type="submit"
-              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isCreating ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </PageLayout>
     </>
   );

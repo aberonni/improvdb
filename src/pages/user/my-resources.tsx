@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { PageLayout } from "~/components/PageLayout";
-import { ResourceList } from "~/components/Resource";
+import { ResourceList } from "~/components/ResourceList";
 
 import { api } from "~/utils/api";
 

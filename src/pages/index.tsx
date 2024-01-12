@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useState } from "react";
 import { PageLayout } from "~/components/PageLayout";
-import { ResourceList } from "~/components/Resource";
+import { ResourceList } from "~/components/ResourceList";
 import { Input } from "~/components/ui/input";
 
 import { api } from "~/utils/api";
