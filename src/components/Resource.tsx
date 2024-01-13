@@ -68,7 +68,7 @@ export function SingleResourceComponent({ resource }: Props) {
               {resource.alternativeNames && (
                 <>
                   <Separator />
-                  <p>
+                  <div>
                     Also known as:
                     <ul className="ml-6 list-disc [&>li]:mt-0">
                       {(typeof resource.alternativeNames === "string"
@@ -78,14 +78,14 @@ export function SingleResourceComponent({ resource }: Props) {
                         <li key={name}>{name}</li>
                       ))}
                     </ul>
-                  </p>
+                  </div>
                 </>
               )}
 
               {resource.categories && resource.categories.length > 0 && (
                 <>
                   <Separator />
-                  <p>
+                  <div>
                     Categories:
                     <ul className="ml-6 list-disc [&>li]:mt-0">
                       {resource.categories.map((category) => {
@@ -96,7 +96,7 @@ export function SingleResourceComponent({ resource }: Props) {
                         return <li key={name}>{name}</li>;
                       })}
                     </ul>
-                  </p>
+                  </div>
                 </>
               )}
 
@@ -104,7 +104,7 @@ export function SingleResourceComponent({ resource }: Props) {
                 resource.relatedResources.length > 0 && (
                   <>
                     <Separator />
-                    <p>
+                    <div>
                       Related Resources:
                       <ul className="ml-6 list-disc [&>li]:mt-0">
                         {resource.relatedResources.map((resource) => {
@@ -131,7 +131,7 @@ export function SingleResourceComponent({ resource }: Props) {
                           );
                         })}
                       </ul>
-                    </p>
+                    </div>
                   </>
                 )}
 
