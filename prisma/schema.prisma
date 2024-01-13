@@ -34,7 +34,7 @@ enum ResourceConfiguation {
 }
 
 model Resource {
-  id            String                  @id
+  id            String                  @id @unique
   title         String
   description   String                  @db.Text
   type          ResourceType

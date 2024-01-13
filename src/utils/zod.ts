@@ -20,7 +20,9 @@ export const resourceCreateSchema = z.object({
     .max(11, "String must be a valid YouTube video ID")
     .optional()
     .or(z.literal("")),
-  alternativeNames: z.array(z.object({ value: z.string().regex(/([^;])/) })),
+  alternativeNames: z.array(
+    z.object({ label: z.string(), value: z.string().regex(/([^;])/) }),
+  ),
 
   relatedResources: z.array(z.object({ label: z.string(), value: z.string() })),
 });

@@ -1,18 +1,25 @@
 import Head from "next/head";
-
-import { PageLayout } from "~/components/PageLayout";
-import EditResourceForm from "~/components/EditResourceForm";
 import { api } from "~/utils/api";
+
+import type { GetStaticProps, NextPage } from "next";
+import { PageLayout } from "~/components/PageLayout";
+import { generateSSGHelper } from "~/server/helpers/ssgHelper";
+import { LoadingPage } from "~/components/Loading";
+import EditResourceForm from "~/components/EditResourceForm";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 
-export default function Create() {
+export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
+  const { data: resource, isLoading } = api.resource.getById.useQuery({
+    id,
+  });
+
   const utils = api.useUtils();
   const router = useRouter();
   const { toast } = useToast();
 
   const { mutate: createResource, isLoading: isSubmitting } =
-    api.resource.create.useMutation({
+    api.resource.update.useMutation({
       onSuccess: ({ resource: res }) => {
         void router.push("/resource/" + res.id);
         // incredible magic that makes the "getAll" automatically re-trigger
@@ -48,22 +55,64 @@ export default function Create() {
       },
     });
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (!resource) {
+    return <div>404</div>;
+  }
+
   return (
     <>
       <Head>
-        <title>Create Resource - ImprovDB</title>
+        <title>{`Edit: "${resource.title}" - ImprovDB`}</title>
       </Head>
-      <PageLayout title="Create Resource" authenticatedOnly>
+      <PageLayout
+        title={`Edit: "${resource.title}"`}
+        showBackButton
+        authenticatedOnly
+      >
         <EditResourceForm
+          resource={resource}
+          isSubmitting={isSubmitting}
           onSubmit={(values) => {
             if (isSubmitting) {
               return;
             }
-            createResource(values);
+            createResource({
+              ...values,
+              originalId: resource?.id,
+            });
           }}
-          isSubmitting={isSubmitting}
         />
       </PageLayout>
     </>
   );
-}
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const ssg = generateSSGHelper();
+
+  const id = context.params?.id;
+
+  if (typeof id !== "string" || id === "") throw new Error("No id");
+
+  await ssg.resource.getById.prefetch({ id });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      id,
+    },
+  };
+};
+
+export const getStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
+
+export default ResourceEditPage;
