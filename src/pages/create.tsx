@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { kebabCase } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { type UseFormReturn, useForm } from "react-hook-form";
 import type * as z from "zod";
 import { useToast } from "~/components/ui/use-toast";
 
@@ -44,11 +44,143 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 
 import { cn } from "~/lib/utils";
 import { ChevronDownIcon, PlusIcon, ReloadIcon } from "@radix-ui/react-icons";
+import { Checkbox } from "~/components/ui/checkbox";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
+
+const SaveButton = ({
+  form,
+  onSave,
+  isSaving,
+}: {
+  form: UseFormReturn<CreateSchemaType>;
+  onSave: () => void;
+  isSaving: boolean;
+}) => {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [dontAskAgain, setDontAskAgain] = useState(false);
+
+  useEffect(() => {
+    // Perform localStorage action after page has been mounted on client side
+    setDontAskAgain(
+      localStorage.getItem("dontAskAgainForSaveWarning") ===
+        JSON.stringify(true),
+    );
+  }, []);
+
+  if (!form.formState.isValid) {
+    return (
+      <Button
+        type="button"
+        onClick={() => {
+          onSave();
+          toast({
+            title: "Uh oh!",
+            // variant: "destructive",
+            description: "Please fix the errors in the form before saving.",
+          });
+        }}
+      >
+        Save
+      </Button>
+    );
+  }
+
+  if (!open && dontAskAgain) {
+    return (
+      <Button disabled={isSaving} type="submit">
+        {isSaving ? (
+          <>
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Saving...
+          </>
+        ) : (
+          "Save"
+        )}
+      </Button>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button disabled={isSaving} type="button">
+          {isSaving ? (
+            <>
+              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Saving...
+            </>
+          ) : (
+            "Save"
+          )}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            You are about to save this resource. This action cannot be undone.
+            You will not be able to edit or delete this resource after saving
+            it.
+          </DialogDescription>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="dontAskAgain"
+              checked={dontAskAgain}
+              onCheckedChange={(val) => setDontAskAgain(val as boolean)}
+            />
+            <label
+              htmlFor="dontAskAgain"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Don't ask me again
+            </label>
+          </div>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                onClick={() => {
+                  setOpen(false);
+                  if (dontAskAgain) {
+                    localStorage.setItem(
+                      "dontAskAgainForSaveWarning",
+                      JSON.stringify(true),
+                    );
+                  }
+                  onSave();
+                }}
+              >
+                Save changes
+              </Button>
+            </>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default function Create() {
   const router = useRouter();
@@ -581,16 +713,11 @@ Are there any variations of this activity that you want to share? For example, y
                         )}
                       />
                       <div className="flex items-center space-x-2">
-                        <Button disabled={isCreating} type="submit">
-                          {isCreating ? (
-                            <>
-                              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />{" "}
-                              Saving...
-                            </>
-                          ) : (
-                            "Save"
-                          )}
-                        </Button>
+                        <SaveButton
+                          form={form}
+                          isSaving={isCreating}
+                          onSave={handleSubmit(onSubmit)}
+                        />
                         <Button
                           onClick={() => setPreviewData(getValues())}
                           type="button"
