@@ -45,15 +45,16 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 
 import { cn } from "~/lib/utils";
 import { ChevronDownIcon, PlusIcon, ReloadIcon } from "@radix-ui/react-icons";
@@ -116,8 +117,8 @@ const SaveButton = ({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
         <Button disabled={isSaving} type="button">
           {isSaving ? (
             <>
@@ -127,18 +128,18 @@ const SaveButton = ({
             "Save"
           )}
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Are you absolutely sure?</DialogTitle>
-          <DialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
             You are about to save this resource. This action cannot be undone.
             Your new resource will be pending publication after you submit it.
             You can monitor the status in your "My Resources" page.
             <Separator className="my-2" />
             You will not be able to edit or delete this resource after saving
             it!
-          </DialogDescription>
+          </AlertDialogDescription>
           <div className="flex items-center justify-center space-x-2 sm:justify-start">
             <Checkbox
               id="dontAskAgain"
@@ -152,37 +153,26 @@ const SaveButton = ({
               Don't ask me again
             </label>
           </div>
-        </DialogHeader>
-        <DialogFooter className="flex-col space-y-2 sm:space-y-0">
-          <DialogClose asChild>
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                onClick={() => {
-                  setOpen(false);
-                  if (dontAskAgain) {
-                    localStorage.setItem(
-                      "dontAskAgainForSaveWarning",
-                      JSON.stringify(true),
-                    );
-                  }
-                  onSave();
-                }}
-              >
-                Save changes
-              </Button>
-            </>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex-col space-y-2 sm:space-y-0">
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              setOpen(false);
+              if (dontAskAgain) {
+                localStorage.setItem(
+                  "dontAskAgainForSaveWarning",
+                  JSON.stringify(true),
+                );
+              }
+              onSave();
+            }}
+          >
+            Continue
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
@@ -283,6 +273,7 @@ Are there any variations of this activity that you want to share? For example, y
 
   const {
     control,
+    clearErrors,
     register,
     handleSubmit,
     formState: { errors },
@@ -294,6 +285,7 @@ Are there any variations of this activity that you want to share? For example, y
   useEffect(() => {
     const title = getValues("title");
     setValue("id", kebabCase(title));
+    clearErrors("id");
   }, [watch("title")]);
 
   const watchType = watch("type");
@@ -352,7 +344,7 @@ Are there any variations of this activity that you want to share? For example, y
       <Head>
         <title>Create Resource - ImprovDB</title>
       </Head>
-      <PageLayout title="Create Resource">
+      <PageLayout title="Create Resource" authenticatedOnly>
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="h-full">
             {previewData ? (
@@ -694,7 +686,7 @@ Are there any variations of this activity that you want to share? For example, y
                           <FormItem>
                             <FormControl>
                               <Textarea
-                                className="min-h-[400px] flex-1 p-4 md:min-h-[700px] lg:min-h-[700px]"
+                                className="h-[400px] flex-1 p-4 md:h-[700px] lg:h-[700px]"
                                 {...field}
                               />
                             </FormControl>

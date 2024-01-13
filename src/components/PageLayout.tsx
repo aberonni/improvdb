@@ -26,10 +26,11 @@ import { Alert } from "./ui/alert";
 import { type User } from "next-auth";
 import { useRouter } from "next/router";
 import { ThemeToggle } from "./ThemeToggle";
+import { LoadingPage } from "./Loading";
 
 const navigation = [
   { name: "Home", href: "/", authenticated: false },
-  { name: "Create Resource", href: "/create", authenticated: true },
+  { name: "Create Resource", href: "/create", authenticated: false },
   { name: "My Resources", href: "/user/my-resources", authenticated: true },
 ];
 
@@ -52,11 +53,13 @@ export const PageLayout = ({
   children,
   className,
   showBackButton,
+  authenticatedOnly,
   title,
 }: PropsWithChildren & {
   title: string;
   className?: string;
   showBackButton?: boolean;
+  authenticatedOnly?: boolean;
 }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -259,7 +262,24 @@ export const PageLayout = ({
             className,
           )}
         >
-          {children}
+          {authenticatedOnly ? (
+            <>
+              {status === "authenticated" ? (
+                children
+              ) : status === "loading" ? (
+                <LoadingPage />
+              ) : (
+                <div className="flex w-full flex-col items-center justify-center space-y-4 rounded border p-4">
+                  <h1 className="text-muted-foreground">
+                    You must be signed in to view this page
+                  </h1>
+                  <Button onClick={() => signIn()}>Sign in</Button>
+                </div>
+              )}
+            </>
+          ) : (
+            children
+          )}
         </div>
       </main>
     </div>
