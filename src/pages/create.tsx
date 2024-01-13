@@ -58,6 +58,7 @@ import {
 import { cn } from "~/lib/utils";
 import { ChevronDownIcon, PlusIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { Checkbox } from "~/components/ui/checkbox";
+import { Separator } from "~/components/ui/separator";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -132,10 +133,13 @@ const SaveButton = ({
           <DialogTitle>Are you absolutely sure?</DialogTitle>
           <DialogDescription>
             You are about to save this resource. This action cannot be undone.
+            Your new resource will be pending publication after you submit it.
+            You can monitor the status in your "My Resources" page.
+            <Separator className="my-2" />
             You will not be able to edit or delete this resource after saving
-            it.
+            it!
           </DialogDescription>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center space-x-2 sm:justify-start">
             <Checkbox
               id="dontAskAgain"
               checked={dontAskAgain}
@@ -149,7 +153,7 @@ const SaveButton = ({
             </label>
           </div>
         </DialogHeader>
-        <DialogFooter>
+        <DialogFooter className="flex-col space-y-2 sm:space-y-0">
           <DialogClose asChild>
             <>
               <Button
