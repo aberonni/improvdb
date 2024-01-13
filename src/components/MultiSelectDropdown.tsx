@@ -1,12 +1,14 @@
 // Inspired by https://www.jussivirtanen.fi/writing/styling-react-select-with-tailwind
 // and https://react-select.com/creatable
 
+import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import type { KeyboardEventHandler } from "react";
 import { useState } from "react";
 import Select from "react-select";
 import type { Props } from "react-select";
 import CreatableSelect from "react-select/creatable";
+import { Button } from "./ui/button";
 
 const controlStyles = {
   base: "flex min-h-9 w-full rounded-md border border-input bg-transparent text-sm shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50",
@@ -20,13 +22,13 @@ const multiValueStyles =
   "bg-accent rounded items-center py-0 pl-2 pr-1 gap-1.5";
 const multiValueLabelStyles = "leading-6 py-0.5";
 const multiValueRemoveStyles =
-  "border border-accent bg-background hover:bg-red-50 hover:text-destructive text-muted-foreground hover:border-red-300 rounded-md";
+  "border border-accent bg-background  cursor-pointer hover:bg-red-50 hover:text-destructive text-muted-foreground hover:border-red-300 rounded-md";
 const indicatorsContainerStyles = "gap-1";
 const clearIndicatorStyles =
-  "text-muted-foreground p-1 rounded-md hover:bg-red-50 hover:text-destructive";
+  "text-muted-foreground p-1 rounded-md hover:bg-red-50 hover:text-destructive cursor-pointer";
 const indicatorSeparatorStyles = "bg-accent";
 const dropdownIndicatorStyles =
-  "p-1 hover:bg-accent text-muted-foreground rounded-md hover:text-primary";
+  "p-1 hover:bg-accent text-muted-foreground rounded-md hover:text-primary mr-1 cursor-pointer";
 const menuStyles = "p-1 mt-2 border border-accent bg-background rounded-lg";
 const groupHeadingStyles = "ml-3 mt-2 mb-1 text-muted-foreground text-sm";
 const optionStyles = {
@@ -55,21 +57,23 @@ const createOption = (label: string): Option => ({
 export function MultiSelectDropown(props: MultiSelectDropdownProps) {
   const [inputValue, setInputValue] = useState("");
 
+  const addNewOption = () => {
+    if (!inputValue) return;
+    setInputValue("");
+    props.onChange?.([...(props.value as Option[]), createOption(inputValue)], {
+      option: undefined,
+      removedValue: null,
+      action: "select-option",
+    });
+  };
+
   const handleKeyDown: KeyboardEventHandler = (event) => {
     if (!inputValue) return;
     switch (event.key) {
       case "Enter":
       case "Tab":
-        props.onChange?.(
-          [...(props.value as Option[]), createOption(inputValue)],
-          {
-            option: undefined,
-            removedValue: null,
-            action: "select-option",
-          },
-        );
-        setInputValue("");
         event.preventDefault();
+        addNewOption();
     }
   };
 
@@ -81,7 +85,17 @@ export function MultiSelectDropown(props: MultiSelectDropdownProps) {
     extraProps = {
       ...extraProps,
       components: {
-        DropdownIndicator: null,
+        DropdownIndicator: () => (
+          <Button
+            variant="ghost"
+            type="button"
+            className="mr-1 h-auto p-0.5"
+            aria-hidden="true"
+            onClick={addNewOption}
+          >
+            <PlusIcon className="h-6 w-6 stroke-2" />
+          </Button>
+        ),
       },
       inputValue: inputValue,
       isClearable: true,
