@@ -51,7 +51,7 @@ export const resourceRouter = createTRPCRouter({
       },
     });
   }),
-  getMyResources: privateProcedure.query(({ ctx }) => {
+  getMyContributions: privateProcedure.query(({ ctx }) => {
     return ctx.db.resource.findMany({
       where: {
         createdBy: ctx.session.user,

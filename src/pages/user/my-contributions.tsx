@@ -4,15 +4,15 @@ import { ResourceList } from "~/components/ResourceList";
 
 import { api } from "~/utils/api";
 
-export default function MyResources() {
-  const queryResult = api.resource.getMyResources.useQuery();
+export default function MyContributions() {
+  const queryResult = api.resource.getMyContributions.useQuery();
 
   return (
     <>
       <Head>
-        <title>My Resource - ImprovDB</title>
+        <title>My Contributions - ImprovDB</title>
       </Head>
-      <PageLayout title="My Resources">
+      <PageLayout title="My Contributions">
         <ResourceList
           noResourcesMessage="You must create resources before they can show up here."
           queryResult={queryResult}

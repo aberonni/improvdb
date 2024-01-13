@@ -31,7 +31,11 @@ import { LoadingPage } from "./Loading";
 const navigation = [
   { name: "Home", href: "/", authenticated: false },
   { name: "Create Resource", href: "/create", authenticated: false },
-  { name: "My Resources", href: "/user/my-resources", authenticated: true },
+  {
+    name: "My Contributions",
+    href: "/user/my-contributions",
+    authenticated: true,
+  },
 ];
 
 const UserWidget = ({ user }: { user: User }) => (
