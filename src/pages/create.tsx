@@ -384,8 +384,10 @@ Are there any variations of this activity that you want to share? For example, y
                         <FormItem>
                           <FormControl>
                             <div className="relative">
-                              <div className="absolute left-0 top-[1px] flex h-full select-none items-center ">
-                                <span className="pl-3 text-sm">/resource/</span>
+                              <div className="absolute left-0 top-0 flex h-full select-none items-center ">
+                                <span className="pl-3 text-sm leading-none">
+                                  /resource/
+                                </span>
                               </div>
                               <Input
                                 placeholder="id"
@@ -495,8 +497,8 @@ Are there any variations of this activity that you want to share? For example, y
                           <FormItem className="!mt-0 peer-has-[button:focus]:[&_input]:border-t-transparent">
                             <FormControl>
                               <div className="relative">
-                                <div className="absolute left-0 top-[1px] flex h-full select-none items-center ">
-                                  <span className="pl-3 text-sm">
+                                <div className="absolute left-0 top-0 flex h-full select-none items-center ">
+                                  <span className="pl-3 text-sm leading-none">
                                     {minimumGroupSize
                                       ? "Minimum group size: "
                                       : "Group size: "}
