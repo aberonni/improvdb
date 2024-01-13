@@ -95,6 +95,7 @@ export const PageLayout = ({
                         return (
                           <Link
                             href={item.href}
+                            key={item.name}
                             className={buttonVariants({ variant: "ghost" })}
                           >
                             {item.name}
