@@ -233,6 +233,7 @@ export default function Create() {
       alternativeNames: [],
       categories: [],
       relatedResources: [],
+      type: ResourceType.EXERCISE,
       configuration: ResourceConfiguation.SCENE,
       groupSize: 2,
       description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
