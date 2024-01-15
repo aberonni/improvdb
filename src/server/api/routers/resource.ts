@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -97,12 +98,21 @@ export const resourceRouter = createTRPCRouter({
         },
       });
 
-      if (
-        !resource ||
-        (!resource.published && resource.createdById !== ctx.session?.user.id)
-      ) {
+      if (!resource) {
         throw new TRPCError({
           code: "NOT_FOUND",
+          message: `Resource ${input.id} not found`,
+        });
+      }
+
+      const userCanSeeResource =
+        resource?.published ??
+        (ctx.session?.user.role === UserRole.ADMIN ||
+          resource?.createdById !== ctx.session?.user.id);
+
+      if (!userCanSeeResource) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
           message: `Resource ${input.id} not found`,
         });
       }
