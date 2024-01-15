@@ -31,19 +31,14 @@ export default function Create() {
         }
 
         const errorMessage =
-          e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
-        if (errorMessage) {
-          toast({
-            title: "Uh oh! Something went wrong.",
-            variant: "destructive",
-            description: errorMessage,
-          });
-          return;
-        }
+          e.message ??
+          e.data?.zodError?.fieldErrors.content?.[0] ??
+          "Failed to create resource! Please try again later.";
+
         toast({
           title: "Uh oh! Something went wrong.",
           variant: "destructive",
-          description: "Failed to create resource! Please try again later.",
+          description: errorMessage,
         });
       },
     });

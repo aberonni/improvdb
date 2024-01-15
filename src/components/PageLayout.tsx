@@ -27,6 +27,7 @@ import { type User } from "next-auth";
 import { useRouter } from "next/router";
 import { ThemeToggle } from "./ThemeToggle";
 import { LoadingPage } from "./Loading";
+import { type UserRole } from "@prisma/client";
 
 const navigation = [
   { name: "Home", href: "/", authenticated: false },
@@ -63,7 +64,7 @@ export const PageLayout = ({
   title: string;
   className?: string;
   showBackButton?: boolean;
-  authenticatedOnly?: boolean;
+  authenticatedOnly?: boolean | UserRole[];
 }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -269,16 +270,26 @@ export const PageLayout = ({
         >
           {authenticatedOnly ? (
             <>
-              {status === "authenticated" ? (
+              {status === "authenticated" &&
+              (authenticatedOnly === true ||
+                authenticatedOnly.includes(session.user.role)) ? (
                 children
               ) : status === "loading" ? (
                 <LoadingPage />
               ) : (
                 <div className="flex w-full flex-col items-center justify-center space-y-4 rounded border p-4">
-                  <h1 className="text-muted-foreground">
-                    You must be signed in to view this page
-                  </h1>
-                  <Button onClick={() => signIn()}>Sign in</Button>
+                  {authenticatedOnly === true ? (
+                    <>
+                      <h1 className="text-muted-foreground">
+                        You must be signed in to view this page
+                      </h1>
+                      <Button onClick={() => signIn()}>Sign in</Button>
+                    </>
+                  ) : (
+                    <h1 className="text-muted-foreground">
+                      Only administrators can access this page.
+                    </h1>
+                  )}
                 </div>
               )}
             </>

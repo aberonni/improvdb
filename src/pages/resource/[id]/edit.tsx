@@ -8,6 +8,7 @@ import { LoadingPage } from "~/components/Loading";
 import EditResourceForm from "~/components/EditResourceForm";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
+import { UserRole } from "@prisma/client";
 
 export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const { data: resource, isLoading } = api.resource.getById.useQuery({
@@ -25,6 +26,10 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
         // incredible magic that makes the "getAll" automatically re-trigger
         // XXX: do I need to invalidate all the getAlls?
         void utils.resource.getAll.invalidate();
+        toast({
+          title: "Success!",
+          description: "Resource updated.",
+        });
       },
       onError: (e) => {
         if (e.data?.code === "CONFLICT") {
@@ -39,18 +44,13 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
 
         const errorMessage =
           e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
-        if (errorMessage) {
-          toast({
-            title: "Uh oh! Something went wrong.",
-            variant: "destructive",
-            description: errorMessage,
-          });
-          return;
-        }
+
         toast({
           title: "Uh oh! Something went wrong.",
           variant: "destructive",
-          description: "Failed to create resource! Please try again later.",
+          description:
+            errorMessage ??
+            "Failed to create resource! Please try again later.",
         });
       },
     });
@@ -71,7 +71,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
       <PageLayout
         title={`Edit: "${resource.title}"`}
         showBackButton
-        authenticatedOnly
+        authenticatedOnly={[UserRole.ADMIN]}
       >
         <EditResourceForm
           resource={resource}

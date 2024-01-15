@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import {
   createTRPCRouter,
+  adminProcedure,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
@@ -161,7 +162,7 @@ export const resourceRouter = createTRPCRouter({
         resource,
       };
     }),
-  update: privateProcedure
+  update: adminProcedure
     .input(
       resourceCreateSchema.extend({
         originalId: z.string(),
@@ -257,6 +258,66 @@ export const resourceRouter = createTRPCRouter({
           alternativeNames: updatedResource.alternativeNames
             .map(({ value }) => value)
             .join(";"),
+        },
+      });
+
+      return {
+        resource,
+      };
+    }),
+  delete: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      let resource = await ctx.db.resource.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+
+      if (!resource) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Resource ${input.id} not found`,
+        });
+      }
+
+      resource = await ctx.db.resource.delete({
+        where: {
+          id: input.id,
+        },
+      });
+
+      return {
+        resource,
+      };
+    }),
+  setPublished: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        published: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      let resource = await ctx.db.resource.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+
+      if (!resource) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Resource ${input.id} not found`,
+        });
+      }
+
+      resource = await ctx.db.resource.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          published: input.published,
         },
       });
 
