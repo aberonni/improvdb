@@ -214,7 +214,7 @@ You could consider writing a sample dialogue between you and the participants, a
 Are there any variations of this activity that you want to share? For example, you could change the rules, add/remove some constraints, change the goal of the activity, or anything else that you think is relevant.`,
 };
 
-export default function EditResourceForm({
+export default function ResourceEditForm({
   resource,
   onSubmit,
   isSubmitting,
