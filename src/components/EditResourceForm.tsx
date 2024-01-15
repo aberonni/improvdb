@@ -617,7 +617,10 @@ export default function EditResourceForm({
                               instanceId="relatedResources"
                               isLoading={isLoadingResources}
                               loadingMessage={() => "Loading resources..."}
-                              options={resources?.map(({ id, title }) => ({
+                              options={(resource
+                                ? resources?.filter((r) => r.id !== resource.id)
+                                : resources
+                              )?.map(({ id, title }) => ({
                                 label: title,
                                 value: id,
                               }))}
