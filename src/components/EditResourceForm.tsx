@@ -279,6 +279,9 @@ export default function EditResourceForm({
   } = form;
 
   useEffect(() => {
+    if (resource) {
+      return;
+    }
     const title = getValues("title");
     setValue("id", kebabCase(title));
     clearErrors("id");
@@ -375,6 +378,7 @@ export default function EditResourceForm({
                           <Input
                             placeholder="id"
                             className="pl-20"
+                            disabled={!!resource}
                             {...field}
                           />
                         </div>

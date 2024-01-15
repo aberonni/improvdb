@@ -173,12 +173,8 @@ export const resourceRouter = createTRPCRouter({
       };
     }),
   update: adminProcedure
-    .input(
-      resourceCreateSchema.extend({
-        originalId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input: { originalId, ...updatedResource } }) => {
+    .input(resourceCreateSchema)
+    .mutation(async ({ ctx, input: updatedResource }) => {
       const authorId = ctx.session.user.id;
 
       const { success } = await ratelimit.limit(authorId);
@@ -189,24 +185,9 @@ export const resourceRouter = createTRPCRouter({
         });
       }
 
-      if (updatedResource.id !== originalId) {
-        const resourceWithSameId = await ctx.db.resource.findUnique({
-          where: {
-            id: updatedResource.id,
-          },
-        });
-
-        if (resourceWithSameId) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "A resource with that URL already exists. Change URL.",
-          });
-        }
-      }
-
       const originalResource = await ctx.db.resource.findUnique({
         where: {
-          id: originalId,
+          id: updatedResource.id,
         },
         include: {
           categories: {
@@ -225,13 +206,13 @@ export const resourceRouter = createTRPCRouter({
       if (!originalResource) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Resource ${originalId} not found`,
+          message: `Resource ${updatedResource.id} not found`,
         });
       }
 
       const resource = await ctx.db.resource.update({
         where: {
-          id: originalId,
+          id: updatedResource.id,
         },
         data: {
           ...updatedResource,

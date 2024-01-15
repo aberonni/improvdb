@@ -19,7 +19,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: createResource, isLoading: isSubmitting } =
+  const { mutate: updateResource, isLoading: isSubmitting } =
     api.resource.update.useMutation({
       onSuccess: ({ resource: res }) => {
         void router.push("/resource/" + res.id);
@@ -79,10 +79,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
             if (isSubmitting) {
               return;
             }
-            createResource({
-              ...values,
-              originalId: resource?.id,
-            });
+            updateResource(values);
           }}
         />
       </PageLayout>
