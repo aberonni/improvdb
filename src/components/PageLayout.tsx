@@ -1,4 +1,4 @@
-import { type PropsWithChildren } from "react";
+import { useMemo, type PropsWithChildren } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 import { Disclosure, Transition } from "@headlessui/react";
@@ -27,17 +27,7 @@ import { type User } from "next-auth";
 import { useRouter } from "next/router";
 import { ThemeToggle } from "./ThemeToggle";
 import { LoadingPage } from "./Loading";
-import { type UserRole } from "@prisma/client";
-
-const navigation = [
-  { name: "Home", href: "/", authenticated: false },
-  { name: "Create Resource", href: "/create", authenticated: false },
-  {
-    name: "My Contributions",
-    href: "/user/my-contributions",
-    authenticated: true,
-  },
-];
+import { UserRole } from "@prisma/client";
 
 const UserWidget = ({ user }: { user: User }) => (
   <div className="flex items-center">
@@ -69,6 +59,27 @@ export const PageLayout = ({
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const navigation = useMemo(() => {
+    return [
+      { name: "Home", href: "/" },
+      { name: "Create Resource", href: "/create" },
+      {
+        name: "My Contributions",
+        href: "/user/my-contributions",
+        userRoles: [UserRole.USER, UserRole.ADMIN],
+      },
+      {
+        name: "Pending Publication",
+        href: "/admin/pending-publication",
+        userRoles: [UserRole.ADMIN],
+      },
+    ].filter(
+      (item) =>
+        !item.userRoles ||
+        (session?.user?.role && item.userRoles.includes(session?.user?.role)),
+    );
+  }, [session]);
+
   return (
     <div className="min-h-full">
       <Disclosure as="nav" className="border-b bg-background">
@@ -89,20 +100,15 @@ export const PageLayout = ({
                   </div>
                   <div className="hidden md:block">
                     <div className="ml-4 flex items-baseline space-x-0">
-                      {navigation.map((item) => {
-                        if (item.authenticated && status !== "authenticated") {
-                          return null;
-                        }
-                        return (
-                          <Link
-                            href={item.href}
-                            key={item.name}
-                            className={buttonVariants({ variant: "ghost" })}
-                          >
-                            {item.name}
-                          </Link>
-                        );
-                      })}
+                      {navigation.map((item) => (
+                        <Link
+                          href={item.href}
+                          key={item.name}
+                          className={buttonVariants({ variant: "ghost" })}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -181,24 +187,19 @@ export const PageLayout = ({
                 static
               >
                 <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
-                  {navigation.map((item) => {
-                    if (item.authenticated && status !== "authenticated") {
-                      return null;
-                    }
-                    return (
-                      <Disclosure.Button
-                        className={cn(
-                          buttonVariants({ variant: "link" }),
-                          "w-full justify-start",
-                        )}
-                        key={item.name}
-                        as="a"
-                        href={item.href}
-                      >
-                        {item.name}
-                      </Disclosure.Button>
-                    );
-                  })}
+                  {navigation.map((item) => (
+                    <Disclosure.Button
+                      className={cn(
+                        buttonVariants({ variant: "link" }),
+                        "w-full justify-start",
+                      )}
+                      key={item.name}
+                      as="a"
+                      href={item.href}
+                    >
+                      {item.name}
+                    </Disclosure.Button>
+                  ))}
                 </div>
                 <div className="px-2 pb-3 sm:px-3">
                   {session?.user ? (

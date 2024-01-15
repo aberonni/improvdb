@@ -70,7 +70,6 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
       </Head>
       <PageLayout
         title={`Edit: "${resource.title}"`}
-        showBackButton
         authenticatedOnly={[UserRole.ADMIN]}
       >
         <EditResourceForm

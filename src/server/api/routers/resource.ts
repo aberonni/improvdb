@@ -325,4 +325,22 @@ export const resourceRouter = createTRPCRouter({
         resource,
       };
     }),
+  getPendingPublication: adminProcedure.query(({ ctx }) => {
+    return ctx.db.resource.findMany({
+      where: {
+        published: false,
+      },
+      take: 1000,
+      orderBy: {
+        title: "asc",
+      },
+      include: {
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+  }),
 });
