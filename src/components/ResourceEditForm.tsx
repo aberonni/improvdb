@@ -172,7 +172,7 @@ const SaveButton = ({
   );
 };
 
-export const editFormDefaults: Partial<CreateSchemaType> = {
+const editFormDefaults: Partial<CreateSchemaType> = {
   alternativeNames: [],
   categories: [],
   relatedResources: [],
@@ -545,6 +545,7 @@ export default function ResourceEditForm({
                                 label: name,
                                 value: id,
                               }))}
+                              isMulti
                             />
                           </FormControl>
                           {errors.categories?.message && (
@@ -569,6 +570,7 @@ export default function ResourceEditForm({
                               }}
                               placeholder="Alternative Names..."
                               instanceId="alternativeNames"
+                              isMulti
                               isCreatable
                             />
                           </FormControl>
@@ -628,6 +630,7 @@ export default function ResourceEditForm({
                                 label: title,
                                 value: id,
                               }))}
+                              isMulti
                             />
                           </FormControl>
                           {errors.relatedResources?.message && (

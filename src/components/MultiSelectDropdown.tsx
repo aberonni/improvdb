@@ -17,7 +17,7 @@ const controlStyles = {
 const placeholderStyles = "px-3 py-1 text-muted-foreground";
 const selectInputStyles = "px-3 py-1 cursor-text";
 const valueContainerStyles = "p-1 gap-1";
-const singleValueStyles = "leading-7 ml-1 text-destructive";
+const singleValueStyles = "px-3 py-1";
 const multiValueStyles =
   "bg-accent rounded items-center py-0 pl-2 pr-1 gap-1.5";
 const multiValueLabelStyles = "leading-6 py-0.5";
@@ -106,58 +106,55 @@ export function MultiSelectDropown(props: MultiSelectDropdownProps) {
   }
 
   return (
-    <div className="w-full">
-      <TagType
-        isMulti
-        closeMenuOnSelect={false}
-        hideSelectedOptions={false}
-        unstyled
-        styles={{
-          input: (base) => ({
-            ...base,
-            "input:focus": {
-              boxShadow: "none",
-            },
-          }),
-          // On mobile, the label will truncate automatically, so we want to
-          // override that behaviour.
-          multiValueLabel: (base) => ({
-            ...base,
-            whiteSpace: "normal",
-            overflow: "visible",
-          }),
-          control: (base) => ({
-            ...base,
-            transition: "none",
-          }),
-        }}
-        classNames={{
-          control: ({ isFocused }) =>
-            clsx(isFocused && controlStyles.focus, controlStyles.base),
-          placeholder: () => placeholderStyles,
-          input: () => selectInputStyles,
-          valueContainer: () => valueContainerStyles,
-          singleValue: () => singleValueStyles,
-          multiValue: () => multiValueStyles,
-          multiValueLabel: () => multiValueLabelStyles,
-          multiValueRemove: () => multiValueRemoveStyles,
-          indicatorsContainer: () => indicatorsContainerStyles,
-          clearIndicator: () => clearIndicatorStyles,
-          indicatorSeparator: () => indicatorSeparatorStyles,
-          dropdownIndicator: () => dropdownIndicatorStyles,
-          menu: () => menuStyles,
-          groupHeading: () => groupHeadingStyles,
-          option: ({ isFocused, isSelected }) =>
-            clsx(
-              isFocused && optionStyles.focus,
-              isSelected && optionStyles.selected,
-              optionStyles.base,
-            ),
-          noOptionsMessage: () => noOptionsMessageStyles,
-        }}
-        {...props}
-        {...extraProps}
-      />
-    </div>
+    <TagType
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      unstyled
+      styles={{
+        input: (base) => ({
+          ...base,
+          "input:focus": {
+            boxShadow: "none",
+          },
+        }),
+        // On mobile, the label will truncate automatically, so we want to
+        // override that behaviour.
+        multiValueLabel: (base) => ({
+          ...base,
+          whiteSpace: "normal",
+          overflow: "visible",
+        }),
+        control: (base) => ({
+          ...base,
+          transition: "none",
+        }),
+      }}
+      classNames={{
+        control: ({ isFocused }) =>
+          clsx(isFocused && controlStyles.focus, controlStyles.base),
+        placeholder: () => placeholderStyles,
+        input: () => selectInputStyles,
+        valueContainer: () => valueContainerStyles,
+        singleValue: () => singleValueStyles,
+        multiValue: () => multiValueStyles,
+        multiValueLabel: () => multiValueLabelStyles,
+        multiValueRemove: () => multiValueRemoveStyles,
+        indicatorsContainer: () => indicatorsContainerStyles,
+        clearIndicator: () => clearIndicatorStyles,
+        indicatorSeparator: () => indicatorSeparatorStyles,
+        dropdownIndicator: () => dropdownIndicatorStyles,
+        menu: () => menuStyles,
+        groupHeading: () => groupHeadingStyles,
+        option: ({ isFocused, isSelected }) =>
+          clsx(
+            isFocused && optionStyles.focus,
+            isSelected && optionStyles.selected,
+            optionStyles.base,
+          ),
+        noOptionsMessage: () => noOptionsMessageStyles,
+      }}
+      {...props}
+      {...extraProps}
+    />
   );
 }

@@ -5,30 +5,30 @@ import type { GetStaticProps, NextPage } from "next";
 import { PageLayout } from "~/components/PageLayout";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import { LoadingPage } from "~/components/Loading";
-import ResourceEditForm from "~/components/ResourceEditForm";
+import LessonPlanEditForm from "~/components/LessonPlanEditForm";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
-import { UserRole } from "@prisma/client";
+import { useSession } from "next-auth/react";
 
-export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
-  const { data: resource, isLoading } = api.resource.getById.useQuery({
-    id,
+export const LessonPlanEditPage: NextPage<{ lessonPlanId: string }> = ({
+  lessonPlanId,
+}) => {
+  const { data: lessonPlan, isLoading } = api.lessonPlan.getById.useQuery({
+    id: lessonPlanId,
   });
 
-  const utils = api.useUtils();
+  const { data: session, status: sessionStatus } = useSession();
+
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: updateResource, isLoading: isSubmitting } =
-    api.resource.update.useMutation({
-      onSuccess: ({ resource: res }) => {
-        void router.push("/resource/" + res.id);
-        // incredible magic that makes the "getAll" automatically re-trigger
-        // XXX: do I need to invalidate all the getAlls?
-        void utils.resource.getAll.invalidate();
+  const { mutate: updateLessonPlan, isLoading: isSubmitting } =
+    api.lessonPlan.update.useMutation({
+      onSuccess: ({ lessonPlan: res }) => {
+        void router.push("/lesson-plan/" + res.id);
         toast({
           title: "Success!",
-          description: "Resource updated.",
+          description: "Lesson plan updated.",
         });
       },
       onError: (e) => {
@@ -37,7 +37,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
             title: "Uh oh! Something went wrong.",
             variant: "destructive",
             description:
-              "A resource already exists at this URL. Please choose a new URL.",
+              "A lessonPlan already exists at this URL. Please choose a new URL.",
           });
           return;
         }
@@ -50,36 +50,36 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           variant: "destructive",
           description:
             errorMessage ??
-            "Failed to create resource! Please try again later.",
+            "Failed to create lessonPlan! Please try again later.",
         });
       },
     });
 
-  if (isLoading) {
+  if (isLoading || sessionStatus === "loading") {
     return <LoadingPage />;
   }
 
-  if (!resource) {
+  if (!lessonPlan || lessonPlan.createdById !== session?.user?.id) {
     return <div>404</div>;
   }
 
   return (
     <>
       <Head>
-        <title>{`Edit: "${resource.title}" - ImprovDB`}</title>
+        <title>{`Edit: "${lessonPlan.title}" - ImprovDB`}</title>
       </Head>
-      <PageLayout
-        title={`Edit: "${resource.title}"`}
-        authenticatedOnly={[UserRole.ADMIN]}
-      >
-        <ResourceEditForm
-          resource={resource}
+      <PageLayout title={`Edit: "${lessonPlan.title}"`} authenticatedOnly>
+        <LessonPlanEditForm
+          lessonPlan={lessonPlan}
           isSubmitting={isSubmitting}
           onSubmit={(values) => {
             if (isSubmitting) {
               return;
             }
-            updateResource(values);
+            updateLessonPlan({
+              ...values,
+              id: lessonPlanId,
+            });
           }}
         />
       </PageLayout>
@@ -90,16 +90,17 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
 export const getStaticProps: GetStaticProps = async (context) => {
   const ssg = generateSSGHelper();
 
-  const id = context.params?.id;
+  const lessonPlanId = context.params?.lessonPlanId;
 
-  if (typeof id !== "string" || id === "") throw new Error("No id");
+  if (typeof lessonPlanId !== "string" || lessonPlanId === "")
+    throw new Error("No lessonPlanId");
 
-  await ssg.resource.getById.prefetch({ id });
+  await ssg.lessonPlan.getById.prefetch({ id: lessonPlanId });
 
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      id,
+      lessonPlanId,
     },
   };
 };
@@ -111,4 +112,4 @@ export const getStaticPaths = () => {
   };
 };
 
-export default ResourceEditPage;
+export default LessonPlanEditPage;

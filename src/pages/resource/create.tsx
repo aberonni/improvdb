@@ -1,7 +1,7 @@
 import Head from "next/head";
 
 import { PageLayout } from "~/components/PageLayout";
-import EditResourceForm from "~/components/EditResourceForm";
+import ResourceEditForm from "~/components/ResourceEditForm";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
@@ -49,7 +49,7 @@ export default function Create() {
         <title>Create Resource - ImprovDB</title>
       </Head>
       <PageLayout title="Create Resource" authenticatedOnly>
-        <EditResourceForm
+        <ResourceEditForm
           onSubmit={(values) => {
             if (isSubmitting) {
               return;

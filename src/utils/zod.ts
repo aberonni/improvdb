@@ -1,6 +1,17 @@
 import { ResourceType, ResourceConfiguation } from "@prisma/client";
 import * as z from "zod";
 
+const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  if (issue.code === z.ZodIssueCode.invalid_type) {
+    if (issue.expected === "object" && issue.received === "null") {
+      return { message: "Required" };
+    }
+  }
+  return { message: ctx.defaultError };
+};
+
+z.setErrorMap(customErrorMap);
+
 export const resourceCreateSchema = z.object({
   id: z
     .string()
@@ -25,4 +36,26 @@ export const resourceCreateSchema = z.object({
   ),
 
   relatedResources: z.array(z.object({ label: z.string(), value: z.string() })),
+});
+
+export const lessonPlanCreateSchema = z.object({
+  title: z.string().min(2).max(50),
+  description: z.string().optional(),
+  useDuration: z.boolean(),
+  sections: z.array(
+    z.object({
+      id: z.string().optional(),
+      title: z.string().optional(),
+      items: z.array(
+        z.object({
+          id: z.string().optional(),
+          text: z.string().optional(),
+          resource: z
+            .object({ label: z.string(), value: z.string() })
+            .optional(),
+          duration: z.union([z.number().int(), z.nan()]).optional(),
+        }),
+      ),
+    }),
+  ),
 });

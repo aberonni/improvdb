@@ -60,24 +60,28 @@ export const PageLayout = ({
   const router = useRouter();
 
   const navigation = useMemo(() => {
-    return [
+    let nav = [
       { name: "Home", href: "/" },
-      { name: "Create Resource", href: "/create" },
-      {
-        name: "My Contributions",
-        href: "/user/my-contributions",
-        userRoles: [UserRole.USER, UserRole.ADMIN],
-      },
-      {
-        name: "Pending Publication",
-        href: "/admin/pending-publication",
-        userRoles: [UserRole.ADMIN],
-      },
-    ].filter(
-      (item) =>
-        !item.userRoles ||
-        (session?.user?.role && item.userRoles.includes(session?.user?.role)),
-    );
+      { name: "Create Resource", href: "/resource/create" },
+    ];
+
+    if (!session?.user) {
+      return nav;
+    }
+
+    nav = nav.concat([
+      { name: "My Contributions", href: "/user/my-contributions" },
+      // { name: "My Lesson Plans", href: "/user/my-lesson-plans" },
+      // { name: "Create Lesson Plan", href: "/lesson-plan/create" },
+    ]);
+
+    if (session?.user?.role !== UserRole.ADMIN) {
+      return nav;
+    }
+
+    return nav.concat([
+      { name: "Pending Publication", href: "/admin/pending-publication" },
+    ]);
   }, [session]);
 
   return (
