@@ -185,29 +185,21 @@ You can use markdown to format your text. For example **bold text**, *italic tex
 
 Here are some sections that you might want to include in your description:
 
-## Introduction
-
-Any introduction that you want to give to the warm-up/exercise/game etc. This could be a short description of the activity, a story about how you came up with it, or anything else that you think is relevant.
-
 ## Setup
 
-How do you set up the activity? How do you explain the rules to the participants? How do you get the participants to start?
-
-## Rules
-
-What are the rules of the activity? How do you play it?
+How do you set up the activity? What are the rules? How do you explain them to the participants? How do you get the participants to start?
 
 ## Learning Objectives
 
 What are the learning objectives of the activity? What skills does it help the participants develop?
 
-## Tips
-
-Any tips that you have for the participants? Any common mistakes that you want to warn them about? Any advice that you want to give them?
-
 ## Examples
 
 You could consider writing a sample dialogue between you and the participants, a sample playthrough of the activity, or anything else that you think is relevant.
+
+## Tips
+
+Any tips that you have for the participants? Any common mistakes that you want to warn them about? Any advice that you want to give them?
 
 ## Variations
 

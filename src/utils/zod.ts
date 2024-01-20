@@ -40,6 +40,7 @@ export const resourceCreateSchema = z.object({
 
 export const lessonPlanCreateSchema = z.object({
   title: z.string().min(2).max(50),
+  theme: z.string().optional(),
   description: z.string().optional(),
   useDuration: z.boolean(),
   private: z.boolean(),

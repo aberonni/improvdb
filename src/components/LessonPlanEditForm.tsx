@@ -431,7 +431,7 @@ export default function LessonPlanEditForm({
               render={({ field }) => (
                 <FormItem className="mb-4">
                   <FormControl>
-                    <Input placeholder="Lesson plan title" {...field} />
+                    <Input placeholder="Title" {...field} />
                   </FormControl>
                   {errors.title?.message && (
                     <FormMessage>{errors.title?.message}</FormMessage>
@@ -444,6 +444,28 @@ export default function LessonPlanEditForm({
               <div className="flex flex-col space-y-4">
                 <FormField
                   control={control}
+                  name="theme"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          rows={2}
+                          placeholder={
+                            'Theme (eg. "Characters", "Emotions", "Embracing failure", etc.) (optional)'
+                          }
+                          {...field}
+                        />
+                      </FormControl>
+                      {errors.description && (
+                        <FormMessage>{errors.description.message}</FormMessage>
+                      )}
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
@@ -451,7 +473,7 @@ export default function LessonPlanEditForm({
                         <Textarea
                           {...field}
                           rows={8}
-                          placeholder="Lesson plan description (optional)"
+                          placeholder="Description (optional)"
                         />
                       </FormControl>
                       {errors.description && (

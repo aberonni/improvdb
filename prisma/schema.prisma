@@ -103,6 +103,7 @@ model LessonPlanSection {
 model LessonPlan {
   id          String   @id @default(cuid())
   title       String
+  theme       String?  @db.Text
   description String?  @db.Text
   private     Boolean  @default(true)
   useDuration Boolean  @default(true)
