@@ -28,6 +28,8 @@ import {
 
 import { cn } from "~/lib/utils";
 import {
+  ArrowDownIcon,
+  ArrowUpIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   HeightIcon,
@@ -37,6 +39,8 @@ import {
 } from "@radix-ui/react-icons";
 import { SingleLessonPlanComponent } from "./LessonPlan";
 import { Checkbox } from "./ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Separator } from "./ui/separator";
 
 type CreateSchemaType = z.infer<typeof lessonPlanCreateSchema>;
 
@@ -82,18 +86,28 @@ const SaveButton = ({
   );
 };
 
+const defaultEmptyItem: CreateSchemaType["sections"][0]["items"][0] = {
+  text: "",
+  duration: 0,
+  resource: undefined,
+};
+
 const defaultEmptySection: CreateSchemaType["sections"][0] = {
   title: "",
-  items: [],
+  items: [
+    {
+      ...defaultEmptyItem,
+    },
+    {
+      ...defaultEmptyItem,
+    },
+  ],
 };
 
 const editFormDefaults: Partial<CreateSchemaType> = {
+  private: true,
   useDuration: true,
-  sections: [
-    {
-      ...defaultEmptySection,
-    },
-  ],
+  sections: [],
 };
 
 const SectionItems = ({
@@ -119,7 +133,7 @@ const SectionItems = ({
     fields: items,
     remove,
     append,
-    update,
+    swap,
   } = useFieldArray({
     control,
     name: `sections.${sectionIndex}.items`,
@@ -159,17 +173,33 @@ const SectionItems = ({
                 size="icon"
                 variant="outline"
                 className="mt-4 shrink-0"
+                title="Move item up"
+                disabled={itemIndex === 0}
                 onClick={() => {
-                  alert("Move!");
+                  swap(itemIndex, itemIndex - 1);
                 }}
               >
-                <HeightIcon className="h-4 w-4" />
+                <ArrowUpIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="mt-4 shrink-0"
+                title="Move item down"
+                disabled={itemIndex === items.length - 1}
+                onClick={() => {
+                  swap(itemIndex, itemIndex + 1);
+                }}
+              >
+                <ArrowDownIcon className="h-4 w-4" />
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="icon"
                 className="mt-4 shrink-0 text-destructive"
+                title="Delete item"
                 onClick={() => {
                   remove(itemIndex);
                 }}
@@ -229,7 +259,7 @@ const SectionItems = ({
                               ...field,
                               ref: null,
                             }}
-                            placeholder="Select resource..."
+                            placeholder="Select resource (optional)..."
                             instanceId="relatedResources"
                             isLoading={resourcesLoading}
                             loadingMessage={() => "Loading resources..."}
@@ -257,7 +287,7 @@ const SectionItems = ({
                           {...field}
                           rows={4}
                           className="min-h-9"
-                          placeholder={"Add text to item..."}
+                          placeholder={"Add text to item (optional)..."}
                         />
                       </FormControl>
                       {getErrorMessage(sectionIndex, itemIndex, "text")}
@@ -274,9 +304,7 @@ const SectionItems = ({
           type="button"
           onClick={() => {
             append({
-              text: "",
-              duration: 0,
-              resource: undefined,
+              ...defaultEmptyItem,
             });
           }}
           variant="outline"
@@ -384,21 +412,24 @@ export default function LessonPlanEditForm({
         {previewData ? (
           <>
             <SingleLessonPlanComponent lessonPlan={previewData} />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPreviewData(null)}
-            >
-              Edit
-            </Button>
+            <Separator className="my-6" />
+            <div className="flex w-full justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPreviewData(null)}
+              >
+                Back to Edit
+              </Button>
+            </div>
           </>
         ) : (
-          <div className="space-y-4">
+          <>
             <FormField
               control={control}
               name="title"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mb-4">
                   <FormControl>
                     <Input placeholder="Lesson plan title" {...field} />
                   </FormControl>
@@ -409,142 +440,224 @@ export default function LessonPlanEditForm({
               )}
             />
 
-            <FormField
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Lesson plan description"
-                    />
-                  </FormControl>
-                  {errors.description && (
-                    <FormMessage>{errors.description.message}</FormMessage>
+            <div className="grid h-full items-stretch gap-6 md:grid-cols-[300px_1fr]">
+              <div className="flex flex-col space-y-4">
+                <FormField
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          rows={8}
+                          placeholder="Lesson plan description (optional)"
+                        />
+                      </FormControl>
+                      {errors.description && (
+                        <FormMessage>{errors.description.message}</FormMessage>
+                      )}
+                    </FormItem>
                   )}
-                </FormItem>
-              )}
-            />
+                />
 
-            <FormField
-              control={form.control}
-              name="useDuration"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Use "duration" fields</FormLabel>
-                    <FormDescription className="pl-0">
-                      If checked, each item in the lesson plan will have a
-                      duration field, and the total duration of the lesson plan
-                      will be automatically calculated.
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="private"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Private</FormLabel>
+                        <FormDescription className="pl-0">
+                          If checked, the lesson plan will only be visible to
+                          you. You can change this later.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
 
-            {sections.map((section, sectionIndex) => (
-              <Collapsible
-                key={section.id}
-                open={!sectionClosed[sectionIndex]}
-                onOpenChange={(open) =>
-                  setSectionClosed((s) => ({
-                    ...s,
-                    [sectionIndex]: !open,
-                  }))
-                }
-              >
-                <div className="rounded border p-4">
-                  <div className="flex w-full flex-row gap-4">
-                    <FormField
-                      control={control}
-                      name={`sections.${sectionIndex}.title`}
-                      render={({ field }) => (
-                        <FormItem className="grow">
-                          <FormControl>
-                            <Input
-                              placeholder={`Section ${sectionIndex + 1} title`}
-                              {...field}
+                <FormField
+                  control={form.control}
+                  name="useDuration"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Use "duration" fields</FormLabel>
+                        <FormDescription className="pl-0">
+                          If checked, each item in the lesson plan will have a
+                          duration field, and the total duration of the lesson
+                          plan will be automatically calculated.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="mt-0 border-0 p-0">
+                <div className="flex h-full flex-col space-y-4">
+                  {sections.length > 0 ? (
+                    sections.map((section, sectionIndex) => (
+                      <Collapsible
+                        key={section.id}
+                        open={!sectionClosed[sectionIndex]}
+                        onOpenChange={(open) =>
+                          setSectionClosed((s) => ({
+                            ...s,
+                            [sectionIndex]: !open,
+                          }))
+                        }
+                      >
+                        <div className="rounded border p-4">
+                          <div className="flex w-full flex-row gap-4">
+                            <FormField
+                              control={control}
+                              name={`sections.${sectionIndex}.title`}
+                              render={({ field }) => (
+                                <FormItem className="grow">
+                                  <FormControl>
+                                    <Input
+                                      placeholder={`Section ${
+                                        sectionIndex + 1
+                                      } title (eg. Warmup, Exercises, Main Activities, Games etc.)`}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  {errors.sections?.[sectionIndex]?.title
+                                    ?.message && (
+                                    <FormMessage>
+                                      {
+                                        errors.sections?.[sectionIndex]?.title
+                                          ?.message
+                                      }
+                                    </FormMessage>
+                                  )}
+                                </FormItem>
+                              )}
                             />
-                          </FormControl>
-                          {errors.sections?.[sectionIndex]?.title?.message && (
-                            <FormMessage>
-                              {errors.sections?.[sectionIndex]?.title?.message}
-                            </FormMessage>
-                          )}
-                        </FormItem>
-                      )}
-                    />
-                    <Button
-                      onClick={() => {
-                        removeSection(sectionIndex);
-                      }}
-                      variant="outline"
-                      className="text-destructive"
-                    >
-                      <TrashIcon className="mr-2 h-4 w-4" />
-                      Delete Section
-                    </Button>
-                    <CollapsibleTrigger
-                      className={cn(
-                        buttonVariants({ variant: "secondary", size: "icon" }),
-                        "shrink-0",
-                      )}
-                    >
-                      {sectionClosed[sectionIndex] ? (
-                        <ChevronDownIcon className="h-4 w-4" />
-                      ) : (
-                        <ChevronUpIcon className="h-4 w-4" />
-                      )}
-                    </CollapsibleTrigger>
-                  </div>
-                  <CollapsibleContent>
-                    <div className="mt-4 space-y-4">
-                      <SectionItems
-                        sectionIndex={sectionIndex}
-                        form={form}
-                        resources={resources}
-                        resourcesLoading={isLoadingResources}
-                        durationEnabled={durationEnabled}
-                      />
-                    </div>
-                  </CollapsibleContent>
+                            <Button
+                              onClick={() => {
+                                removeSection(sectionIndex);
+                              }}
+                              variant="outline"
+                              className="text-destructive"
+                            >
+                              <TrashIcon className="mr-2 h-4 w-4" />
+                              Delete Section
+                            </Button>
+                            <CollapsibleTrigger
+                              className={cn(
+                                buttonVariants({
+                                  variant: "secondary",
+                                  size: "icon",
+                                }),
+                                "shrink-0",
+                              )}
+                            >
+                              {sectionClosed[sectionIndex] ? (
+                                <ChevronDownIcon className="h-4 w-4" />
+                              ) : (
+                                <ChevronUpIcon className="h-4 w-4" />
+                              )}
+                            </CollapsibleTrigger>
+                          </div>
+                          <CollapsibleContent>
+                            <div className="mt-4 space-y-4">
+                              <SectionItems
+                                sectionIndex={sectionIndex}
+                                form={form}
+                                resources={resources}
+                                resourcesLoading={isLoadingResources}
+                                durationEnabled={durationEnabled}
+                              />
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    ))
+                  ) : (
+                    <>
+                      <div className="flex h-full flex-col items-center justify-center rounded border p-4 ">
+                        <div className="text-md font-bold text-muted-foreground">
+                          {" "}
+                          Add a{" "}
+                          <Popover>
+                            <PopoverTrigger className="underline decoration-dashed underline-offset-4">
+                              section
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 space-y-2 text-sm">
+                              <p>
+                                Each lesson plan is made up of <b>sections</b>.
+                                Think of sections as a way to split up your
+                                lesson plan into different parts.
+                              </p>
+                              <p>
+                                For example, you might have a section for the
+                                warmup, a section for the main exercises, and a
+                                section for the performance games.
+                              </p>
+                              <p>
+                                Each section is made up of <b>items</b>. Items
+                                are the building blocks of your lesson plan, and
+                                they can be linked to resources, or just contain
+                                text.
+                              </p>
+                              <Separator />
+                              <p>
+                                The easiest way to get started is to build your
+                                own lesson plan and see how it works! You can
+                                always go back and edit it later.
+                              </p>
+                            </PopoverContent>
+                          </Popover>{" "}
+                          to get started!
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      appendSection({
+                        ...defaultEmptySection,
+                      });
+                    }}
+                    className="w-full"
+                  >
+                    <PlusIcon className="mr-2 h-4 w-4" />
+                    Add Section
+                  </Button>
                 </div>
-              </Collapsible>
-            ))}
-
-            <Button
-              type="button"
-              onClick={() => {
-                appendSection({
-                  ...defaultEmptySection,
-                });
-              }}
-              className="w-full"
-            >
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Add Section
-            </Button>
-            <SaveButton
-              form={form}
-              isSaving={isSubmitting}
-              onSave={handleSubmit(onSubmit)}
-            />
-            <Button
-              onClick={() => setPreviewData(getValues())}
-              type="button"
-              variant="outline"
-            >
-              Preview
-            </Button>
-          </div>
+              </div>
+            </div>
+            <Separator className="my-6" />
+            <div className="flex w-full justify-end space-x-2">
+              <Button
+                onClick={() => setPreviewData(getValues())}
+                type="button"
+                variant="outline"
+              >
+                Preview
+              </Button>
+              <SaveButton
+                form={form}
+                isSaving={isSubmitting}
+                onSave={handleSubmit(onSubmit)}
+              />
+            </div>
+          </>
         )}
       </form>
     </Form>

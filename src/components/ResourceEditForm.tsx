@@ -336,13 +336,16 @@ export default function ResourceEditForm({
         {previewData ? (
           <>
             <SingleResourceComponent resource={previewData} />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPreviewData(null)}
-            >
-              Edit
-            </Button>
+            <Separator className="my-6" />
+            <div className="flex w-full justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPreviewData(null)}
+              >
+                Back to Edit
+              </Button>
+            </div>
           </>
         ) : (
           <>
@@ -690,22 +693,23 @@ export default function ResourceEditForm({
                       </FormItem>
                     )}
                   />
-                  <div className="flex items-center space-x-2">
-                    <SaveButton
-                      form={form}
-                      isSaving={isSubmitting}
-                      onSave={handleSubmit(onSubmit)}
-                    />
-                    <Button
-                      onClick={() => setPreviewData(getValues())}
-                      type="button"
-                      variant="outline"
-                    >
-                      Preview
-                    </Button>
-                  </div>
                 </div>
               </div>
+            </div>
+            <Separator className="my-6" />
+            <div className="flex w-full justify-end space-x-2">
+              <Button
+                onClick={() => setPreviewData(getValues())}
+                type="button"
+                variant="outline"
+              >
+                Preview
+              </Button>
+              <SaveButton
+                form={form}
+                isSaving={isSubmitting}
+                onSave={handleSubmit(onSubmit)}
+              />
             </div>
           </>
         )}

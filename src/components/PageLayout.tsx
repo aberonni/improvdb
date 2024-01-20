@@ -50,11 +50,13 @@ export const PageLayout = ({
   showBackButton,
   authenticatedOnly,
   title,
+  headerContent,
 }: PropsWithChildren & {
   title: string;
   className?: string;
   showBackButton?: boolean;
   authenticatedOnly?: boolean | UserRole[];
+  headerContent?: React.ReactNode;
 }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -71,8 +73,6 @@ export const PageLayout = ({
 
     nav = nav.concat([
       { name: "My Contributions", href: "/user/my-contributions" },
-      // { name: "My Lesson Plans", href: "/user/my-lesson-plans" },
-      // { name: "Create Lesson Plan", href: "/lesson-plan/create" },
     ]);
 
     if (session?.user?.role !== UserRole.ADMIN) {
@@ -81,6 +81,8 @@ export const PageLayout = ({
 
     return nav.concat([
       { name: "Pending Publication", href: "/admin/pending-publication" },
+      { name: "My Lesson Plans", href: "/user/my-lesson-plans" },
+      { name: "Create Lesson Plan", href: "/lesson-plan/create" },
     ]);
   }, [session]);
 
@@ -263,6 +265,7 @@ export const PageLayout = ({
                 Back
               </Button>
             )}
+            {headerContent}
           </div>
         </div>
       </header>
