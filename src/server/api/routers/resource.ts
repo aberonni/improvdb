@@ -153,7 +153,6 @@ export const resourceRouter = createTRPCRouter({
             createMany: {
               data: input.categories.map(({ value }) => ({
                 categoryId: value,
-                assignedBy: authorId,
               })),
             },
           },
@@ -227,7 +226,6 @@ export const resourceRouter = createTRPCRouter({
                 )
                 .map(({ value }) => ({
                   categoryId: value,
-                  assignedBy: authorId,
                 })),
             },
             deleteMany: originalResource.categories.filter((cat) => {

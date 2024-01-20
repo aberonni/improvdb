@@ -43,8 +43,6 @@ async function main() {
       categories = {
         create: resource.categories.map((category: string) => {
           return {
-            assignedBy: seedUser.id,
-            assignedAt: new Date(),
             category: {
               connectOrCreate: {
                 where: { id: category },
