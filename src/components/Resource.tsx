@@ -53,6 +53,16 @@ export function SingleResourceComponent({ resource }: Props) {
     }
   }, [resource]);
 
+  const alternativeNames = useMemo(() => {
+    if (!resource.alternativeNames || resource.alternativeNames === "") {
+      return [];
+    }
+
+    return typeof resource.alternativeNames === "string"
+      ? resource.alternativeNames.split(";")
+      : resource.alternativeNames.map((name) => name.value);
+  }, [resource]);
+
   return (
     <article className="w-full">
       <div className="grid h-full items-stretch gap-0 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
@@ -65,16 +75,13 @@ export function SingleResourceComponent({ resource }: Props) {
                 {subtitle}
               </h4>
 
-              {resource.alternativeNames && (
+              {alternativeNames.length > 0 && (
                 <>
                   <Separator />
                   <div>
                     Also known as:
                     <ul className="ml-6 list-disc [&>li]:mt-0">
-                      {(typeof resource.alternativeNames === "string"
-                        ? resource.alternativeNames.split(";")
-                        : resource.alternativeNames.map((name) => name.value)
-                      ).map((name) => (
+                      {alternativeNames.map((name) => (
                         <li key={name}>{name}</li>
                       ))}
                     </ul>
