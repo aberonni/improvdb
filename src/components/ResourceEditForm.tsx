@@ -247,10 +247,13 @@ export default function ResourceEditForm({
         label: relatedResource.title,
         value: relatedResource.id,
       })),
-      alternativeNames: resource.alternativeNames?.split(";").map((name) => ({
-        label: name,
-        value: name,
-      })),
+      alternativeNames: resource.alternativeNames
+        ?.split(";")
+        .filter((s) => s !== "")
+        .map((name) => ({
+          label: name,
+          value: name,
+        })),
     };
   }
 
