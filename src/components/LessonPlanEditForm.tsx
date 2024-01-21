@@ -1,5 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type UseFormReturn, useForm, useFieldArray } from "react-hook-form";
+import {
+  type UseFormReturn,
+  useForm,
+  useFieldArray,
+  useWatch,
+} from "react-hook-form";
 import type * as z from "zod";
 import { useToast } from "~/components/ui/use-toast";
 
@@ -392,8 +397,6 @@ export default function LessonPlanEditForm({
     watch,
   } = form;
 
-  const durationEnabled = watch("useDuration");
-
   const {
     fields: sections,
     append: appendSection,
@@ -405,6 +408,29 @@ export default function LessonPlanEditForm({
       minLength: 1,
     },
   });
+
+  const durationEnabled = watch("useDuration");
+
+  const watchedSections = useWatch({ control, name: "sections" });
+
+  const totalDuration = useMemo(() => {
+    if (!durationEnabled) {
+      return null;
+    }
+
+    console.log("Update");
+
+    return watchedSections.reduce(
+      (total, section) =>
+        section.items.reduce((acc, item) => {
+          if (!item.duration || isNaN(item.duration)) {
+            return acc;
+          }
+          return acc + item.duration;
+        }, total),
+      0,
+    );
+  }, [durationEnabled, watchedSections]);
 
   return (
     <Form {...form}>
@@ -527,6 +553,17 @@ export default function LessonPlanEditForm({
                     </FormItem>
                   )}
                 />
+
+                {durationEnabled && (
+                  <div className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 shadow">
+                    <div className="flex-grow">
+                      <FormLabel>Total Duration</FormLabel>
+                      <FormDescription className="pl-0">
+                        {totalDuration ?? 0} minutes
+                      </FormDescription>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="mt-0 border-0 p-0">
                 <div className="flex h-full flex-col space-y-4">
