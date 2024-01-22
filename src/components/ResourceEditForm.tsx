@@ -131,7 +131,7 @@ const SaveButton = ({
           <AlertDialogDescription>
             You are about to save this resource. This action cannot be undone.
             Your new resource will be pending publication after you submit it.
-            You can monitor the status in your "My Resources" page.
+            You can monitor the status in your "My Proposed Resources" page.
             <Separator className="my-2" />
             You will not be able to edit or delete this resource after saving
             it!

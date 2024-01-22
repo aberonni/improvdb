@@ -38,6 +38,24 @@ export const resourceRouter = createTRPCRouter({
       },
     });
   }),
+  getLatest: publicProcedure.query(({ ctx }) => {
+    return ctx.db.resource.findMany({
+      take: 5,
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        published: true,
+      },
+      include: {
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+  }),
   getAllOnlyIdAndTitle: publicProcedure.query(({ ctx }) => {
     return ctx.db.resource.findMany({
       take: 1000,
@@ -53,7 +71,7 @@ export const resourceRouter = createTRPCRouter({
       },
     });
   }),
-  getMyContributions: privateProcedure.query(({ ctx }) => {
+  getMyProposedResources: privateProcedure.query(({ ctx }) => {
     return ctx.db.resource.findMany({
       where: {
         createdBy: ctx.session.user,

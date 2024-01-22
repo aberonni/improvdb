@@ -1,38 +1,52 @@
 import Head from "next/head";
-import { useState } from "react";
+import Link from "next/link";
+import { LessonPlanList } from "~/components/LessonPlanList";
 import { PageLayout } from "~/components/PageLayout";
 import { ResourceList } from "~/components/ResourceList";
-import { Input } from "~/components/ui/input";
-
+import { buttonVariants } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
+import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 
 export default function Home() {
-  const queryResult = api.resource.getAll.useQuery();
-
-  const [filter, setFilter] = useState("");
+  const resourcesQueryResult = api.resource.getLatest.useQuery();
+  const lessonPlansQueryResult = api.lessonPlan.getPublic.useQuery({ take: 5 });
 
   return (
     <>
       <Head>
         <title>ImprovDB</title>
       </Head>
-      <PageLayout title="Home">
-        <Input
-          type="text"
-          value={filter}
-          placeholder="Filter resources..."
-          onChange={(e) => {
-            setFilter(e.currentTarget.value);
-          }}
-          className="mb-4"
-        />
-        <ResourceList
-          queryResult={queryResult}
-          noResourcesMessage="Try a different search query."
-          filter={(resource) => {
-            return resource.title.toLowerCase().includes(filter?.toLowerCase());
-          }}
-        />
+      <PageLayout
+        title={
+          <>
+            Welcome to ImprovDB!
+            <span className="block text-sm font-normal tracking-normal">
+              Your new home for everything improv
+            </span>
+          </>
+        }
+      >
+        <h2 className="mb-6 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+          Latest Resources
+        </h2>
+        <ResourceList queryResult={resourcesQueryResult} />
+        <Link
+          href="/resource/browse"
+          className={cn(buttonVariants({ variant: "link" }), " mt-2")}
+        >
+          Browse all resources
+        </Link>
+        <h2 className="mb-6 mt-16 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+          Latest Public Lesson Plans
+        </h2>
+        <LessonPlanList queryResult={lessonPlansQueryResult} />
+        <Link
+          href="/lesson-plan/browse"
+          className={cn(buttonVariants({ variant: "link" }), " mt-2")}
+        >
+          Browse all public lesson plans
+        </Link>
       </PageLayout>
     </>
   );

@@ -43,6 +43,19 @@ const getLessonPlanSectionsForCreation = (
 };
 
 export const lessonPlanRouter = createTRPCRouter({
+  getPublic: publicProcedure
+    .input(z.object({ take: z.number().optional() }).optional())
+    .query(({ ctx, input }) => {
+      return ctx.db.lessonPlan.findMany({
+        where: {
+          private: false,
+        },
+        take: input?.take ?? 1000,
+        orderBy: {
+          title: "asc",
+        },
+      });
+    }),
   getMyLessonPlans: privateProcedure.query(({ ctx }) => {
     return ctx.db.lessonPlan.findMany({
       where: {

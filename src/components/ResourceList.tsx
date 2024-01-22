@@ -12,13 +12,13 @@ import { ResourceTypeLabels } from "./Resource";
 export const ResourceList = ({
   filter,
   queryResult,
-  noResourcesMessage,
+  noResourcesMessage = "No resources found.",
   showPublishedStatus = false,
 }: {
   queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
   filter?: (resource: RouterOutputs["resource"]["getAll"][0]) => boolean;
   showPublishedStatus?: boolean;
-  noResourcesMessage: string;
+  noResourcesMessage?: string;
 }) => {
   const { data, isLoading } = queryResult;
 

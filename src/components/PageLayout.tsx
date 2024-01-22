@@ -46,6 +46,12 @@ const UserWidget = ({ user }: { user: User }) => (
   </div>
 );
 
+const userNav = [
+  { name: "My Lesson Plans", href: "/user/my-lesson-plans" },
+  { name: "My Proposed Resources", href: "/user/my-proposed-resources" },
+  { name: "Propose Resource", href: "/resource/create" },
+];
+
 export const PageLayout = ({
   children,
   className,
@@ -64,18 +70,15 @@ export const PageLayout = ({
   const router = useRouter();
 
   const navigation = useMemo(() => {
-    let nav = [
+    const nav = [
       { name: "Home", href: "/" },
-      { name: "Create Resource", href: "/resource/create" },
+      { name: "Create Lesson Plan", href: "/lesson-plan/create" },
+      { name: "Browse Resources", href: "/resource/browse" },
     ];
 
     if (!session?.user) {
       return nav;
     }
-
-    nav = nav.concat([
-      { name: "My Contributions", href: "/user/my-contributions" },
-    ]);
 
     if (session?.user?.role !== UserRole.ADMIN) {
       return nav;
@@ -83,8 +86,6 @@ export const PageLayout = ({
 
     return nav.concat([
       { name: "Pending Publication", href: "/admin/pending-publication" },
-      { name: "My Lesson Plans", href: "/user/my-lesson-plans" },
-      { name: "Create Lesson Plan", href: "/lesson-plan/create" },
     ]);
   }, [session]);
 
@@ -138,7 +139,14 @@ export const PageLayout = ({
                           <div className="p-2 text-sm text-foreground">
                             <UserWidget user={session.user} />
                           </div>
-                          {/* <DropdownMenuItem disabled>Profile</DropdownMenuItem> */}
+                          <DropdownMenuSeparator />
+                          {userNav.map((item) => (
+                            <DropdownMenuItem key={item.name} asChild>
+                              <Link href={item.href} className="cursor-pointer">
+                                {item.name}
+                              </Link>
+                            </DropdownMenuItem>
+                          ))}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() =>
@@ -216,6 +224,19 @@ export const PageLayout = ({
                         <UserWidget user={session.user} />
                       </Alert>
                       <div className="mt-3">
+                        {userNav.map((item) => (
+                          <Disclosure.Button
+                            className={cn(
+                              buttonVariants({ variant: "link" }),
+                              "w-full justify-start",
+                            )}
+                            key={item.name}
+                            as="a"
+                            href={item.href}
+                          >
+                            {item.name}
+                          </Disclosure.Button>
+                        ))}
                         <Disclosure.Button
                           className={cn(
                             buttonVariants({ variant: "link" }),
