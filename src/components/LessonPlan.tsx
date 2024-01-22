@@ -3,7 +3,7 @@ import Link from "next/link";
 import type * as z from "zod";
 
 import type { RouterOutputs } from "~/utils/api";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { type lessonPlanCreateSchema } from "~/utils/zod";
 
 import {
@@ -19,6 +19,19 @@ import { ResourceTypeLabels, getResourceConfigurationLabel } from "./Resource";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { cn } from "~/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
+import {
+  Link1Icon,
+  Link2Icon,
+  MinusIcon,
+  OpenInNewWindowIcon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
+import { Icon } from "@radix-ui/react-select";
 
 type ApiLessonPlan = Readonly<RouterOutputs["lessonPlan"]["getById"]>;
 type CreationLessonPlan = z.infer<typeof lessonPlanCreateSchema>;
@@ -77,16 +90,19 @@ export function LessonPlanDuration({
 
 export function SingleLessonPlanComponent({
   lessonPlan,
-  showResourceDescriptions,
+  showAllResourceDescriptions = false,
 }: {
   lessonPlan: LessonPlanUnion;
-  showResourceDescriptions?: boolean;
+  showAllResourceDescriptions?: boolean;
 }) {
   const isPreviewItem = (
     item: LessonPlanUnion["sections"][0]["items"][0],
   ): item is CreationLessonPlan["sections"][0]["items"][0] => {
     return !!item.resource && "label" in item.resource;
   };
+
+  const [showSpecificResourceDescription, setShowSpecificResourceDescription] =
+    useState<Record<string, boolean>>({});
 
   return (
     <div>
@@ -110,8 +126,8 @@ export function SingleLessonPlanComponent({
           />
         )}
       </div>
-      {lessonPlan.sections.map((section, index) => (
-        <Table className="relative mt-8" key={index}>
+      {lessonPlan.sections.map((section, sectionIndex) => (
+        <Table className="relative mt-8" key={sectionIndex}>
           <TableHeader>
             <TableRow className="border-none">
               <TableHead
@@ -119,7 +135,9 @@ export function SingleLessonPlanComponent({
                 className="sticky top-0 bg-background p-0 text-lg shadow-sm print:relative"
               >
                 <span className="block p-2">
-                  {section.title ? section.title : `Section {index + 1}`}
+                  {section.title
+                    ? section.title
+                    : `Section ${sectionIndex + 1}`}
                 </span>
                 <Separator />
               </TableHead>
@@ -136,53 +154,87 @@ export function SingleLessonPlanComponent({
                       </TableCell>
                     )}
                     <TableCell className="w-[calc(100%-200px)]">
-                      {isPreviewItem(item) ? (
-                        <Link
-                          href={`/resource/${item.resource.value}`}
-                          className="font-medium text-primary underline underline-offset-4"
-                        >
-                          {item.resource.label}
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/resource/${item.resource.id}`}
-                          className="font-medium text-primary underline underline-offset-4"
-                        >
-                          {item.resource.title}
-                        </Link>
-                      )}
-                      {item.text && (
-                        <>
-                          <br />
-                          <span className="inline-block pt-2">{item.text}</span>
-                        </>
-                      )}
-                      {showResourceDescriptions && !isPreviewItem(item) && (
-                        <>
-                          <ReactMarkdown
-                            children={item.resource.description}
-                            className="prose-sm prose-zinc mt-4 max-w-full rounded-md border p-4 dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
-                            components={{
-                              h1: ({ ...props }) => <h3 {...props} />,
-                              h2: ({ ...props }) => <h3 {...props} />,
-                              a: ({ href, ref, ...props }) => {
-                                if (!href || !href.startsWith("resource/")) {
-                                  return (
-                                    <a
-                                      href={href}
-                                      ref={ref}
-                                      target="_blank"
-                                      {...props}
-                                    />
-                                  );
-                                }
+                      <Collapsible
+                        open={
+                          showAllResourceDescriptions ||
+                          showSpecificResourceDescription[
+                            `${sectionIndex}-${itemIndex}`
+                          ]
+                        }
+                        onOpenChange={(open) =>
+                          setShowSpecificResourceDescription((s) => ({
+                            ...s,
+                            [`${sectionIndex}-${itemIndex}`]: open,
+                          }))
+                        }
+                      >
+                        <CollapsibleTrigger className="flex items-center font-medium text-primary underline underline-offset-4 hover:opacity-75">
+                          {isPreviewItem(item)
+                            ? item.resource.label
+                            : item.resource.title}
+                          {showAllResourceDescriptions ||
+                          showSpecificResourceDescription[
+                            `${sectionIndex}-${itemIndex}`
+                          ] ? (
+                            <MinusIcon className="ml-1 inline-block h-4 w-4 print:hidden" />
+                          ) : (
+                            <PlusIcon className="ml-1 inline-block h-4 w-4 print:hidden" />
+                          )}
+                        </CollapsibleTrigger>
+                        {item.text && (
+                          <>
+                            <span className="inline-block pt-2">
+                              {item.text}
+                            </span>
+                          </>
+                        )}
+                        <CollapsibleContent>
+                          {!isPreviewItem(item) ? (
+                            <>
+                              <ReactMarkdown
+                                children={item.resource.description}
+                                className="prose-sm prose-zinc mt-4 max-w-full rounded-md border p-4 dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
+                                components={{
+                                  h1: ({ ...props }) => <h3 {...props} />,
+                                  h2: ({ ...props }) => <h3 {...props} />,
+                                  a: ({ href, ref, ...props }) => {
+                                    if (
+                                      !href ||
+                                      !href.startsWith("resource/")
+                                    ) {
+                                      return (
+                                        <a
+                                          href={href}
+                                          ref={ref}
+                                          target="_blank"
+                                          {...props}
+                                        />
+                                      );
+                                    }
 
-                                return <Link href={"/" + href} {...props} />;
-                              },
-                            }}
-                          />
-                        </>
-                      )}
+                                    return (
+                                      <Link href={"/" + href} {...props} />
+                                    );
+                                  },
+                                }}
+                              />
+                              <Link
+                                href={`/resource/${item.resource.id}`}
+                                className="float-right mt-2 flex items-center underline hover:opacity-75 print:hidden"
+                                target="_blank"
+                              >
+                                <OpenInNewWindowIcon className="mr-1 inline-block h-3 w-3" />
+                                Open resource in new tab
+                              </Link>
+                            </>
+                          ) : (
+                            <p>
+                              Extra content is unavailable while previewing
+                              lesson plans.
+                            </p>
+                          )}
+                        </CollapsibleContent>
+                      </Collapsible>
                     </TableCell>
                     <TableCell className="w-[130px] text-right">
                       {!isPreviewItem(item) &&

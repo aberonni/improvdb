@@ -15,17 +15,24 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Badge } from "~/components/ui/badge";
 import { cn } from "~/lib/utils";
 import { useSession } from "next-auth/react";
+import {
+  DownloadIcon,
+  LockClosedIcon,
+  LockOpen1Icon,
+  Pencil2Icon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 
 const AdminToolbar = ({
   lessonPlan,
-  showResourceDescriptions,
-  setShowResourceDescriptions,
+  showAllResourceDescriptions,
+  setShowAllResourceDescriptions,
   isOwner,
 }: {
   lessonPlan: RouterOutputs["lessonPlan"]["getById"];
   isOwner: boolean;
-  showResourceDescriptions: boolean;
-  setShowResourceDescriptions: (show: boolean) => void;
+  showAllResourceDescriptions: boolean;
+  setShowAllResourceDescriptions: (show: boolean) => void;
 }) => {
   const utils = api.useUtils();
   const router = useRouter();
@@ -78,6 +85,7 @@ const AdminToolbar = ({
   return (
     <div className="mt-4 flex w-full flex-col items-stretch gap-2 space-y-2 rounded bg-accent px-4 py-2 print:hidden md:flex-row md:items-center md:space-y-0">
       <Button onClick={() => window.print()} className="md:order-2">
+        <DownloadIcon className="mr-2 h-4 w-4" />
         Print / Download
       </Button>
       {isOwner && (
@@ -86,6 +94,7 @@ const AdminToolbar = ({
             href={`/lesson-plan/${lessonPlan.id}/edit`}
             className={cn(buttonVariants({ variant: "default" }), "md:order-3")}
           >
+            <Pencil2Icon className="mr-2 h-4 w-4" />
             Edit
           </Link>
           {lessonPlan.private ? (
@@ -99,6 +108,7 @@ const AdminToolbar = ({
               disabled={isSettingPublishedStatus}
               className="md:order-4"
             >
+              <LockOpen1Icon className="mr-2 h-4 w-4" />
               Make public
             </Button>
           ) : (
@@ -112,6 +122,7 @@ const AdminToolbar = ({
               disabled={isSettingPublishedStatus}
               className="md:order-5"
             >
+              <LockClosedIcon className="mr-2 h-4 w-4" />
               Make private
             </Button>
           )}
@@ -121,23 +132,24 @@ const AdminToolbar = ({
             variant="destructive"
             className="md:order-6"
           >
+            <TrashIcon className="mr-2 h-4 w-4" />
             Delete
           </Button>
         </>
       )}
       <div className="mr-auto flex items-center py-2 md:order-1 md:py-0">
         <Checkbox
-          id="showResourceDescriptions"
-          checked={showResourceDescriptions}
+          id="showAllResourceDescriptions"
+          checked={showAllResourceDescriptions}
           onCheckedChange={(e) =>
-            setShowResourceDescriptions(Boolean(e.valueOf()))
+            setShowAllResourceDescriptions(Boolean(e.valueOf()))
           }
         />
         <label
-          htmlFor="showResourceDescriptions"
+          htmlFor="showAllResourceDescriptions"
           className="cursor-pointer select-none pl-2 text-sm font-medium leading-none"
         >
-          Show Resource Descriptions
+          Show All Resource Descriptions
         </label>
       </div>
     </div>
@@ -151,7 +163,7 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
     id: lessonPlanId,
   });
 
-  const [showResourceDescriptions, setShowResourceDescriptions] =
+  const [showAllResourceDescriptions, setShowAllResourceDescriptions] =
     useState(false);
 
   const { data: session } = useSession();
@@ -188,13 +200,13 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
       >
         <AdminToolbar
           lessonPlan={lessonPlan}
-          showResourceDescriptions={showResourceDescriptions}
-          setShowResourceDescriptions={setShowResourceDescriptions}
+          showAllResourceDescriptions={showAllResourceDescriptions}
+          setShowAllResourceDescriptions={setShowAllResourceDescriptions}
           isOwner={isOwner}
         />
         <SingleLessonPlanComponent
           lessonPlan={lessonPlan}
-          showResourceDescriptions={showResourceDescriptions}
+          showAllResourceDescriptions={showAllResourceDescriptions}
         />
       </PageLayout>
     </>
