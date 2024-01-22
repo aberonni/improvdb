@@ -4,7 +4,6 @@ import { LessonPlanList } from "~/components/LessonPlanList";
 import { PageLayout } from "~/components/PageLayout";
 import { ResourceList } from "~/components/ResourceList";
 import { buttonVariants } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 

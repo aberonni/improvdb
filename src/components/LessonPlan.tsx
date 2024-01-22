@@ -25,13 +25,10 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import {
-  Link1Icon,
-  Link2Icon,
   MinusIcon,
   OpenInNewWindowIcon,
   PlusIcon,
 } from "@radix-ui/react-icons";
-import { Icon } from "@radix-ui/react-select";
 
 type ApiLessonPlan = Readonly<RouterOutputs["lessonPlan"]["getById"]>;
 type CreationLessonPlan = z.infer<typeof lessonPlanCreateSchema>;

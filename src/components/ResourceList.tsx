@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import { LoadingPage } from "~/components/Loading";
 import clsx from "clsx";
 import { Badge } from "~/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
@@ -8,6 +7,7 @@ import { ExclamationTriangleIcon, EyeClosedIcon } from "@radix-ui/react-icons";
 
 import type { RouterOutputs } from "~/utils/api";
 import { ResourceTypeLabels } from "./Resource";
+import { Skeleton } from "./ui/skeleton";
 
 export const ResourceList = ({
   filter,
@@ -23,7 +23,20 @@ export const ResourceList = ({
   const { data, isLoading } = queryResult;
 
   if (isLoading) {
-    return <LoadingPage />;
+    return (
+      <div className="flex flex-col gap-1">
+        {" "}
+        {Array.from({ length: 5 }).map((_) => (
+          <div className="flex w-full items-center rounded-lg border bg-background px-4 py-3 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+            <div className="grow">
+              <Skeleton className="mb-2 h-4 w-[250px]" />
+              <Skeleton className="h-3 w-[200px]" />
+            </div>
+            <Skeleton className="inline-flex h-5 w-16 rounded-md" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (!data) {

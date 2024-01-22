@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import { LoadingPage } from "~/components/Loading";
 import { Badge } from "~/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { ExclamationTriangleIcon, EyeClosedIcon } from "@radix-ui/react-icons";
 
 import type { RouterOutputs } from "~/utils/api";
+import { Skeleton } from "./ui/skeleton";
 
 export const LessonPlanList = ({
   filter,
@@ -26,7 +26,17 @@ export const LessonPlanList = ({
   const { data, isLoading } = queryResult;
 
   if (isLoading) {
-    return <LoadingPage />;
+    return (
+      <div className="flex flex-col gap-1">
+        {" "}
+        {Array.from({ length: 5 }).map((_) => (
+          <div className="flex w-full flex-col space-y-2 rounded-lg border bg-background px-4 py-3 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-3 w-[200px]" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (!data) {
