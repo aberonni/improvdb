@@ -80,14 +80,14 @@ export function SingleLessonPlanComponent({
   return (
     <div>
       <div className="space-y-2">
+        {lessonPlan.theme && (
+          <LessonPlanInfoBox title="Theme" description={lessonPlan.theme} />
+        )}
         {lessonPlan.description && (
           <LessonPlanInfoBox
             title="Description"
             description={lessonPlan.description}
           />
-        )}
-        {lessonPlan.theme && (
-          <LessonPlanInfoBox title="Theme" description={lessonPlan.theme} />
         )}
         <LessonPlanDuration lessonPlan={lessonPlan} />
       </div>
