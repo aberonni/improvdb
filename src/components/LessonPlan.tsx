@@ -18,6 +18,7 @@ import {
 import { ResourceTypeLabels, getResourceConfigurationLabel } from "./Resource";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
+import { cn } from "~/lib/utils";
 
 type ApiLessonPlan = Readonly<RouterOutputs["lessonPlan"]["getById"]>;
 type CreationLessonPlan = z.infer<typeof lessonPlanCreateSchema>;
@@ -26,12 +27,19 @@ type LessonPlanUnion = ApiLessonPlan | CreationLessonPlan;
 function LessonPlanInfoBox({
   title,
   description,
+  className,
 }: {
   title: string;
   description: string;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 shadow">
+    <div
+      className={cn(
+        "flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 shadow",
+        className,
+      )}
+    >
       <div className="flex-grow">
         <Label>{title}</Label>
         <p className="text-[0.8rem] text-muted-foreground">{description}</p>
@@ -42,8 +50,10 @@ function LessonPlanInfoBox({
 
 export function LessonPlanDuration({
   lessonPlan,
+  className,
 }: {
   lessonPlan: LessonPlanUnion;
+  className?: string;
 }) {
   const totalDuration = useMemo(() => {
     return lessonPlan.sections.reduce((acc, section) => {
@@ -60,6 +70,7 @@ export function LessonPlanDuration({
     <LessonPlanInfoBox
       title="Total Duration"
       description={`${totalDuration ?? 0} minutes`}
+      className={className}
     />
   );
 }
@@ -80,16 +91,24 @@ export function SingleLessonPlanComponent({
   return (
     <div>
       <div className="space-y-2">
-        {lessonPlan.theme && (
-          <LessonPlanInfoBox title="Theme" description={lessonPlan.theme} />
-        )}
+        <div className="flex flex-row space-x-4">
+          {lessonPlan.theme && (
+            <LessonPlanInfoBox
+              title="Theme"
+              description={lessonPlan.theme}
+              className="w-full"
+            />
+          )}
+          {lessonPlan.useDuration && (
+            <LessonPlanDuration lessonPlan={lessonPlan} className="w-full" />
+          )}
+        </div>
         {lessonPlan.description && (
           <LessonPlanInfoBox
             title="Description"
             description={lessonPlan.description}
           />
         )}
-        <LessonPlanDuration lessonPlan={lessonPlan} />
       </div>
       {lessonPlan.sections.map((section, index) => (
         <Table className="relative mt-8" key={index}>
@@ -140,10 +159,9 @@ export function SingleLessonPlanComponent({
                       )}
                       {showResourceDescriptions && !isPreviewItem(item) && (
                         <>
-                          <br />
                           <ReactMarkdown
                             children={item.resource.description}
-                            className="prose-sm prose-zinc mt-2 max-w-full rounded-md border p-4 dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
+                            className="prose-sm prose-zinc mt-4 max-w-full rounded-md border p-4 dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
                             components={{
                               h1: ({ ...props }) => <h3 {...props} />,
                               h2: ({ ...props }) => <h3 {...props} />,
