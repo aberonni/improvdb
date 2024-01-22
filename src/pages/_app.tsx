@@ -38,12 +38,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           --font-sans: ${fontSans.variable};
         }
       `}</style>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <div className="min-h-screen bg-background antialiased">
           <NextNProgress />
           <Toaster />

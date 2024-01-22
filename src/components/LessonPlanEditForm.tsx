@@ -1,10 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  type UseFormReturn,
-  useForm,
-  useFieldArray,
-  useWatch,
-} from "react-hook-form";
+import { type UseFormReturn, useForm, useFieldArray } from "react-hook-form";
 import type * as z from "zod";
 import { useToast } from "~/components/ui/use-toast";
 
@@ -37,7 +32,6 @@ import {
   ArrowUpIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  HeightIcon,
   PlusIcon,
   ReloadIcon,
   TrashIcon,
@@ -61,6 +55,8 @@ const SaveButton = ({
   const { toast } = useToast();
 
   if (!form.formState.isValid) {
+    console.log(form.formState.errors);
+
     return (
       <Button
         type="button"
@@ -250,35 +246,28 @@ const SectionItems = ({
                 <FormField
                   control={control}
                   name={`sections.${sectionIndex}.items.${itemIndex}.resource`}
-                  render={({ field }) => {
-                    if (field.value?.value === null) {
-                      // This means the user selected "No Resource"
-                      return <></>;
-                    }
-
-                    return (
-                      <FormItem className="w-full grow bg-background">
-                        <FormControl>
-                          <MultiSelectDropown
-                            {...{
-                              ...field,
-                              ref: null,
-                            }}
-                            placeholder="Select resource (optional)..."
-                            instanceId="relatedResources"
-                            isLoading={resourcesLoading}
-                            loadingMessage={() => "Loading resources..."}
-                            options={resources?.map(({ id, title }) => ({
-                              label: title,
-                              value: id,
-                            }))}
-                            isClearable
-                          />
-                        </FormControl>
-                        {getErrorMessage(sectionIndex, itemIndex, "resource")}
-                      </FormItem>
-                    );
-                  }}
+                  render={({ field }) => (
+                    <FormItem className="w-full grow bg-background">
+                      <FormControl>
+                        <MultiSelectDropown
+                          {...{
+                            ...field,
+                            ref: null,
+                          }}
+                          placeholder="Select resource (optional)..."
+                          instanceId="relatedResources"
+                          isLoading={resourcesLoading}
+                          loadingMessage={() => "Loading resources..."}
+                          options={resources?.map(({ id, title }) => ({
+                            label: title,
+                            value: id,
+                          }))}
+                          isClearable
+                        />
+                      </FormControl>
+                      {getErrorMessage(sectionIndex, itemIndex, "resource")}
+                    </FormItem>
+                  )}
                 />
               </div>
               <div className="w-full">
@@ -367,7 +356,7 @@ export default function LessonPlanEditForm({
               // XXX: I should probably just use the "resource" field somehow
               const resource =
                 item.resource == null
-                  ? { label: "No Resource", value: null }
+                  ? undefined
                   : {
                       label: item.resource.title,
                       value: item.resource.id,
@@ -410,27 +399,6 @@ export default function LessonPlanEditForm({
   });
 
   const durationEnabled = watch("useDuration");
-
-  const watchedSections = useWatch({ control, name: "sections" });
-
-  const totalDuration = useMemo(() => {
-    if (!durationEnabled) {
-      return null;
-    }
-
-    console.log("Update");
-
-    return watchedSections.reduce(
-      (total, section) =>
-        section.items.reduce((acc, item) => {
-          if (!item.duration || isNaN(item.duration)) {
-            return acc;
-          }
-          return acc + item.duration;
-        }, total),
-      0,
-    );
-  }, [durationEnabled, watchedSections]);
 
   return (
     <Form {...form}>
@@ -553,17 +521,6 @@ export default function LessonPlanEditForm({
                     </FormItem>
                   )}
                 />
-
-                {durationEnabled && (
-                  <div className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 shadow">
-                    <div className="flex-grow">
-                      <FormLabel>Total Duration</FormLabel>
-                      <FormDescription className="pl-0">
-                        {totalDuration ?? 0} minutes
-                      </FormDescription>
-                    </div>
-                  </div>
-                )}
               </div>
               <div className="mt-0 border-0 p-0">
                 <div className="flex h-full flex-col space-y-4">

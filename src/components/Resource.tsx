@@ -6,8 +6,12 @@ import type { RouterOutputs } from "~/utils/api";
 import type { ResourceConfiguation, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
 import { type resourceCreateSchema } from "~/utils/zod";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { Separator } from "./ui/separator";
+import {
+  SplitPageLayout,
+  SplitPageLayoutContent,
+  SplitPageLayoutSidebar,
+} from "./PageLayout";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "🚀 Warm-up / Exercise",
@@ -28,29 +32,36 @@ export const ResourceConfiguationLabels: Record<ResourceConfiguation, string> =
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
 type CreationResource = z.infer<typeof resourceCreateSchema>;
 
+export function getResourceConfigurationLabel(
+  resource: Pick<ApiResource, "configuration" | "groupSize">,
+  options: { showGroupSize?: boolean } = {},
+) {
+  const confLabel = ResourceConfiguationLabels[resource.configuration];
+
+  if (!options.showGroupSize) {
+    return confLabel;
+  }
+
+  switch (resource.configuration) {
+    case "SOLO":
+    case "PAIRS":
+      return confLabel;
+    case "SCENE":
+      return confLabel.replace("N", resource.groupSize.toString());
+    case "GROUPS":
+      return `${confLabel} of ${resource.groupSize} players`;
+    case "WHOLE_CLASS":
+    case "CIRCLE":
+      return `${confLabel} (minimum ${resource.groupSize} players)`;
+  }
+}
+
 type Props = {
   resource: ApiResource | CreationResource;
 };
 export function SingleResourceComponent({ resource }: Props) {
   const subtitle = useMemo(() => {
-    if (resource.type !== "EXERCISE") {
-      return `${resource.groupSize} players`;
-    }
-
-    const confLabel = ResourceConfiguationLabels[resource.configuration];
-
-    switch (resource.configuration) {
-      case "SOLO":
-      case "PAIRS":
-        return confLabel;
-      case "SCENE":
-        return confLabel.replace("N", resource.groupSize.toString());
-      case "GROUPS":
-        return `${confLabel} of ${resource.groupSize} players`;
-      case "WHOLE_CLASS":
-      case "CIRCLE":
-        return `${confLabel} (minimum ${resource.groupSize} players)`;
-    }
+    return getResourceConfigurationLabel(resource, { showGroupSize: true });
   }, [resource]);
 
   const alternativeNames = useMemo(() => {
@@ -64,121 +75,116 @@ export function SingleResourceComponent({ resource }: Props) {
   }, [resource]);
 
   return (
-    <article className="w-full">
-      <div className="grid h-full items-stretch gap-0 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
-        <div className="md:h-100vh top-0 col-span-1 flex flex-col space-y-4 self-start  md:sticky md:pt-8">
-          <ScrollArea className="pt-8 md:pb-8 md:pr-16 md:pt-0">
-            <div className="space-y-6">
-              <h4 className="tracking-tight text-muted-foreground">
-                {ResourceTypeLabels[resource.type]}
-                <br />
-                {subtitle}
-              </h4>
+    <SplitPageLayout>
+      <SplitPageLayoutSidebar>
+        <div className="space-y-6">
+          <h4 className="tracking-tight text-muted-foreground">
+            {ResourceTypeLabels[resource.type]}
+            <br />
+            {subtitle}
+          </h4>
 
-              {alternativeNames.length > 0 && (
-                <>
-                  <Separator />
-                  <div>
-                    Also known as:
-                    <ul className="ml-6 list-disc [&>li]:mt-0">
-                      {alternativeNames.map((name) => (
-                        <li key={name}>{name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </>
-              )}
+          {alternativeNames.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                Also known as:
+                <ul className="ml-6 list-disc [&>li]:mt-0">
+                  {alternativeNames.map((name) => (
+                    <li key={name}>{name}</li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
 
-              {resource.categories && resource.categories.length > 0 && (
-                <>
-                  <Separator />
-                  <div>
-                    Categories:
-                    <ul className="ml-6 list-disc [&>li]:mt-0">
-                      {resource.categories.map((category) => {
-                        const name =
-                          "category" in category
-                            ? category.category.name
-                            : category.label;
-                        return <li key={name}>{name}</li>;
-                      })}
-                    </ul>
-                  </div>
-                </>
-              )}
+          {resource.categories && resource.categories.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                Categories:
+                <ul className="ml-6 list-disc [&>li]:mt-0">
+                  {resource.categories.map((category) => {
+                    const name =
+                      "category" in category
+                        ? category.category.name
+                        : category.label;
+                    return <li key={name}>{name}</li>;
+                  })}
+                </ul>
+              </div>
+            </>
+          )}
 
-              {resource.relatedResources &&
-                resource.relatedResources.length > 0 && (
-                  <>
-                    <Separator />
-                    <div>
-                      Related Resources:
-                      <ul className="ml-6 list-disc [&>li]:mt-0">
-                        {resource.relatedResources.map((resource) => {
-                          let id;
-                          let label;
+          {resource.relatedResources &&
+            resource.relatedResources.length > 0 && (
+              <>
+                <Separator />
+                <div>
+                  Related Resources:
+                  <ul className="ml-6 list-disc [&>li]:mt-0">
+                    {resource.relatedResources.map((resource) => {
+                      let id;
+                      let label;
 
-                          if ("id" in resource) {
-                            id = resource.id;
-                            label = resource.title;
-                          } else {
-                            id = resource.value;
-                            label = resource.label;
-                          }
+                      if ("id" in resource) {
+                        id = resource.id;
+                        label = resource.title;
+                      } else {
+                        id = resource.value;
+                        label = resource.label;
+                      }
 
-                          return (
-                            <li key={id}>
-                              <Link
-                                href={`/resource/${id}`}
-                                className="underline hover:opacity-80"
-                              >
-                                {label}
-                              </Link>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  </>
-                )}
+                      return (
+                        <li key={id}>
+                          <Link
+                            href={`/resource/${id}`}
+                            className="underline hover:opacity-80"
+                          >
+                            {label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </>
+            )}
 
-              {resource.showIntroduction && (
-                <>
-                  <Separator />
-                  <blockquote className="mt-6 border-l-2 pl-6 italic">
-                    "{resource.showIntroduction}"
-                  </blockquote>
-                </>
-              )}
-            </div>
-          </ScrollArea>
-        </div>
-        <div className="mb-6 mt-8 md:mt-8 md:border-l md:border-l-muted md:pl-8">
-          <Separator className="mb-8 block md:hidden" />
-          <ReactMarkdown
-            children={resource.description}
-            className="prose prose-zinc max-w-full rounded-md lg:prose-lg dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
-            components={{
-              h1: ({ ...props }) => <h2 {...props} />,
-              a: ({ href, ref, ...props }) => {
-                if (!href || !href.startsWith("resource/")) {
-                  return <a href={href} ref={ref} target="_blank" {...props} />;
-                }
-
-                return <Link href={"/" + href} {...props} />;
-              },
-            }}
-          />
-          {resource.video && (
-            <iframe
-              className="video mt-6 aspect-video w-full lg:mt-8"
-              title="Youtube player"
-              sandbox="allow-same-origin allow-forms allow-popups allow-scripts allow-presentation"
-              src={`https://youtube.com/embed/${resource.video}?autoplay=0`}
-            ></iframe>
+          {resource.showIntroduction && (
+            <>
+              <Separator />
+              <blockquote className="mt-6 border-l-2 pl-6 italic">
+                "{resource.showIntroduction}"
+              </blockquote>
+            </>
           )}
         </div>
-      </div>
-    </article>
+      </SplitPageLayoutSidebar>
+      <SplitPageLayoutContent>
+        <ReactMarkdown
+          children={resource.description}
+          className="prose prose-zinc max-w-full rounded-md lg:prose-lg dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
+          components={{
+            h1: ({ ...props }) => <h2 {...props} />,
+            a: ({ href, ref, ...props }) => {
+              if (!href || !href.startsWith("resource/")) {
+                return <a href={href} ref={ref} target="_blank" {...props} />;
+              }
+
+              return <Link href={"/" + href} {...props} />;
+            },
+          }}
+        />
+        {resource.video && (
+          <iframe
+            className="video mt-6 aspect-video w-full lg:mt-8"
+            title="Youtube player"
+            sandbox="allow-same-origin allow-forms allow-popups allow-scripts allow-presentation"
+            src={`https://youtube.com/embed/${resource.video}?autoplay=0`}
+          ></iframe>
+        )}
+      </SplitPageLayoutContent>
+    </SplitPageLayout>
   );
 }

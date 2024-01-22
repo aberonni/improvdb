@@ -5,18 +5,24 @@ import type { GetStaticProps, NextPage } from "next";
 import { PageLayout } from "~/components/PageLayout";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
 import { LoadingPage } from "~/components/Loading";
-import { useSession } from "next-auth/react";
-import { UserRole } from "@prisma/client";
 import { Button, buttonVariants } from "~/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 import { SingleLessonPlanComponent } from "~/components/LessonPlan";
+import { useState } from "react";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Badge } from "~/components/ui/badge";
+import { cn } from "~/lib/utils";
 
 const AdminToolbar = ({
   lessonPlan,
+  showResourceDescriptions,
+  setShowResourceDescriptions,
 }: {
   lessonPlan: RouterOutputs["lessonPlan"]["getById"];
+  showResourceDescriptions: boolean;
+  setShowResourceDescriptions: (show: boolean) => void;
 }) => {
   const utils = api.useUtils();
   const router = useRouter();
@@ -67,13 +73,13 @@ const AdminToolbar = ({
     });
 
   return (
-    <div className="mt-4 flex w-full items-center gap-2 rounded bg-accent p-2 ">
-      <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
-        Admin Features
-      </span>
+    <div className="mt-4 flex w-full flex-col items-stretch gap-2 space-y-2 rounded bg-accent px-4 py-2 print:hidden md:flex-row md:items-center md:space-y-0">
+      <Button onClick={() => window.print()} className="md:order-2">
+        Print / Download
+      </Button>
       <Link
         href={`/lesson-plan/${lessonPlan.id}/edit`}
-        className={buttonVariants({ variant: "default" })}
+        className={cn(buttonVariants({ variant: "default" }), "md:order-3")}
       >
         Edit
       </Link>
@@ -86,6 +92,7 @@ const AdminToolbar = ({
             })
           }
           disabled={isSettingPublishedStatus}
+          className="md:order-4"
         >
           Make public
         </Button>
@@ -98,6 +105,7 @@ const AdminToolbar = ({
             })
           }
           disabled={isSettingPublishedStatus}
+          className="md:order-5"
         >
           Make private
         </Button>
@@ -106,9 +114,25 @@ const AdminToolbar = ({
         onClick={() => deleteLessonPlan({ id: lessonPlan.id })}
         disabled={isDeletingLessonPlan}
         variant="destructive"
+        className="md:order-6"
       >
         Delete
       </Button>
+      <div className="mr-auto flex items-center py-2 md:order-1 md:py-0">
+        <Checkbox
+          id="showResourceDescriptions"
+          checked={showResourceDescriptions}
+          onCheckedChange={(e) =>
+            setShowResourceDescriptions(Boolean(e.valueOf()))
+          }
+        />
+        <label
+          htmlFor="showResourceDescriptions"
+          className="cursor-pointer select-none pl-2 text-sm font-medium leading-none"
+        >
+          Show Resource Descriptions
+        </label>
+      </div>
     </div>
   );
 };
@@ -120,8 +144,8 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
     id: lessonPlanId,
   });
 
-  // const { data: session } = useSession();
-  // const { user } = session ?? {};
+  const [showResourceDescriptions, setShowResourceDescriptions] =
+    useState(false);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -136,9 +160,27 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
       <Head>
         <title>{`${lessonPlan.title} - ImprovDB`}</title>
       </Head>
-      <PageLayout title={lessonPlan.title} className="py-0" showBackButton>
-        <AdminToolbar lessonPlan={lessonPlan} />
-        <SingleLessonPlanComponent lessonPlan={lessonPlan} />
+      <PageLayout
+        title={
+          <div className="flex flex-col items-start space-y-2">
+            <Badge variant="secondary" className="print:hidden">
+              {lessonPlan.private ? "Private" : "Public"}
+            </Badge>
+            <span>{lessonPlan.title}</span>
+          </div>
+        }
+        className="space-y-4 pt-0"
+        showBackButton
+      >
+        <AdminToolbar
+          lessonPlan={lessonPlan}
+          showResourceDescriptions={showResourceDescriptions}
+          setShowResourceDescriptions={setShowResourceDescriptions}
+        />
+        <SingleLessonPlanComponent
+          lessonPlan={lessonPlan}
+          showResourceDescriptions={showResourceDescriptions}
+        />
       </PageLayout>
     </>
   );

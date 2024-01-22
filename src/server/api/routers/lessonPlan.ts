@@ -70,6 +70,7 @@ export const lessonPlanRouter = createTRPCRouter({
                     select: {
                       id: true,
                       title: true,
+                      description: true,
                       type: true,
                       configuration: true,
                       groupSize: true,
