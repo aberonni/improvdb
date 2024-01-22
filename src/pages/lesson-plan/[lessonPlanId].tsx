@@ -10,17 +10,20 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 import { SingleLessonPlanComponent } from "~/components/LessonPlan";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Badge } from "~/components/ui/badge";
 import { cn } from "~/lib/utils";
+import { useSession } from "next-auth/react";
 
 const AdminToolbar = ({
   lessonPlan,
   showResourceDescriptions,
   setShowResourceDescriptions,
+  isOwner,
 }: {
   lessonPlan: RouterOutputs["lessonPlan"]["getById"];
+  isOwner: boolean;
   showResourceDescriptions: boolean;
   setShowResourceDescriptions: (show: boolean) => void;
 }) => {
@@ -77,47 +80,51 @@ const AdminToolbar = ({
       <Button onClick={() => window.print()} className="md:order-2">
         Print / Download
       </Button>
-      <Link
-        href={`/lesson-plan/${lessonPlan.id}/edit`}
-        className={cn(buttonVariants({ variant: "default" }), "md:order-3")}
-      >
-        Edit
-      </Link>
-      {lessonPlan.private ? (
-        <Button
-          onClick={() =>
-            setPrivate({
-              id: lessonPlan.id,
-              private: false,
-            })
-          }
-          disabled={isSettingPublishedStatus}
-          className="md:order-4"
-        >
-          Make public
-        </Button>
-      ) : (
-        <Button
-          onClick={() =>
-            setPrivate({
-              id: lessonPlan.id,
-              private: true,
-            })
-          }
-          disabled={isSettingPublishedStatus}
-          className="md:order-5"
-        >
-          Make private
-        </Button>
+      {isOwner && (
+        <>
+          <Link
+            href={`/lesson-plan/${lessonPlan.id}/edit`}
+            className={cn(buttonVariants({ variant: "default" }), "md:order-3")}
+          >
+            Edit
+          </Link>
+          {lessonPlan.private ? (
+            <Button
+              onClick={() =>
+                setPrivate({
+                  id: lessonPlan.id,
+                  private: false,
+                })
+              }
+              disabled={isSettingPublishedStatus}
+              className="md:order-4"
+            >
+              Make public
+            </Button>
+          ) : (
+            <Button
+              onClick={() =>
+                setPrivate({
+                  id: lessonPlan.id,
+                  private: true,
+                })
+              }
+              disabled={isSettingPublishedStatus}
+              className="md:order-5"
+            >
+              Make private
+            </Button>
+          )}
+          <Button
+            onClick={() => deleteLessonPlan({ id: lessonPlan.id })}
+            disabled={isDeletingLessonPlan}
+            variant="destructive"
+            className="md:order-6"
+          >
+            Delete
+          </Button>
+        </>
       )}
-      <Button
-        onClick={() => deleteLessonPlan({ id: lessonPlan.id })}
-        disabled={isDeletingLessonPlan}
-        variant="destructive"
-        className="md:order-6"
-      >
-        Delete
-      </Button>
       <div className="mr-auto flex items-center py-2 md:order-1 md:py-0">
         <Checkbox
           id="showResourceDescriptions"
@@ -146,6 +153,13 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
 
   const [showResourceDescriptions, setShowResourceDescriptions] =
     useState(false);
+
+  const { data: session } = useSession();
+  const { user } = session ?? {};
+
+  const isOwner = useMemo(() => {
+    return user?.id === lessonPlan?.createdById;
+  }, [user, lessonPlan]);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -176,6 +190,7 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
           lessonPlan={lessonPlan}
           showResourceDescriptions={showResourceDescriptions}
           setShowResourceDescriptions={setShowResourceDescriptions}
+          isOwner={isOwner}
         />
         <SingleLessonPlanComponent
           lessonPlan={lessonPlan}
