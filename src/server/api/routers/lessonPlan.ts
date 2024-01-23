@@ -75,6 +75,12 @@ export const lessonPlanRouter = createTRPCRouter({
           id: input.id,
         },
         include: {
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           sections: {
             include: {
               items: {

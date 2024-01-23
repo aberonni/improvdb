@@ -193,6 +193,9 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
               {lessonPlan.private ? "Private" : "Public"}
             </Badge>
             <span>{lessonPlan.title}</span>
+            <span className="block text-sm font-normal tracking-normal">
+              Created by: {lessonPlan.createdBy.name}
+            </span>
           </div>
         }
         className="space-y-4 pt-0"
