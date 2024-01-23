@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-import { ResourceTypeLabels, getResourceConfigurationLabel } from "./Resource";
+import { ResourceConfiguationLabels, ResourceTypeLabels } from "./Resource";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { cn } from "~/lib/utils";
@@ -29,6 +29,7 @@ import {
   OpenInNewWindowIcon,
   PlusIcon,
 } from "@radix-ui/react-icons";
+import { ResourceType } from "@prisma/client";
 
 type ApiLessonPlan = Readonly<RouterOutputs["lessonPlan"]["getById"]>;
 type CreationLessonPlan = z.infer<typeof lessonPlanCreateSchema>;
@@ -235,8 +236,10 @@ export function SingleLessonPlanComponent({
                     </TableCell>
                     <TableCell className="w-[130px] text-right">
                       {!isPreviewItem(item) &&
-                        (item.resource.type === "EXERCISE"
-                          ? getResourceConfigurationLabel(item.resource)
+                        (item.resource.type === ResourceType.EXERCISE
+                          ? ResourceConfiguationLabels[
+                              item.resource.configuration
+                            ]
                           : ResourceTypeLabels[item.resource.type])}
                     </TableCell>
                   </>

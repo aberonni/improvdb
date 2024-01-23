@@ -3,7 +3,7 @@ import Link from "next/link";
 import type * as z from "zod";
 
 import type { RouterOutputs } from "~/utils/api";
-import type { ResourceConfiguation, ResourceType } from "@prisma/client";
+import { type ResourceConfiguation, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
 import { type resourceCreateSchema } from "~/utils/zod";
 import { Separator } from "./ui/separator";
@@ -21,7 +21,8 @@ export const ResourceTypeLabels: Record<ResourceType, string> = {
 
 export const ResourceConfiguationLabels: Record<ResourceConfiguation, string> =
   {
-    SCENE: "🎭 Scene with N players",
+    SCENE: "🎭 Scenework",
+    BACKLINE: "👥 Backline",
     WHOLE_CLASS: "♾️ Whole Group",
     SOLO: "🧍 Solo",
     PAIRS: "👯 Pairs",
@@ -32,38 +33,10 @@ export const ResourceConfiguationLabels: Record<ResourceConfiguation, string> =
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
 type CreationResource = z.infer<typeof resourceCreateSchema>;
 
-export function getResourceConfigurationLabel(
-  resource: Pick<ApiResource, "configuration" | "groupSize">,
-  options: { showGroupSize?: boolean } = {},
-) {
-  const confLabel = ResourceConfiguationLabels[resource.configuration];
-
-  if (!options.showGroupSize) {
-    return confLabel;
-  }
-
-  switch (resource.configuration) {
-    case "SOLO":
-    case "PAIRS":
-      return confLabel;
-    case "SCENE":
-      return confLabel.replace("N", resource.groupSize.toString());
-    case "GROUPS":
-      return `${confLabel} of ${resource.groupSize} players`;
-    case "WHOLE_CLASS":
-    case "CIRCLE":
-      return `${confLabel} (minimum ${resource.groupSize} players)`;
-  }
-}
-
 type Props = {
   resource: ApiResource | CreationResource;
 };
 export function SingleResourceComponent({ resource }: Props) {
-  const subtitle = useMemo(() => {
-    return getResourceConfigurationLabel(resource, { showGroupSize: true });
-  }, [resource]);
-
   const alternativeNames = useMemo(() => {
     if (!resource.alternativeNames || resource.alternativeNames === "") {
       return [];
@@ -81,7 +54,8 @@ export function SingleResourceComponent({ resource }: Props) {
           <h4 className="tracking-tight text-muted-foreground">
             {ResourceTypeLabels[resource.type]}
             <br />
-            {subtitle}
+            {resource.type !== ResourceType.LONG_FORM &&
+              ResourceConfiguationLabels[resource.configuration]}
           </h4>
 
           {alternativeNames.length > 0 && (

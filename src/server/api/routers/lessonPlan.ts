@@ -92,7 +92,6 @@ export const lessonPlanRouter = createTRPCRouter({
                       description: true,
                       type: true,
                       configuration: true,
-                      groupSize: true,
                       categories: true,
                     },
                   },

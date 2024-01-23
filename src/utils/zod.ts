@@ -20,7 +20,6 @@ export const resourceCreateSchema = z.object({
   description: z.string().min(20),
   type: z.nativeEnum(ResourceType),
   configuration: z.nativeEnum(ResourceConfiguation),
-  groupSize: z.number(),
 
   categories: z.array(z.object({ label: z.string(), value: z.string() })),
   showIntroduction: z.string().optional(),

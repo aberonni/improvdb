@@ -178,7 +178,6 @@ const editFormDefaults: Partial<CreateSchemaType> = {
   relatedResources: [],
   type: ResourceType.EXERCISE,
   configuration: ResourceConfiguation.SCENE,
-  groupSize: 2,
   description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
 
 You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button to see what your text will look like.
@@ -265,7 +264,6 @@ export default function ResourceEditForm({
   const {
     control,
     clearErrors,
-    register,
     handleSubmit,
     formState: { errors },
     setValue,
@@ -284,46 +282,16 @@ export default function ResourceEditForm({
 
   const watchType = watch("type");
   const configurationDisabled = useMemo(
-    () => watchType !== ResourceType.EXERCISE,
+    () => watchType === ResourceType.LONG_FORM,
     [watchType],
   );
 
   useEffect(() => {
     const type = getValues("type");
-    if (type !== ResourceType.EXERCISE) {
+    if (type === ResourceType.LONG_FORM) {
       setValue("configuration", ResourceConfiguation.SCENE);
     }
   }, [watch("type")]);
-
-  const watchConfiguration = watch("configuration");
-  const groupSizeDisabled = useMemo(
-    () =>
-      watchConfiguration === ResourceConfiguation.SOLO ||
-      watchConfiguration === ResourceConfiguation.PAIRS,
-    [watchConfiguration],
-  );
-  const minimumGroupSize = useMemo(
-    () =>
-      watchConfiguration === ResourceConfiguation.CIRCLE ||
-      watchConfiguration === ResourceConfiguation.WHOLE_CLASS,
-    [watchConfiguration],
-  );
-
-  useEffect(() => {
-    const configuration = getValues("configuration");
-    if (configuration === ResourceConfiguation.SOLO) {
-      setValue("groupSize", 1);
-    } else if (configuration === ResourceConfiguation.PAIRS) {
-      setValue("groupSize", 2);
-    }
-  }, [watchConfiguration]);
-
-  // function onSubmit(values: z.infer<typeof resourceCreateSchema>) {
-  //   if (isSubmitting) {
-  //     return;
-  //   }
-  //   createResource(values);
-  // }
 
   return (
     <Form {...form}>
@@ -397,7 +365,12 @@ export default function ResourceEditForm({
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
-                        <FormControl className="rounded-bl-none rounded-br-none">
+                        <FormControl
+                          className={cn(
+                            !configurationDisabled &&
+                              "rounded-bl-none rounded-br-none",
+                          )}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select a resource type" />
                           </SelectTrigger>
@@ -433,11 +406,7 @@ export default function ResourceEditForm({
                           defaultValue={field.value}
                         >
                           <FormControl
-                            className={cn(
-                              "rounded-tl-none rounded-tr-none",
-                              !groupSizeDisabled &&
-                                "rounded-bl-none rounded-br-none",
-                            )}
+                            className={cn("rounded-tl-none rounded-tr-none")}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Select a configuration" />
@@ -464,42 +433,6 @@ export default function ResourceEditForm({
                           <FormMessage className="!mb-2">
                             {errors.configuration?.message}
                           </FormMessage>
-                        )}
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {!groupSizeDisabled && (
-                  <FormField
-                    control={control}
-                    name="groupSize"
-                    render={({ field }) => (
-                      <FormItem className="!mt-0 peer-has-[button:focus]:[&_input]:border-t-transparent">
-                        <FormControl>
-                          <div className="relative">
-                            <div className="absolute left-0 top-0 flex h-full select-none items-center ">
-                              <span className="pl-3 text-sm leading-none">
-                                {minimumGroupSize
-                                  ? "Minimum group size: "
-                                  : "Group size: "}
-                              </span>
-                            </div>
-                            <Input
-                              className={cn(
-                                "rounded-tl-none rounded-tr-none",
-                                minimumGroupSize ? "pl-[150px]" : "pl-[90px]",
-                              )}
-                              type="number"
-                              {...field}
-                              {...register("groupSize", {
-                                valueAsNumber: true,
-                              })}
-                            />
-                          </div>
-                        </FormControl>
-                        {errors.groupSize?.message && (
-                          <FormMessage>{errors.groupSize?.message}</FormMessage>
                         )}
                       </FormItem>
                     )}

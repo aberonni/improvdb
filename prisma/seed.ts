@@ -62,7 +62,6 @@ async function main() {
       },
       type: ResourceType.EXERCISE,
       configuration: ResourceConfiguation.SCENE,
-      groupSize: 4,
       createdById: seedUser.id,
     };
 

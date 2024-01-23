@@ -30,6 +30,7 @@ enum ResourceConfiguation {
   GROUPS
   WHOLE_CLASS
   CIRCLE
+  BACKLINE
   SCENE
 }
 
@@ -40,7 +41,6 @@ model Resource {
   type          ResourceType
   categories    CategoriesOnResources[]
   configuration ResourceConfiguation
-  groupSize     Int
 
   showIntroduction String? @db.Text
   video            String?
