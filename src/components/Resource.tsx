@@ -150,6 +150,28 @@ export function SingleResourceComponent({ resource }: Props) {
                 </div>
               </>
             )}
+          {"lessonPlans" in resource && resource.lessonPlans.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                Lesson Plans:
+                <ul className="ml-6 list-disc [&>li]:mt-0">
+                  {resource.lessonPlans.map(({ id, title }) => {
+                    return (
+                      <li key={id}>
+                        <Link
+                          href={`/lesson-plan/${id}`}
+                          className="underline hover:opacity-80"
+                        >
+                          {title}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </>
+          )}
 
           {resource.showIntroduction && (
             <>

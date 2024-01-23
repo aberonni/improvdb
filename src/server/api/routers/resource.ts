@@ -2,6 +2,7 @@ import { UserRole } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { uniqBy } from "lodash";
 import { z } from "zod";
 
 import {
@@ -113,6 +114,21 @@ export const resourceRouter = createTRPCRouter({
               title: true,
             },
           },
+          lessonPlanItems: {
+            select: {
+              section: {
+                select: {
+                  lessonPlan: {
+                    select: {
+                      id: true,
+                      title: true,
+                      private: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
 
@@ -135,7 +151,20 @@ export const resourceRouter = createTRPCRouter({
         });
       }
 
-      return resource;
+      const { lessonPlanItems, ...resourceWithoutLessonPlanItems } = resource;
+
+      const lessonPlans: { id: string; title: string }[] = [];
+
+      lessonPlanItems.forEach(({ section: { lessonPlan } }) => {
+        // filtering out private lesson plans
+        if (lessonPlan.private) return;
+        lessonPlans.push(lessonPlan);
+      });
+
+      return {
+        ...resourceWithoutLessonPlanItems,
+        lessonPlans: uniqBy(lessonPlans, (lessonPlan) => lessonPlan.id),
+      };
     }),
   create: privateProcedure
     .input(resourceCreateSchema)
