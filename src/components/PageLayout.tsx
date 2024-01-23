@@ -72,6 +72,7 @@ export const PageLayout = ({
   const navigation = useMemo(() => {
     const nav = [
       { name: "Home", href: "/" },
+      { name: "About", href: "/about" },
       { name: "Create Lesson Plan", href: "/lesson-plan/create" },
       { name: "Browse Resources", href: "/resource/browse" },
     ];
