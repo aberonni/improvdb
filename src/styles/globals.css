@@ -81,6 +81,7 @@
   }
   html {
     @apply h-full;
+    overflow-y: scroll;
   }
   body {
     @apply h-full bg-background font-sans text-foreground;
