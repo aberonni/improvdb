@@ -12,6 +12,7 @@ import {
   SplitPageLayoutContent,
   SplitPageLayoutSidebar,
 } from "./PageLayout";
+import { buttonVariants } from "./ui/button";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "🚀 Warm-up / Exercise",
@@ -37,8 +38,12 @@ type CreationResource = z.infer<typeof resourceCreateSchema>;
 
 type Props = {
   resource: ApiResource | CreationResource;
+  showProposeChanges?: boolean;
 };
-export function SingleResourceComponent({ resource }: Props) {
+export function SingleResourceComponent({
+  resource,
+  showProposeChanges = false,
+}: Props) {
   const alternativeNames = useMemo(() => {
     if (!resource.alternativeNames || resource.alternativeNames === "") {
       return [];
@@ -156,6 +161,14 @@ export function SingleResourceComponent({ resource }: Props) {
                 "{resource.showIntroduction}"
               </blockquote>
             </>
+          )}
+          {showProposeChanges && (
+            <Link
+              href={`/resource/${resource.id}/edit`}
+              className={buttonVariants({ variant: "default" })}
+            >
+              Propose Changes
+            </Link>
           )}
         </div>
       </SplitPageLayoutSidebar>

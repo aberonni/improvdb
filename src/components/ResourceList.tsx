@@ -95,9 +95,17 @@ const columns: ColumnDef<RouterOutputs["resource"]["getAll"][0]>[] = [
             !published && "bg-orange-600",
           )}
         >
-          {published ? "Published" : "Pending approval"}
+          {published ? "Published" : "Pending"}
         </Badge>
       );
+    },
+  },
+  {
+    accessorKey: "editProposalOriginalResourceId",
+    header: () => null,
+    cell: (props) => {
+      const originalResourceId = props.getValue<string>();
+      return originalResourceId && <Badge>Proposal</Badge>;
     },
   },
 ];
@@ -113,11 +121,13 @@ export const ResourceList = ({
   usePagination = false,
   queryResult,
   showPublishedStatus = false,
+  showEditProposals = false,
 }: {
   useFilters?: boolean;
   usePagination?: boolean;
   queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
   showPublishedStatus?: boolean;
+  showEditProposals?: boolean;
 }) => {
   const { data, isLoading } = queryResult;
 
@@ -139,6 +149,13 @@ export const ResourceList = ({
     dataTableColumns = dataTableColumns.filter(
       // @ts-expect-error some bug in tanstack type defs here
       (column) => column.accessorKey !== "published",
+    );
+  }
+
+  if (!showEditProposals) {
+    dataTableColumns = dataTableColumns.filter(
+      // @ts-expect-error some bug in tanstack type defs here
+      (column) => column.accessorKey !== "editProposalOriginalResourceId",
     );
   }
 

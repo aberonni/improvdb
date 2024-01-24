@@ -9,53 +9,46 @@ import ResourceEditForm from "~/components/ResourceEditForm";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 import { UserRole } from "@prisma/client";
+import { useSession } from "next-auth/react";
 
 export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
-  const { data: resource, isLoading } = api.resource.getById.useQuery({
-    id,
-  });
+  const { data: resource, isLoading: isLoadingResource } =
+    api.resource.getById.useQuery({
+      id,
+    });
 
-  const utils = api.useUtils();
+  const { data: session, status } = useSession();
+  const isAdmin = session?.user?.role === UserRole.ADMIN;
+
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: updateResource, isLoading: isSubmitting } =
-    api.resource.update.useMutation({
-      onSuccess: ({ resource: res }) => {
-        void router.push("/resource/" + res.id);
-        // incredible magic that makes the "getAll" automatically re-trigger
-        // XXX: do I need to invalidate all the getAlls?
-        void utils.resource.getAll.invalidate();
-        toast({
-          title: "Success!",
-          description: "Resource updated.",
-        });
-      },
-      onError: (e) => {
-        if (e.data?.code === "CONFLICT") {
-          toast({
-            title: "Uh oh! Something went wrong.",
-            variant: "destructive",
-            description:
-              "A resource already exists at this URL. Please choose a new URL.",
-          });
-          return;
-        }
+  const { mutate: updateResource, isLoading: isSubmitting } = (
+    isAdmin ? api.resource.update : api.resource.proposeUpdate
+  ).useMutation({
+    onSuccess: ({ resource: res }) => {
+      void router.push(
+        isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
+      );
+      toast({
+        title: "Success!",
+        description: "Resource proposal saved.",
+      });
+    },
+    onError: (e) => {
+      const errorMessage =
+        e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
 
-        const errorMessage =
-          e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
+      toast({
+        title: "Uh oh! Something went wrong.",
+        variant: "destructive",
+        description:
+          errorMessage ?? "Failed to update resource! Please try again later.",
+      });
+    },
+  });
 
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description:
-            errorMessage ??
-            "Failed to create resource! Please try again later.",
-        });
-      },
-    });
-
-  if (isLoading) {
+  if (isLoadingResource || status === "loading") {
     return <LoadingPage />;
   }
 
@@ -63,15 +56,14 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     return <div>404</div>;
   }
 
+  const title = `${isAdmin ? "Edit" : "Propose Changes"}: "${resource.title}"`;
+
   return (
     <>
       <Head>
-        <title>{`Edit: "${resource.title}" - ImprovDB`}</title>
+        <title>{`${title}" - ImprovDB`}</title>
       </Head>
-      <PageLayout
-        title={`Edit: "${resource.title}"`}
-        authenticatedOnly={[UserRole.ADMIN]}
-      >
+      <PageLayout title={title} authenticatedOnly>
         <ResourceEditForm
           resource={resource}
           isSubmitting={isSubmitting}

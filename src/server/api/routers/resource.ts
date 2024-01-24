@@ -249,18 +249,6 @@ export const resourceRouter = createTRPCRouter({
   update: adminProcedure
     .input(resourceCreateSchema)
     .mutation(async ({ ctx, input: updatedResource }) => {
-      const authorId = ctx.session.user.id;
-
-      if (ctx.session.user.role !== UserRole.ADMIN) {
-        const { success } = await ratelimit.limit(authorId);
-
-        if (!success) {
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-          });
-        }
-      }
-
       const originalResource = await ctx.db.resource.findUnique({
         where: {
           id: updatedResource.id,
@@ -322,6 +310,70 @@ export const resourceRouter = createTRPCRouter({
             }),
           },
           alternativeNames: updatedResource.alternativeNames
+            .map(({ value }) => value)
+            .join(";"),
+        },
+      });
+
+      return {
+        resource,
+      };
+    }),
+  proposeUpdate: privateProcedure
+    .input(resourceCreateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const authorId = ctx.session.user.id;
+
+      if (ctx.session.user.role !== UserRole.ADMIN) {
+        const { success } = await ratelimit.limit(authorId);
+
+        if (!success) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+          });
+        }
+      }
+
+      const originalResource = await ctx.db.resource.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+
+      if (!originalResource) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Resource ${input.id} not found`,
+        });
+      }
+
+      if (originalResource.editProposalOriginalResourceId) {
+        throw new TRPCError({
+          code: "METHOD_NOT_SUPPORTED",
+          message: `Resource ${input.id} is already a proposal. Cannot propose changes on a proposal. Edit the original resource (${originalResource.editProposalOriginalResourceId}) and try again.`,
+        });
+      }
+
+      const resource = await ctx.db.resource.create({
+        data: {
+          ...input,
+          id: input.id + "_proposal_" + Date.now(),
+          published: false,
+          editProposalOriginalResourceId: input.id,
+          createdById: originalResource.createdById,
+          categories: {
+            createMany: {
+              data: input.categories.map(({ value }) => ({
+                categoryId: value,
+              })),
+            },
+          },
+          relatedResources: {
+            connect: input.relatedResources.map(({ value }) => ({
+              id: value,
+            })),
+          },
+          alternativeNames: input.alternativeNames
             .map(({ value }) => value)
             .join(";"),
         },

@@ -136,7 +136,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
       </Head>
       <PageLayout title={resource.title} className="py-0" showBackButton>
         {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}
-        <SingleResourceComponent resource={resource} />
+        <SingleResourceComponent resource={resource} showProposeChanges />
       </PageLayout>
     </>
   );

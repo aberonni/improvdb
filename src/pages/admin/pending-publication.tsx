@@ -17,11 +17,7 @@ export default function MyContributions() {
         title="Pending Publication"
         authenticatedOnly={[UserRole.ADMIN]}
       >
-        <ResourceList
-          queryResult={queryResult}
-          showPublishedStatus
-          useFilters
-        />
+        <ResourceList queryResult={queryResult} useFilters showEditProposals />
       </PageLayout>
     </>
   );
