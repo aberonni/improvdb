@@ -246,8 +246,8 @@ export default function ResourceEditForm({
         label: relatedResource.title,
         value: relatedResource.id,
       })),
-      alternativeNames: resource.alternativeNames
-        ?.split(";")
+      alternativeNames: (resource.alternativeNames ?? "")
+        .split(";")
         .filter((s) => s !== "")
         .map((name) => ({
           label: name,
