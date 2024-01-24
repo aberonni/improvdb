@@ -137,6 +137,13 @@ export const resourceRouter = createTRPCRouter({
             },
           },
           lessonPlanItems: {
+            where: {
+              section: {
+                lessonPlan: {
+                  private: false,
+                },
+              },
+            },
             select: {
               section: {
                 select: {
@@ -144,7 +151,6 @@ export const resourceRouter = createTRPCRouter({
                     select: {
                       id: true,
                       title: true,
-                      private: true,
                     },
                   },
                 },
@@ -178,8 +184,6 @@ export const resourceRouter = createTRPCRouter({
       const lessonPlans: { id: string; title: string }[] = [];
 
       lessonPlanItems.forEach(({ section: { lessonPlan } }) => {
-        // filtering out private lesson plans
-        if (lessonPlan.private) return;
         lessonPlans.push(lessonPlan);
       });
 
