@@ -134,12 +134,14 @@ export const lessonPlanRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.session.user.id;
 
-      const { success } = await ratelimit.limit(authorId);
+      if (ctx.session.user.role !== UserRole.ADMIN) {
+        const { success } = await ratelimit.limit(authorId);
 
-      if (!success) {
-        throw new TRPCError({
-          code: "TOO_MANY_REQUESTS",
-        });
+        if (!success) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+          });
+        }
       }
 
       const lessonPlan = await ctx.db.lessonPlan.create({
@@ -161,12 +163,14 @@ export const lessonPlanRouter = createTRPCRouter({
     .mutation(async ({ ctx, input: { id, ...input } }) => {
       const authorId = ctx.session.user.id;
 
-      const { success } = await ratelimit.limit(authorId);
+      if (ctx.session.user.role !== UserRole.ADMIN) {
+        const { success } = await ratelimit.limit(authorId);
 
-      if (!success) {
-        throw new TRPCError({
-          code: "TOO_MANY_REQUESTS",
-        });
+        if (!success) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+          });
+        }
       }
 
       const originalLessonPlan = await ctx.db.lessonPlan.findUnique({

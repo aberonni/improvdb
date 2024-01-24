@@ -197,12 +197,14 @@ export const resourceRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.session.user.id;
 
-      const { success } = await ratelimit.limit(authorId);
+      if (ctx.session.user.role !== UserRole.ADMIN) {
+        const { success } = await ratelimit.limit(authorId);
 
-      if (!success) {
-        throw new TRPCError({
-          code: "TOO_MANY_REQUESTS",
-        });
+        if (!success) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+          });
+        }
       }
 
       const resourceWithSameId = await ctx.db.resource.findUnique({
@@ -249,12 +251,14 @@ export const resourceRouter = createTRPCRouter({
     .mutation(async ({ ctx, input: updatedResource }) => {
       const authorId = ctx.session.user.id;
 
-      const { success } = await ratelimit.limit(authorId);
+      if (ctx.session.user.role !== UserRole.ADMIN) {
+        const { success } = await ratelimit.limit(authorId);
 
-      if (!success) {
-        throw new TRPCError({
-          code: "TOO_MANY_REQUESTS",
-        });
+        if (!success) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+          });
+        }
       }
 
       const originalResource = await ctx.db.resource.findUnique({
