@@ -18,9 +18,9 @@ export default function MyContributions() {
         authenticatedOnly={[UserRole.ADMIN]}
       >
         <ResourceList
-          noResourcesMessage="No resources pending publication."
           queryResult={queryResult}
           showPublishedStatus
+          useFilters
         />
       </PageLayout>
     </>

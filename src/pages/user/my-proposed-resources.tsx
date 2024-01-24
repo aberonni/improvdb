@@ -19,9 +19,9 @@ export default function MyProposedResources() {
           approval" are still being reviewed by our team.
         </p>
         <ResourceList
-          noResourcesMessage="You must create resources before they can show up here."
           queryResult={queryResult}
           showPublishedStatus
+          useFilters
         />
       </PageLayout>
     </>

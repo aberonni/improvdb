@@ -3,7 +3,7 @@ import Link from "next/link";
 import type * as z from "zod";
 
 import type { RouterOutputs } from "~/utils/api";
-import { type ResourceConfiguation, ResourceType } from "@prisma/client";
+import { type ResourceConfiguration, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
 import { type resourceCreateSchema } from "~/utils/zod";
 import { Separator } from "./ui/separator";
@@ -19,16 +19,18 @@ export const ResourceTypeLabels: Record<ResourceType, string> = {
   LONG_FORM: "🍿 Long Form Format",
 };
 
-export const ResourceConfiguationLabels: Record<ResourceConfiguation, string> =
-  {
-    SCENE: "🎭 Scenework",
-    BACKLINE: "👥 Backline",
-    WHOLE_CLASS: "♾️ Whole Group",
-    SOLO: "🧍 Solo",
-    PAIRS: "👯 Pairs",
-    GROUPS: "👨‍👨‍👦 Groups",
-    CIRCLE: "⭕️ Circle",
-  };
+export const ResourceConfigurationLabels: Record<
+  ResourceConfiguration,
+  string
+> = {
+  SCENE: "🎭 Scenework",
+  BACKLINE: "👥 Backline",
+  WHOLE_CLASS: "♾️ Whole Group",
+  SOLO: "🧍 Solo",
+  PAIRS: "👯 Pairs",
+  GROUPS: "👨‍👨‍👦 Groups",
+  CIRCLE: "⭕️ Circle",
+};
 
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
 type CreationResource = z.infer<typeof resourceCreateSchema>;
@@ -55,7 +57,7 @@ export function SingleResourceComponent({ resource }: Props) {
             {ResourceTypeLabels[resource.type]}
             <br />
             {resource.type !== ResourceType.LONG_FORM &&
-              ResourceConfiguationLabels[resource.configuration]}
+              ResourceConfigurationLabels[resource.configuration]}
           </h4>
 
           {alternativeNames.length > 0 && (

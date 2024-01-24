@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-import { ResourceConfiguationLabels, ResourceTypeLabels } from "./Resource";
+import { ResourceConfigurationLabels, ResourceTypeLabels } from "./Resource";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { cn } from "~/lib/utils";
@@ -237,7 +237,7 @@ export function SingleLessonPlanComponent({
                     <TableCell className="w-[130px] text-right">
                       {!isPreviewItem(item) &&
                         (item.resource.type === ResourceType.EXERCISE
-                          ? ResourceConfiguationLabels[
+                          ? ResourceConfigurationLabels[
                               item.resource.configuration
                             ]
                           : ResourceTypeLabels[item.resource.type])}

@@ -1,45 +1,130 @@
-import Link from "next/link";
-import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import clsx from "clsx";
-import { Badge } from "~/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { ExclamationTriangleIcon, EyeClosedIcon } from "@radix-ui/react-icons";
+"use client";
 
-import type { RouterOutputs } from "~/utils/api";
-import { ResourceTypeLabels } from "./Resource";
-import { Skeleton } from "./ui/skeleton";
+import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+
+import { type ColumnDef } from "@tanstack/react-table";
+import { type RouterOutputs } from "~/utils/api";
+import { ResourceConfigurationLabels, ResourceTypeLabels } from "./Resource";
+import type {
+  Category,
+  ResourceConfiguration,
+  ResourceType,
+} from "@prisma/client";
+import Link from "next/link";
+import { Badge } from "~/components/ui/badge";
+import { DataTable } from "~/components/ui/data-table";
+import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
+import { cn } from "~/lib/utils";
+
+type CategoriesInResource = { category: Category }[];
+
+const columns: ColumnDef<RouterOutputs["resource"]["getAll"][0]>[] = [
+  {
+    accessorKey: "title",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={column.id}
+        className="ml-2"
+      />
+    ),
+    cell: (props) => (
+      <Link
+        href={`/resource/${props.row.original.id}`}
+        className="hover:underline"
+      >
+        {props.getValue<string>()}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: "type",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={column.id} />
+    ),
+    cell: (props) => ResourceTypeLabels[props.getValue<ResourceType>()],
+    filterFn: (row, id, value: string[]) => {
+      return value.includes(row.getValue<string>(id));
+    },
+  },
+  {
+    accessorKey: "configuration",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={column.id} />
+    ),
+    cell: (props) =>
+      ResourceConfigurationLabels[props.getValue<ResourceConfiguration>()],
+    filterFn: (row, id, value: string[]) => {
+      return value.includes(row.getValue<string>(id));
+    },
+  },
+  {
+    accessorKey: "categories",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={column.id} />
+    ),
+    cell: (props) => (
+      <div className="space-x-2">
+        {(props.getValue<CategoriesInResource>() ?? [])
+          .sort(({ category: cA }, { category: cB }) =>
+            cA.name.localeCompare(cB.name),
+          )
+          .map(({ category }) => (
+            <Badge>{category.name}</Badge>
+          ))}
+      </div>
+    ),
+    filterFn: (row, id, value: string[]) => {
+      const categories = row.getValue<CategoriesInResource>(id);
+      return value.every((v) =>
+        categories.find(({ category }) => v === category.id),
+      );
+    },
+  },
+  {
+    accessorKey: "published",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={column.id} />
+    ),
+    cell: (props) => {
+      const published = props.getValue<boolean>();
+      return (
+        <Badge
+          className={cn(
+            "self-start text-white",
+            published && "bg-green-700",
+            !published && "bg-orange-600",
+          )}
+        >
+          {published ? "Published" : "Pending approval"}
+        </Badge>
+      );
+    },
+  },
+];
+
+const columnsWithoutSorting = columns.map((column) => ({
+  ...column,
+  enableSorting: false,
+  enableHiding: false,
+}));
 
 export const ResourceList = ({
-  filter,
+  useFilters = false,
+  usePagination = false,
   queryResult,
-  noResourcesMessage = "No resources found.",
   showPublishedStatus = false,
 }: {
+  useFilters?: boolean;
+  usePagination?: boolean;
   queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
-  filter?: (resource: RouterOutputs["resource"]["getAll"][0]) => boolean;
   showPublishedStatus?: boolean;
-  noResourcesMessage?: string;
 }) => {
   const { data, isLoading } = queryResult;
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-1">
-        {" "}
-        {Array.from({ length: 5 }).map((_) => (
-          <div className="flex w-full items-center rounded-lg border bg-background px-4 py-3 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
-            <div className="grow">
-              <Skeleton className="mb-2 h-4 w-[250px]" />
-              <Skeleton className="h-3 w-[200px]" />
-            </div>
-            <Skeleton className="inline-flex h-5 w-16 rounded-md" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (!data) {
+  if (!isLoading && !data) {
     return (
       <Alert variant="destructive">
         <ExclamationTriangleIcon className="h-4 w-4" />
@@ -51,58 +136,22 @@ export const ResourceList = ({
     );
   }
 
-  const resources = !filter ? data : data.filter(filter);
+  let dataTableColumns = useFilters ? columns : columnsWithoutSorting;
 
-  if (resources.length === 0) {
-    return (
-      <Alert>
-        <EyeClosedIcon className="h-4 w-4" />
-        <AlertTitle>No resources found.</AlertTitle>
-        <AlertDescription>{noResourcesMessage}</AlertDescription>
-      </Alert>
+  if (!showPublishedStatus) {
+    dataTableColumns = dataTableColumns.filter(
+      // @ts-expect-error some bug in tanstack type defs here
+      (column) => column.accessorKey !== "published",
     );
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      {resources.map((resource) => (
-        <Link
-          key={resource.id}
-          className="flex w-full flex-row items-center rounded-lg border bg-background px-4 py-3 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          href={`/resource/${resource.id}`}
-        >
-          <div className="grow">
-            <h3 className="font-medium leading-none tracking-tight">
-              {resource.title}
-            </h3>
-            {resource.categories.length > 0 && (
-              <p className="mt-1.5 text-sm leading-none text-muted-foreground">{`Categories: ${resource.categories
-                .map(({ category }) => category.name)
-                .join(", ")}`}</p>
-            )}
-          </div>
-          {showPublishedStatus ? (
-            <Badge
-              className={clsx(
-                "self-start text-white",
-                resource.published && "bg-green-700",
-                !resource.published && "bg-orange-600",
-              )}
-            >
-              {resource.published ? "Published" : "Pending approval"}
-            </Badge>
-          ) : (
-            <Badge variant="secondary" className="text-nowrap">
-              <span className="hidden md:block">
-                {ResourceTypeLabels[resource.type]}
-              </span>
-              <span className="block md:hidden">
-                {ResourceTypeLabels[resource.type].split(" ")[0]}
-              </span>
-            </Badge>
-          )}
-        </Link>
-      ))}
-    </div>
+    <DataTable
+      columns={dataTableColumns}
+      data={data}
+      isLoading={isLoading}
+      useFilters={useFilters}
+      usePagination={usePagination}
+    />
   );
 };

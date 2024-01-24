@@ -24,7 +24,7 @@ enum ResourceType {
   LONG_FORM
 }
 
-enum ResourceConfiguation {
+enum ResourceConfiguration {
   SOLO
   PAIRS
   GROUPS
@@ -40,7 +40,7 @@ model Resource {
   description   String                  @db.Text
   type          ResourceType
   categories    CategoriesOnResources[]
-  configuration ResourceConfiguation
+  configuration ResourceConfiguration
 
   showIntroduction String? @db.Text
   video            String?

@@ -7,10 +7,10 @@ import { useToast } from "~/components/ui/use-toast";
 import { type RouterOutputs, api } from "~/utils/api";
 import { resourceCreateSchema } from "~/utils/zod";
 import { MultiSelectDropown } from "~/components/MultiSelectDropdown";
-import { ResourceConfiguation, ResourceType } from "@prisma/client";
+import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import {
-  ResourceConfiguationLabels,
+  ResourceConfigurationLabels,
   ResourceTypeLabels,
   SingleResourceComponent,
 } from "~/components/Resource";
@@ -177,7 +177,7 @@ const editFormDefaults: Partial<CreateSchemaType> = {
   categories: [],
   relatedResources: [],
   type: ResourceType.EXERCISE,
-  configuration: ResourceConfiguation.SCENE,
+  configuration: ResourceConfiguration.SCENE,
   description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
 
 You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button to see what your text will look like.
@@ -289,7 +289,7 @@ export default function ResourceEditForm({
   useEffect(() => {
     const type = getValues("type");
     if (type === ResourceType.LONG_FORM) {
-      setValue("configuration", ResourceConfiguation.SCENE);
+      setValue("configuration", ResourceConfiguration.SCENE);
     }
   }, [watch("type")]);
 
@@ -415,12 +415,12 @@ export default function ResourceEditForm({
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>Configurations</SelectLabel>
-                              {Object.keys(ResourceConfiguation).map(
+                              {Object.keys(ResourceConfiguration).map(
                                 (confKey) => (
                                   <SelectItem key={confKey} value={confKey}>
                                     {
-                                      ResourceConfiguationLabels[
-                                        confKey as ResourceConfiguation
+                                      ResourceConfigurationLabels[
+                                        confKey as ResourceConfiguration
                                       ]
                                     }
                                   </SelectItem>

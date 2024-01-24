@@ -26,7 +26,7 @@ export default function Home() {
           </>
         }
       >
-        <h2 className="mb-6 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+        <h2 className="mb-6 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight">
           Latest Resources
         </h2>
         <ResourceList queryResult={resourcesQueryResult} />
@@ -36,7 +36,7 @@ export default function Home() {
         >
           Browse all resources
         </Link>
-        <h2 className="mb-6 mt-16 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+        <h2 className="mb-6 mt-16 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight">
           Latest Public Lesson Plans
         </h2>
         <LessonPlanList queryResult={lessonPlansQueryResult} />

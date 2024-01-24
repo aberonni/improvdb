@@ -79,10 +79,17 @@
   * {
     @apply border-border;
   }
+
   html {
     @apply h-full;
     overflow-y: scroll;
+
+    /* https://github.com/radix-ui/primitives/issues/1272#issuecomment-1383428000 */
+    &:has(> body > [data-radix-popper-content-wrapper]) {
+      overflow-y: initial;
+    }
   }
+
   body {
     @apply h-full bg-background font-sans text-foreground;
   }

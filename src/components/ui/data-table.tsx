@@ -1,0 +1,135 @@
+"use client";
+
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type SortingState,
+  getSortedRowModel,
+  type ColumnFiltersState,
+  getFilteredRowModel,
+  type VisibilityState,
+  getPaginationRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+} from "@tanstack/react-table";
+import { useState } from "react";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
+import { Skeleton } from "~/components/ui/skeleton";
+
+interface DataTableProps<TData, TValue = unknown> {
+  columns: ColumnDef<TData, TValue>[];
+  data?: TData[];
+  usePagination?: boolean;
+  useFilters?: boolean;
+  isLoading?: boolean;
+}
+
+export function DataTable<TData, TValue = unknown>({
+  columns,
+  data,
+  usePagination = false,
+  useFilters = false,
+  isLoading = false,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
+  const table = useReactTable({
+    data: data ?? [],
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: useFilters ? getFilteredRowModel() : undefined,
+    getPaginationRowModel: usePagination ? getPaginationRowModel() : undefined,
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: useFilters ? getFacetedRowModel() : undefined,
+    getFacetedUniqueValues: useFilters ? getFacetedUniqueValues() : undefined,
+  });
+
+  return (
+    <div className="space-y-4">
+      {useFilters && <DataTableToolbar table={table} />}
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id} className="capitalize">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  {columns.map((__, j) => (
+                    <TableCell key={j}>
+                      <Skeleton className="my-0.5 h-[18px] w-[200px]" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      {usePagination && <DataTablePagination table={table} />}
+    </div>
+  );
+}

@@ -1,4 +1,4 @@
-import { ResourceType, ResourceConfiguation } from "@prisma/client";
+import { ResourceType, ResourceConfiguration } from "@prisma/client";
 import * as z from "zod";
 
 const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
@@ -19,7 +19,7 @@ export const resourceCreateSchema = z.object({
   title: z.string().min(2).max(50),
   description: z.string().min(20),
   type: z.nativeEnum(ResourceType),
-  configuration: z.nativeEnum(ResourceConfiguation),
+  configuration: z.nativeEnum(ResourceConfiguration),
 
   categories: z.array(z.object({ label: z.string(), value: z.string() })),
   showIntroduction: z.string().optional(),

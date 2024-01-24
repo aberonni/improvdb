@@ -13,11 +13,7 @@ export default function MyLessonPlansPage() {
         <title>My Lesson Plans - ImprovDB</title>
       </Head>
       <PageLayout title="My Lesson Plans">
-        <LessonPlanList
-          noLessonPlansMessage="You must create Lesson Plans before they can show up here."
-          queryResult={queryResult}
-          showPrivateStatus
-        />
+        <LessonPlanList queryResult={queryResult} showPrivateStatus />
       </PageLayout>
     </>
   );
