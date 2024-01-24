@@ -6,8 +6,8 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 import type { RouterOutputs } from "~/utils/api";
 import { type ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "./ui/data-table-column-header";
-import { DataTable } from "./ui/data-table";
+import { DataTable } from "~/components/data-table";
+import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
 
 const columns: ColumnDef<RouterOutputs["lessonPlan"]["getMyLessonPlans"][0]>[] =
   [

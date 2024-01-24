@@ -7,18 +7,15 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { type ColumnDef } from "@tanstack/react-table";
 import { type RouterOutputs } from "~/utils/api";
 import { ResourceConfigurationLabels, ResourceTypeLabels } from "./Resource";
-import type {
-  Category,
-  ResourceConfiguration,
-  ResourceType,
-} from "@prisma/client";
+import type { ResourceConfiguration, ResourceType } from "@prisma/client";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
-import { DataTable } from "~/components/ui/data-table";
-import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
+import { DataTable } from "~/components/data-table";
+import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
 import { cn } from "~/lib/utils";
 
-type CategoriesInResource = { category: Category }[];
+type CategoriesInResource =
+  RouterOutputs["resource"]["getAll"][0]["categories"];
 
 const columns: ColumnDef<RouterOutputs["resource"]["getAll"][0]>[] = [
   {
@@ -66,21 +63,21 @@ const columns: ColumnDef<RouterOutputs["resource"]["getAll"][0]>[] = [
       <DataTableColumnHeader column={column} title={column.id} />
     ),
     cell: (props) => (
-      <div className="space-x-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {(props.getValue<CategoriesInResource>() ?? [])
-          .sort(({ category: cA }, { category: cB }) =>
-            cA.name.localeCompare(cB.name),
-          )
-          .map(({ category }) => (
-            <Badge>{category.name}</Badge>
+          .sort(({ name: a }, { name: b }) => a.localeCompare(b))
+          .map(({ id, name }) => (
+            <Badge key={id}>{name}</Badge>
           ))}
       </div>
     ),
-    filterFn: (row, id, value: string[]) => {
-      const categories = row.getValue<CategoriesInResource>(id);
-      return value.every((v) =>
-        categories.find(({ category }) => v === category.id),
-      );
+    filterFn: (row, columnId, value: string[]) => {
+      const categories = row.getValue<CategoriesInResource>(columnId);
+
+      return value.some((v) => categories.find(({ id }) => v === id));
+    },
+    getUniqueValues: (row) => {
+      return row.categories.map(({ id }) => id);
     },
   },
   {
@@ -152,6 +149,7 @@ export const ResourceList = ({
       isLoading={isLoading}
       useFilters={useFilters}
       usePagination={usePagination}
+      hiddenColumnsOnMobile={["categories", "configuration"]}
     />
   );
 };

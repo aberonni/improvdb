@@ -1,4 +1,9 @@
-import { UserRole } from "@prisma/client";
+import {
+  type CategoriesOnResources,
+  type Category,
+  type Resource,
+  UserRole,
+} from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -20,42 +25,57 @@ const ratelimit = new Ratelimit({
   analytics: true,
 });
 
+function cleanCategories(
+  resources: (Resource & {
+    categories: (CategoriesOnResources & { category: Category })[];
+  })[],
+) {
+  return resources.map((resource) => ({
+    ...resource,
+    categories: resource.categories.map(({ category }) => category),
+  }));
+}
+
 export const resourceRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.resource.findMany({
-      take: 1000,
-      orderBy: {
-        title: "asc",
-      },
-      where: {
-        published: true,
-      },
-      include: {
-        categories: {
-          include: {
-            category: true,
+    return ctx.db.resource
+      .findMany({
+        take: 1000,
+        orderBy: {
+          title: "asc",
+        },
+        where: {
+          published: true,
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
           },
         },
-      },
-    });
+      })
+      .then(cleanCategories);
   }),
   getLatest: publicProcedure.query(({ ctx }) => {
-    return ctx.db.resource.findMany({
-      take: 5,
-      orderBy: {
-        createdAt: "desc",
-      },
-      where: {
-        published: true,
-      },
-      include: {
-        categories: {
-          include: {
-            category: true,
+    return ctx.db.resource
+      .findMany({
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          published: true,
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
           },
         },
-      },
-    });
+      })
+      .then(cleanCategories);
   }),
   getAllOnlyIdAndTitle: publicProcedure.query(({ ctx }) => {
     return ctx.db.resource.findMany({
@@ -73,22 +93,24 @@ export const resourceRouter = createTRPCRouter({
     });
   }),
   getMyProposedResources: privateProcedure.query(({ ctx }) => {
-    return ctx.db.resource.findMany({
-      where: {
-        createdBy: ctx.session.user,
-      },
-      take: 1000,
-      orderBy: {
-        title: "asc",
-      },
-      include: {
-        categories: {
-          include: {
-            category: true,
+    return ctx.db.resource
+      .findMany({
+        where: {
+          createdBy: ctx.session.user,
+        },
+        take: 1000,
+        orderBy: {
+          title: "asc",
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
           },
         },
-      },
-    });
+      })
+      .then(cleanCategories);
   }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
@@ -362,21 +384,23 @@ export const resourceRouter = createTRPCRouter({
       };
     }),
   getPendingPublication: adminProcedure.query(({ ctx }) => {
-    return ctx.db.resource.findMany({
-      where: {
-        published: false,
-      },
-      take: 1000,
-      orderBy: {
-        title: "asc",
-      },
-      include: {
-        categories: {
-          include: {
-            category: true,
+    return ctx.db.resource
+      .findMany({
+        where: {
+          published: false,
+        },
+        take: 1000,
+        orderBy: {
+          title: "asc",
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
           },
         },
-      },
-    });
+      })
+      .then(cleanCategories);
   }),
 });

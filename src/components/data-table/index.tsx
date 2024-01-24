@@ -14,7 +14,7 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Table,
@@ -27,6 +27,7 @@ import {
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { Skeleton } from "~/components/ui/skeleton";
+import { useMediaQuery } from "~/hooks/use-media-query";
 
 interface DataTableProps<TData, TValue = unknown> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,6 +35,7 @@ interface DataTableProps<TData, TValue = unknown> {
   usePagination?: boolean;
   useFilters?: boolean;
   isLoading?: boolean;
+  hiddenColumnsOnMobile?: (keyof VisibilityState)[];
 }
 
 export function DataTable<TData, TValue = unknown>({
@@ -42,10 +44,26 @@ export function DataTable<TData, TValue = unknown>({
   usePagination = false,
   useFilters = false,
   isLoading = false,
+  hiddenColumnsOnMobile = [],
 }: DataTableProps<TData, TValue>) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
+  useEffect(() => {
+    if (hiddenColumnsOnMobile.length === 0) return;
+
+    setColumnVisibility((prev) => ({
+      ...prev,
+      ...Object.fromEntries(
+        hiddenColumnsOnMobile
+          .filter((key) => !prev[key])
+          .map((key) => [key, isDesktop]),
+      ),
+    }));
+  }, [hiddenColumnsOnMobile, isDesktop, setColumnVisibility]);
 
   const table = useReactTable({
     data: data ?? [],
@@ -93,7 +111,7 @@ export function DataTable<TData, TValue = unknown>({
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
-                  {columns.map((__, j) => (
+                  {table.getVisibleFlatColumns().map((col, j) => (
                     <TableCell key={j}>
                       <Skeleton className="my-0.5 h-[18px] w-[200px]" />
                     </TableCell>
