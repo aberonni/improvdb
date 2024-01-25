@@ -10,6 +10,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useState } from "react";
 import { Logo } from "~/components/Logo";
+import Link from "next/link";
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
@@ -114,7 +115,7 @@ export default function SignIn() {
             </p>
           </div>
           <UserAuthForm />
-          {/* <p className="px-8 text-center text-sm text-muted-foreground">
+          <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
             <Link
               href="/terms"
@@ -130,7 +131,7 @@ export default function SignIn() {
               Privacy Policy
             </Link>
             .
-          </p> */}
+          </p>
         </div>
       </div>
     </div>
