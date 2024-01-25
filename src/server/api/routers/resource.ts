@@ -16,6 +16,7 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { sendMailToAdmins } from "~/server/nodemailer";
 import { resourceCreateSchema } from "~/utils/zod";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
@@ -242,6 +243,16 @@ export const resourceRouter = createTRPCRouter({
         },
       });
 
+      if (ctx.session.user.role !== UserRole.ADMIN) {
+        void sendMailToAdmins(
+          {
+            subject: "New resource created",
+            html: `<p>A new resource has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.vercel.app/resource/${resource.id}">View resource</a></p>`,
+          },
+          ctx.db,
+        );
+      }
+
       return {
         resource,
       };
@@ -378,6 +389,14 @@ export const resourceRouter = createTRPCRouter({
             .join(";"),
         },
       });
+
+      void sendMailToAdmins(
+        {
+          subject: "New resource edit proposal",
+          html: `<p>A new resource edit proposal has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.vercel.app/resource/${resource.id}">View resource</a></p>`,
+        },
+        ctx.db,
+      );
 
       return {
         resource,
