@@ -27,7 +27,7 @@ export default function Home() {
         }
       >
         <h2 className="mb-6 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight">
-          Latest Resources
+          Recently Updated Resources
         </h2>
         <ResourceList queryResult={resourcesQueryResult} />
         <Link
@@ -37,7 +37,7 @@ export default function Home() {
           Browse all resources
         </Link>
         <h2 className="mb-6 mt-16 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight">
-          Latest Public Lesson Plans
+          Recently Published Lesson Plans
         </h2>
         <LessonPlanList queryResult={lessonPlansQueryResult} />
         <Link

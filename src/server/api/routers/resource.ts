@@ -63,7 +63,7 @@ export const resourceRouter = createTRPCRouter({
       .findMany({
         take: 5,
         orderBy: {
-          createdAt: "desc",
+          updatedAt: "desc",
         },
         where: {
           published: true,
