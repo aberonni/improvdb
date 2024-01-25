@@ -166,7 +166,7 @@ export function SingleLessonPlanComponent({
                           }))
                         }
                       >
-                        <CollapsibleTrigger className="flex items-center font-medium text-primary underline underline-offset-4 hover:opacity-75">
+                        <CollapsibleTrigger className="flex items-center text-left font-medium text-primary underline underline-offset-4 hover:opacity-75">
                           {isPreviewItem(item)
                             ? item.resource.label
                             : item.resource.title}
@@ -174,9 +174,9 @@ export function SingleLessonPlanComponent({
                           showSpecificResourceDescription[
                             `${sectionIndex}-${itemIndex}`
                           ] ? (
-                            <MinusIcon className="ml-1 inline-block h-4 w-4 print:hidden" />
+                            <MinusIcon className="ml-1 inline-block h-4 w-4 shrink-0 print:hidden" />
                           ) : (
-                            <PlusIcon className="ml-1 inline-block h-4 w-4 print:hidden" />
+                            <PlusIcon className="ml-1 inline-block h-4 w-4 shrink-0 print:hidden" />
                           )}
                         </CollapsibleTrigger>
                         {item.text && (
