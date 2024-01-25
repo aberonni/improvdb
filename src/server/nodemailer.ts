@@ -6,7 +6,7 @@ import { env } from "~/env";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({
-    apiKey: env.SENDGRID_API_KEY,
+    apiKey: env.EMAIL_SERVER_PASSWORD,
   }),
 );
 
