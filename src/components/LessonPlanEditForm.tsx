@@ -33,13 +33,13 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   PlusIcon,
-  ReloadIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
 import { SingleLessonPlanComponent } from "./LessonPlan";
 import { Checkbox } from "./ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
+import { Icons } from "./ui/icons";
 
 type CreateSchemaType = z.infer<typeof lessonPlanCreateSchema>;
 
@@ -78,7 +78,7 @@ const SaveButton = ({
     <Button disabled={isSaving} type="submit">
       {isSaving ? (
         <>
-          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Saving...
+          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Saving...
         </>
       ) : (
         "Save"

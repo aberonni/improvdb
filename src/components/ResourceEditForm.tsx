@@ -53,9 +53,10 @@ import {
 } from "~/components/ui/alert-dialog";
 
 import { cn } from "~/lib/utils";
-import { ChevronDownIcon, PlusIcon, ReloadIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Separator } from "~/components/ui/separator";
+import { Icons } from "./ui/icons";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -103,7 +104,7 @@ const SaveButton = ({
       <Button disabled={isSaving} type="submit">
         {isSaving ? (
           <>
-            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Saving...
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Saving...
           </>
         ) : (
           "Save"
@@ -118,7 +119,7 @@ const SaveButton = ({
         <Button disabled={isSaving} type="button">
           {isSaving ? (
             <>
-              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Saving...
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Saving...
             </>
           ) : (
             "Save"

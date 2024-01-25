@@ -30,6 +30,7 @@ import { LoadingPage } from "./Loading";
 import { UserRole } from "@prisma/client";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
+import { Logo } from "./Logo";
 
 const UserWidget = ({ user }: { user: User }) => (
   <div className="flex items-center">
@@ -99,14 +100,7 @@ export const PageLayout = ({
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <Link className="text-xl font-bold tracking-tight" href="/">
-                      <span className="inline-block rounded rounded-r-none border border-zinc-900 bg-zinc-900 py-1 pl-1.5 pr-1 text-white dark:border-white  dark:bg-white dark:text-zinc-900">
-                        Improv
-                      </span>
-                      <span className="inline-block rounded rounded-l-none border border-zinc-900 bg-white py-1 pl-0.5 pr-1 font-extrabold tracking-tight text-zinc-900 dark:border-white dark:!border-l-zinc-900 dark:bg-zinc-900 dark:text-white">
-                        DB
-                      </span>
-                    </Link>
+                    <Logo />
                   </div>
                   <div className="hidden md:block">
                     <div className="ml-4 flex items-baseline space-x-0">
