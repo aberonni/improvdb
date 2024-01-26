@@ -25,12 +25,12 @@ import { cn } from "~/lib/utils";
 import { Alert } from "./ui/alert";
 import { type User } from "next-auth";
 import { useRouter } from "next/router";
-import { ThemeToggle } from "./ThemeToggle";
-import { LoadingPage } from "./Loading";
+import { ThemeToggle } from "./theme-toggle";
+import { LoadingPage } from "./loading";
 import { UserRole } from "@prisma/client";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
-import { Logo } from "./Logo";
+import { Logo } from "./logo";
 
 const UserWidget = ({ user }: { user: User }) => (
   <div className="flex items-center">

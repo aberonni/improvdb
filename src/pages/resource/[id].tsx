@@ -2,10 +2,10 @@ import Head from "next/head";
 import { type RouterOutputs, api } from "~/utils/api";
 
 import type { GetStaticProps, NextPage } from "next";
-import { PageLayout } from "~/components/PageLayout";
+import { PageLayout } from "~/components/page-layout";
 import { generateSSGHelper } from "~/server/helpers/ssgHelper";
-import { LoadingPage } from "~/components/Loading";
-import { SingleResourceComponent } from "~/components/Resource";
+import { LoadingPage } from "~/components/loading";
+import { SingleResourceComponent } from "~/components/resource";
 import { useSession } from "next-auth/react";
 import { UserRole } from "@prisma/client";
 import { Button, buttonVariants } from "~/components/ui/button";

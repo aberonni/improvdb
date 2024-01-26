@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-import { ResourceConfigurationLabels, ResourceTypeLabels } from "./Resource";
+import { ResourceConfigurationLabels, ResourceTypeLabels } from "./resource";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { cn } from "~/lib/utils";

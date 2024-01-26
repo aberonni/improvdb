@@ -11,7 +11,7 @@ import {
   SplitPageLayout,
   SplitPageLayoutContent,
   SplitPageLayoutSidebar,
-} from "./PageLayout";
+} from "./page-layout";
 import { buttonVariants } from "./ui/button";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {

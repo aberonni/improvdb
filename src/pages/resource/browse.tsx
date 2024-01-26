@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
-import { PageLayout } from "~/components/PageLayout";
-import { ResourceList } from "~/components/ResourceList";
+import { PageLayout } from "~/components/page-layout";
+import { ResourceList } from "~/components/resource-list";
 
 import { api } from "~/utils/api";
 

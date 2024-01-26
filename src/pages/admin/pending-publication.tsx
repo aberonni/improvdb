@@ -1,7 +1,7 @@
 import { UserRole } from "@prisma/client";
 import Head from "next/head";
-import { PageLayout } from "~/components/PageLayout";
-import { ResourceList } from "~/components/ResourceList";
+import { PageLayout } from "~/components/page-layout";
+import { ResourceList } from "~/components/resource-list";
 
 import { api } from "~/utils/api";
 

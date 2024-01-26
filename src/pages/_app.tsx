@@ -6,7 +6,7 @@ import NextNProgress from "nextjs-progressbar";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
-import { usePreserveScroll } from "~/hooks/usePreserveScroll";
+import { usePreserveScroll } from "~/hooks/use-preserve-scroll";
 import Head from "next/head";
 import { Toaster } from "~/components/ui/toaster";
 import { ThemeProvider } from "~/components/theme-provider";

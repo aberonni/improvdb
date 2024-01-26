@@ -1,7 +1,7 @@
 import Head from "next/head";
 
-import { PageLayout } from "~/components/PageLayout";
-import ResourceEditForm from "~/components/ResourceEditForm";
+import { PageLayout } from "~/components/page-layout";
+import ResourceEditForm from "~/components/resource-edit-form";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";

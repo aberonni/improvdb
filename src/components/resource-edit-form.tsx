@@ -6,14 +6,14 @@ import { useToast } from "~/components/ui/use-toast";
 
 import { type RouterOutputs, api } from "~/utils/api";
 import { resourceCreateSchema } from "~/utils/zod";
-import { MultiSelectDropown } from "~/components/MultiSelectDropdown";
+import { MultiSelectDropown } from "~/components/multi-select-dropdown";
 import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
   SingleResourceComponent,
-} from "~/components/Resource";
+} from "~/components/resource";
 
 import { Button, buttonVariants } from "~/components/ui/button";
 import {

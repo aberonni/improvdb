@@ -6,7 +6,7 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 import { type ColumnDef } from "@tanstack/react-table";
 import { type RouterOutputs } from "~/utils/api";
-import { ResourceConfigurationLabels, ResourceTypeLabels } from "./Resource";
+import { ResourceConfigurationLabels, ResourceTypeLabels } from "./resource";
 import type { ResourceConfiguration, ResourceType } from "@prisma/client";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";

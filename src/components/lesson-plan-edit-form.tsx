@@ -5,7 +5,7 @@ import { useToast } from "~/components/ui/use-toast";
 
 import { type RouterOutputs, api } from "~/utils/api";
 import { lessonPlanCreateSchema } from "~/utils/zod";
-import { MultiSelectDropown } from "~/components/MultiSelectDropdown";
+import { MultiSelectDropown } from "~/components/multi-select-dropdown";
 import { useMemo, useState } from "react";
 
 import { Button, buttonVariants } from "~/components/ui/button";
@@ -35,7 +35,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
-import { SingleLessonPlanComponent } from "./LessonPlan";
+import { SingleLessonPlanComponent } from "./lesson-plan";
 import { Checkbox } from "./ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";

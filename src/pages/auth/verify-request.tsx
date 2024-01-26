@@ -1,4 +1,4 @@
-import { Logo } from "~/components/Logo";
+import { Logo } from "~/components/logo";
 
 export default function VerifyRequestPage() {
   return (
