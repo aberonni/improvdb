@@ -112,8 +112,11 @@ export function DataTable<TData, TValue = unknown>({
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
                   {table.getVisibleFlatColumns().map((col, j) => (
-                    <TableCell key={j}>
-                      <Skeleton className="my-0.5 h-[18px] w-[200px]" />
+                    <TableCell key={j} className="h-[40px]">
+                      <Skeleton
+                        className="h-[18px]"
+                        style={{ width: `${60 + ((i + j) % 3) * 40}px` }}
+                      />
                     </TableCell>
                   ))}
                 </TableRow>
@@ -125,7 +128,7 @@ export function DataTable<TData, TValue = unknown>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="h-[40px]">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
