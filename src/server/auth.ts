@@ -9,8 +9,8 @@ import {
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvider from "next-auth/providers/google";
 
-import { env } from "~/env";
-import { db } from "~/server/db";
+import { env } from "@/env";
+import { db } from "@/server/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

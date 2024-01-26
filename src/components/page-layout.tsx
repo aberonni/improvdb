@@ -1,5 +1,5 @@
 import { useMemo, type PropsWithChildren } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Disclosure, Transition } from "@headlessui/react";
 
@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 import {
   ArrowLeftIcon,
@@ -20,8 +20,8 @@ import {
   HamburgerMenuIcon,
 } from "@radix-ui/react-icons";
 
-import { Button, buttonVariants } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Alert } from "./ui/alert";
 import { type User } from "next-auth";
 import { useRouter } from "next/router";

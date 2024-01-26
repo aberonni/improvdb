@@ -1,10 +1,10 @@
 import Head from "next/head";
 
-import { PageLayout } from "~/components/page-layout";
-import { api } from "~/utils/api";
+import { PageLayout } from "@/components/page-layout";
+import { api } from "@/utils/api";
 import { useRouter } from "next/router";
-import { useToast } from "~/components/ui/use-toast";
-import LessonPlanEditForm from "~/components/lesson-plan-edit-form";
+import { useToast } from "@/components/ui/use-toast";
+import LessonPlanEditForm from "@/components/lesson-plan-edit-form";
 
 export default function Create() {
   const router = useRouter();

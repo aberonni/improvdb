@@ -1,8 +1,8 @@
 import Head from "next/head";
-import { LessonPlanList } from "~/components/lesson-plan-list";
-import { PageLayout } from "~/components/page-layout";
+import { LessonPlanList } from "@/components/lesson-plan-list";
+import { PageLayout } from "@/components/page-layout";
 
-import { api } from "~/utils/api";
+import { api } from "@/utils/api";
 
 export default function BrowseLessonPlans() {
   const queryResult = api.lessonPlan.getPublic.useQuery();

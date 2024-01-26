@@ -2,7 +2,7 @@ import { type PrismaClient } from "@prisma/client";
 import nodemailer from "nodemailer";
 import nodemailerSendgrid from "nodemailer-sendgrid";
 
-import { env } from "~/env";
+import { env } from "@/env";
 
 const transport = nodemailer.createTransport(
   nodemailerSendgrid({

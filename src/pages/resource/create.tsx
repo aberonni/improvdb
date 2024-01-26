@@ -1,11 +1,11 @@
 import Head from "next/head";
 
-import { PageLayout } from "~/components/page-layout";
-import ResourceEditForm from "~/components/resource-edit-form";
-import { api } from "~/utils/api";
+import { PageLayout } from "@/components/page-layout";
+import ResourceEditForm from "@/components/resource-edit-form";
+import { api } from "@/utils/api";
 import { useRouter } from "next/router";
-import { useToast } from "~/components/ui/use-toast";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Create() {
   const utils = api.useUtils();

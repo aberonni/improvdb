@@ -12,8 +12,8 @@ import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { db } from "~/server/db";
-import { getServerAuthSession } from "~/server/auth";
+import { db } from "@/server/db";
+import { getServerAuthSession } from "@/server/auth";
 import { UserRole } from "@prisma/client";
 
 /**

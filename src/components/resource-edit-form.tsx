@@ -2,20 +2,20 @@ import { kebabCase } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import type * as z from "zod";
-import { useToast } from "~/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
-import { type RouterOutputs, api } from "~/utils/api";
-import { resourceCreateSchema } from "~/utils/zod";
-import { MultiSelectDropown } from "~/components/multi-select-dropdown";
+import { type RouterOutputs, api } from "@/utils/api";
+import { resourceCreateSchema } from "@/utils/zod";
+import { MultiSelectDropown } from "@/components/multi-select-dropdown";
 import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { useEffect, useMemo, useState } from "react";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
   SingleResourceComponent,
-} from "~/components/resource";
+} from "@/components/resource";
 
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -23,9 +23,9 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -34,12 +34,12 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from "@/components/ui/select";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
+} from "@/components/ui/collapsible";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,12 +50,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Separator } from "~/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import { Icons } from "./ui/icons";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;

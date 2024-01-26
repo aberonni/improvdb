@@ -1,16 +1,16 @@
 import { Cross2Icon, MixerHorizontalIcon } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
 
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
-} from "~/components/resource";
+} from "@/components/resource";
 import type { ResourceConfiguration, ResourceType } from "@prisma/client";
-import { api } from "~/utils/api";
-import { useMediaQuery } from "~/hooks/use-media-query";
+import { api } from "@/utils/api";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 import {
   Drawer,
@@ -20,8 +20,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "~/components/ui/drawer";
-import { cn } from "~/lib/utils";
+} from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
 
 interface DataTableFiltersProps<TData> {
   table: Table<TData>;

@@ -1,11 +1,11 @@
 import Head from "next/head";
 import Link from "next/link";
-import { LessonPlanList } from "~/components/lesson-plan-list";
-import { PageLayout } from "~/components/page-layout";
-import { ResourceList } from "~/components/resource-list";
-import { buttonVariants } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
-import { api } from "~/utils/api";
+import { LessonPlanList } from "@/components/lesson-plan-list";
+import { PageLayout } from "@/components/page-layout";
+import { ResourceList } from "@/components/resource-list";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { api } from "@/utils/api";
 
 export default function Home() {
   const resourcesQueryResult = api.resource.getLatest.useQuery();

@@ -1,14 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type UseFormReturn, useForm, useFieldArray } from "react-hook-form";
 import type * as z from "zod";
-import { useToast } from "~/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
-import { type RouterOutputs, api } from "~/utils/api";
-import { lessonPlanCreateSchema } from "~/utils/zod";
-import { MultiSelectDropown } from "~/components/multi-select-dropdown";
+import { type RouterOutputs, api } from "@/utils/api";
+import { lessonPlanCreateSchema } from "@/utils/zod";
+import { MultiSelectDropown } from "@/components/multi-select-dropdown";
 import { useMemo, useState } from "react";
 
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -17,16 +17,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
+} from "@/components/ui/collapsible";
 
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   ArrowDownIcon,
   ArrowUpIcon,

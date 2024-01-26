@@ -3,7 +3,7 @@
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 
-import { Button, type buttonVariants } from "~/components/ui/button";
+import { Button, type buttonVariants } from "@/components/ui/button";
 import { type VariantProps } from "class-variance-authority";
 
 export function ThemeToggle({

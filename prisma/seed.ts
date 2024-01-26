@@ -5,9 +5,9 @@ import lodash from "lodash";
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { startCase } = lodash;
 
-import { db } from "~/server/db";
+import { db } from "@/server/db";
 
-import type { RouterOutputs } from "~/utils/api";
+import type { RouterOutputs } from "@/utils/api";
 type JSONResource = RouterOutputs["resource"]["getById"] & {
   categories: string[];
 };

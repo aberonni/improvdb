@@ -8,8 +8,8 @@ import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
-} from "~/server/api/trpc";
-import { lessonPlanCreateSchema } from "~/utils/zod";
+} from "@/server/api/trpc";
+import { lessonPlanCreateSchema } from "@/utils/zod";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({

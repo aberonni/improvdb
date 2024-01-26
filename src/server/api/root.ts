@@ -1,6 +1,6 @@
-import { categoryRouter } from "~/server/api/routers/category";
-import { resourceRouter } from "~/server/api/routers/resource";
-import { createTRPCRouter } from "~/server/api/trpc";
+import { categoryRouter } from "@/server/api/routers/category";
+import { resourceRouter } from "@/server/api/routers/resource";
+import { createTRPCRouter } from "@/server/api/trpc";
 import { lessonPlanRouter } from "./routers/lessonPlan";
 
 /**

@@ -2,9 +2,9 @@ import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import type * as z from "zod";
 
-import type { RouterOutputs } from "~/utils/api";
+import type { RouterOutputs } from "@/utils/api";
 import { useMemo, useState } from "react";
-import { type lessonPlanCreateSchema } from "~/utils/zod";
+import { type lessonPlanCreateSchema } from "@/utils/zod";
 
 import {
   Table,
@@ -13,12 +13,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "~/components/ui/table";
+} from "@/components/ui/table";
 
 import { ResourceConfigurationLabels, ResourceTypeLabels } from "./resource";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   Collapsible,
   CollapsibleContent,

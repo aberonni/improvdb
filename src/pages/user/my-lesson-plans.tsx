@@ -1,8 +1,8 @@
 import Head from "next/head";
-import { LessonPlanList } from "~/components/lesson-plan-list";
-import { PageLayout } from "~/components/page-layout";
+import { LessonPlanList } from "@/components/lesson-plan-list";
+import { PageLayout } from "@/components/page-layout";
 
-import { api } from "~/utils/api";
+import { api } from "@/utils/api";
 
 export default function MyLessonPlansPage() {
   const queryResult = api.lessonPlan.getMyLessonPlans.useQuery();

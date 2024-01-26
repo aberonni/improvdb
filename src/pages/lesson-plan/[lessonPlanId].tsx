@@ -1,19 +1,19 @@
 import Head from "next/head";
-import { type RouterOutputs, api } from "~/utils/api";
+import { type RouterOutputs, api } from "@/utils/api";
 
 import type { GetStaticProps, NextPage } from "next";
-import { PageLayout } from "~/components/page-layout";
-import { generateSSGHelper } from "~/server/helpers/ssgHelper";
-import { LoadingPage } from "~/components/loading";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { PageLayout } from "@/components/page-layout";
+import { generateSSGHelper } from "@/server/helpers/ssgHelper";
+import { LoadingPage } from "@/components/loading";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useToast } from "~/components/ui/use-toast";
-import { SingleLessonPlanComponent } from "~/components/lesson-plan";
+import { useToast } from "@/components/ui/use-toast";
+import { SingleLessonPlanComponent } from "@/components/lesson-plan";
 import { useMemo, useState } from "react";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Badge } from "~/components/ui/badge";
-import { cn } from "~/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import {
   DownloadIcon,

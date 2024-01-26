@@ -2,10 +2,10 @@ import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import type * as z from "zod";
 
-import type { RouterOutputs } from "~/utils/api";
+import type { RouterOutputs } from "@/utils/api";
 import { type ResourceConfiguration, ResourceType } from "@prisma/client";
 import { useMemo } from "react";
-import { type resourceCreateSchema } from "~/utils/zod";
+import { type resourceCreateSchema } from "@/utils/zod";
 import { Separator } from "./ui/separator";
 import {
   SplitPageLayout,

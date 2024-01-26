@@ -1,18 +1,18 @@
 "use client";
 
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { type RouterOutputs } from "~/utils/api";
+import { type RouterOutputs } from "@/utils/api";
 import { ResourceConfigurationLabels, ResourceTypeLabels } from "./resource";
 import type { ResourceConfiguration, ResourceType } from "@prisma/client";
 import Link from "next/link";
-import { Badge } from "~/components/ui/badge";
-import { DataTable } from "~/components/data-table";
-import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
-import { cn } from "~/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/data-table";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { cn } from "@/lib/utils";
 
 type CategoriesInResource =
   RouterOutputs["resource"]["getAll"][0]["categories"];
