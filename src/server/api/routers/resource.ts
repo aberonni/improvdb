@@ -247,7 +247,7 @@ export const resourceRouter = createTRPCRouter({
         void sendMailToAdmins(
           {
             subject: "New resource created",
-            html: `<p>A new resource has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.vercel.app/resource/${resource.id}">View resource</a></p>`,
+            html: `<p>A new resource has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View resource</a></p>`,
           },
           ctx.db,
         );
@@ -393,7 +393,7 @@ export const resourceRouter = createTRPCRouter({
       void sendMailToAdmins(
         {
           subject: "New resource edit proposal",
-          html: `<p>A new resource edit proposal has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.vercel.app/resource/${resource.id}">View resource</a></p>`,
+          html: `<p>A new resource edit proposal has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View resource</a></p>`,
         },
         ctx.db,
       );
