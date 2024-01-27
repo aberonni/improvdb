@@ -13,6 +13,8 @@ import {
   getPaginationRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
+  type RowSelectionState,
+  type Row,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
@@ -28,14 +30,18 @@ import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue = unknown> {
-  columns: ColumnDef<TData, TValue>[];
+  columns: (ColumnDef<TData, TValue> & {
+    accessorKey?: string;
+  })[];
   data?: TData[];
   usePagination?: boolean;
   useFilters?: boolean;
   isLoading?: boolean;
   hiddenColumnsOnMobile?: (keyof VisibilityState)[];
+  onSelectionChange?: (selectedRows: Row<TData>[]) => void;
 }
 
 export function DataTable<TData, TValue = unknown>({
@@ -45,12 +51,14 @@ export function DataTable<TData, TValue = unknown>({
   useFilters = false,
   isLoading = false,
   hiddenColumnsOnMobile = [],
+  onSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
     if (hiddenColumnsOnMobile.length === 0) return;
@@ -72,10 +80,12 @@ export function DataTable<TData, TValue = unknown>({
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
     },
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: useFilters ? getFilteredRowModel() : undefined,
     getPaginationRowModel: usePagination ? getPaginationRowModel() : undefined,
@@ -83,6 +93,12 @@ export function DataTable<TData, TValue = unknown>({
     getFacetedRowModel: useFilters ? getFacetedRowModel() : undefined,
     getFacetedUniqueValues: useFilters ? getFacetedUniqueValues() : undefined,
   });
+
+  useEffect(() => {
+    if (!onSelectionChange) return;
+
+    onSelectionChange(table.getFilteredSelectedRowModel().rows);
+  }, [rowSelection]);
 
   return (
     <div className="space-y-4">
@@ -126,6 +142,8 @@ export function DataTable<TData, TValue = unknown>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => row.toggleSelected(!row.getIsSelected())}
+                  className={cn(onSelectionChange && "cursor-pointer")}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="h-[40px]">

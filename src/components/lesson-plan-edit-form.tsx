@@ -160,7 +160,6 @@ const SectionItems = ({
   return (
     <>
       {items.map((item, itemIndex) => (
-        <>
           <div
             className={cn(
               "flex w-full flex-row gap-4",
@@ -291,7 +290,6 @@ const SectionItems = ({
               </div>
             </div>
           </div>
-        </>
       ))}
       <div className="flex w-full flex-row gap-2">
         <Button
@@ -345,15 +343,12 @@ export default function LessonPlanEditForm({
         };
       }
 
-      // I really dislike the transformations I'm doing here
       return {
         ...acc,
         sections: lessonPlan.sections.map((section) => {
           return {
             ...section,
             items: section.items.map((item) => {
-              // This especially feels prone to bugs
-              // XXX: I should probably just use the "resource" field somehow
               const resource =
                 item.resource == null
                   ? undefined
