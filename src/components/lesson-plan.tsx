@@ -151,7 +151,13 @@ export function SingleLessonPlanComponent({
                         {item.duration ?? 0} <small>mins</small>
                       </TableCell>
                     )}
-                    <TableCell className="w-[calc(100%-200px)]">
+                    <TableCell
+                      className={cn(
+                        lessonPlan.useDuration
+                          ? "w-[calc(100%-200px)]"
+                          : "w-[calc(100%-130px)]",
+                      )}
+                    >
                       <Collapsible
                         open={
                           showAllResourceDescriptions ||
@@ -226,9 +232,10 @@ export function SingleLessonPlanComponent({
                               </Link>
                             </>
                           ) : (
-                            <p>
-                              Extra content is unavailable while previewing
-                              lesson plans.
+                            <p className="mt-4 w-full rounded-md border p-4 italic text-muted-foreground">
+                              In the final lesson plan, this will be
+                              automatically populated with the description of "
+                              {item.resource.label}".
                             </p>
                           )}
                         </CollapsibleContent>
