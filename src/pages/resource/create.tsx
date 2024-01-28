@@ -50,7 +50,7 @@ export default function Create() {
         <title>Propose Resource - ImprovDB</title>
       </Head>
       <PageLayout title="Propose Resource" authenticatedOnly>
-        <Alert className="mb-4" variant={"destructive"}>
+        <Alert className="mb-4" variant="warning">
           <AlertTitle>About proposing new resources</AlertTitle>
           <AlertDescription>
             <br />

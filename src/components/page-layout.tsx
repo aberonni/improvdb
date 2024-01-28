@@ -303,7 +303,7 @@ export const PageLayout = ({
               ) : status === "loading" ? (
                 <LoadingPage />
               ) : (
-                <div className="flex w-full flex-col items-center justify-center space-y-4 rounded border p-4">
+                <div className="flex w-full flex-col items-center justify-center space-y-4 rounded-md border p-4">
                   {authenticatedOnly === true ? (
                     <>
                       <h1 className="text-muted-foreground">

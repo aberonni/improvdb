@@ -19,7 +19,7 @@ const selectInputStyles = "px-3 py-1 cursor-text";
 const valueContainerStyles = "p-1 gap-1";
 const singleValueStyles = "px-3 py-1";
 const multiValueStyles =
-  "bg-accent rounded items-center py-0 pl-2 pr-1 gap-1.5";
+  "bg-accent rounded-md items-center py-0 pl-2 pr-1 gap-1.5";
 const multiValueLabelStyles = "leading-6 py-0.5";
 const multiValueRemoveStyles =
   "border border-accent bg-background  cursor-pointer hover:bg-red-50 hover:text-destructive text-muted-foreground hover:border-red-300 rounded-md";
@@ -32,7 +32,7 @@ const dropdownIndicatorStyles =
 const menuStyles = "p-1 mt-2 border border-accent bg-background rounded-lg";
 const groupHeadingStyles = "ml-3 mt-2 mb-1 text-muted-foreground text-sm";
 const optionStyles = {
-  base: "hover:cursor-pointer px-3 py-2 rounded !text-sm",
+  base: "hover:cursor-pointer px-3 py-2 rounded-md !text-sm",
   focus: "bg-accent",
   selected:
     "after:content-['✔'] after:ml-2 after:text-green-500 text-muted-foreground",

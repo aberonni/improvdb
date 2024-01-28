@@ -511,7 +511,7 @@ export default function LessonPlanEditForm({
                   control={form.control}
                   name="private"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0 rounded border border-input p-4">
+                    <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0 rounded-md border border-input p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -533,7 +533,7 @@ export default function LessonPlanEditForm({
                   control={form.control}
                   name="useDuration"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0 rounded border border-input p-4">
+                    <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0 rounded-md border border-input p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -557,7 +557,7 @@ export default function LessonPlanEditForm({
                 {sections.length > 0 ? (
                   sections.map((section, sectionIndex) => (
                     <div
-                      className="relative mt-8 rounded border border-input first:mt-0 has-[thead:hover]:bg-accent"
+                      className="relative mt-8 rounded-md border border-input first:mt-0 has-[thead:hover]:bg-accent"
                       key={section.id}
                     >
                       <Table>
@@ -637,7 +637,7 @@ export default function LessonPlanEditForm({
                     </div>
                   ))
                 ) : (
-                  <div className="flex h-32 items-center justify-center rounded border border-input p-4 md:h-full">
+                  <div className="flex h-32 items-center justify-center rounded-md border border-input p-4 md:h-full">
                     <div className="text-md font-bold text-muted-foreground">
                       {" "}
                       Add a{" "}

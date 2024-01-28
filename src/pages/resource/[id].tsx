@@ -67,7 +67,7 @@ const AdminToolbar = ({
     });
 
   return (
-    <div className="mt-4 flex w-full items-center gap-2 rounded bg-accent p-2 ">
+    <div className="mt-4 flex w-full items-center gap-2 rounded-md bg-accent p-2 ">
       <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
         Admin Features
       </span>

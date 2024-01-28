@@ -83,7 +83,7 @@ const AdminToolbar = ({
     });
 
   return (
-    <div className="mt-4 flex w-full flex-col items-stretch gap-2 space-y-2 rounded bg-accent px-4 py-2 print:hidden md:flex-row md:items-center md:space-y-0">
+    <div className="mt-4 flex w-full flex-col items-stretch gap-2 space-y-2 rounded-md bg-accent px-4 py-2 print:hidden md:flex-row md:items-center md:space-y-0">
       <Button onClick={() => window.print()} className="md:order-2">
         <DownloadIcon className="mr-2 h-4 w-4" />
         Print / Download
