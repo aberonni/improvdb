@@ -5,7 +5,6 @@ import ResourceEditForm from "@/components/resource-edit-form";
 import { api } from "@/utils/api";
 import { useRouter } from "next/router";
 import { useToast } from "@/components/ui/use-toast";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Create() {
   const utils = api.useUtils();
@@ -50,20 +49,6 @@ export default function Create() {
         <title>Propose Resource - ImprovDB</title>
       </Head>
       <PageLayout title="Propose Resource" authenticatedOnly>
-        <Alert className="mb-4" variant="warning">
-          <AlertTitle>About proposing new resources</AlertTitle>
-          <AlertDescription>
-            <br />
-            Currently, anyone can propose new resources, but only admins can
-            approve them, and subsequently edit or delete them. You will not be
-            able to use them in your lesson plans until they have been approved
-            by an admin.
-            <br />
-            <br />
-            This website is a work in progress, and these limitations on new
-            resources are subject to change.
-          </AlertDescription>
-        </Alert>
         <ResourceEditForm
           onSubmit={(values) => {
             if (isSubmitting) {

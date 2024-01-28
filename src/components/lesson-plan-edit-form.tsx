@@ -429,6 +429,9 @@ export default function LessonPlanEditForm({
       <form onSubmit={handleSubmit(onSubmit)} className="h-full">
         {previewData ? (
           <>
+            <h1 className="mb-8 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+              {previewData.title}
+            </h1>
             <SingleLessonPlanComponent lessonPlan={previewData} />
             <Separator className="my-6" />
             <div className="flex w-full justify-end space-x-2">

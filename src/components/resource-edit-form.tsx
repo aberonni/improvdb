@@ -15,6 +15,7 @@ import {
   SingleResourceComponent,
 } from "@/components/resource";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
@@ -299,6 +300,9 @@ export default function ResourceEditForm({
       <form onSubmit={handleSubmit(onSubmit)} className="h-full">
         {previewData ? (
           <>
+            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+              {previewData.title}
+            </h1>
             <SingleResourceComponent resource={previewData} />
             <Separator className="my-6" />
             <div className="flex w-full justify-end space-x-2">
@@ -313,6 +317,22 @@ export default function ResourceEditForm({
           </>
         ) : (
           <>
+            {!resource && (
+              <Alert className="mb-4" variant="warning">
+                <AlertTitle>About proposing new resources</AlertTitle>
+                <AlertDescription>
+                  <br />
+                  Currently, anyone can propose new resources, but only admins
+                  can approve them, and subsequently edit or delete them. You
+                  will not be able to use them in your lesson plans until they
+                  have been approved by an admin.
+                  <br />
+                  <br />
+                  This website is a work in progress, and these limitations on
+                  new resources are subject to change.
+                </AlertDescription>
+              </Alert>
+            )}
             <FormField
               control={control}
               name="title"
