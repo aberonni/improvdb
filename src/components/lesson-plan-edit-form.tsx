@@ -607,7 +607,7 @@ export default function LessonPlanEditForm({
                                               <TrashIcon className="h-4 w-4" />
                                             </Button>
                                           </TooltipTrigger>
-                                          <TooltipContent>
+                                          <TooltipContent className="bg-foreground text-background">
                                             <p>
                                               Delete Section
                                               {field.value &&
