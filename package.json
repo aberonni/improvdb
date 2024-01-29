@@ -17,7 +17,6 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@fullhuman/postcss-purgecss": "^5.0.0",
     "@headlessui/react": "^1.7.18",
     "@hookform/resolvers": "^3.3.4",
     "@next-auth/prisma-adapter": "^1.0.7",
@@ -81,6 +80,7 @@
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
     "autoprefixer": "^10.4.14",
+    "cssnano": "^6.0.3",
     "eslint": "^8.54.0",
     "postcss": "^8.4.31",
     "prettier": "^3.1.0",
