@@ -131,6 +131,12 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
     return <div>404</div>;
   }
 
+  const creator = useMemo(() => {
+    if (!lessonPlan.createdBy.name && lessonPlan.createdBy.name === "")
+      return "Unnamed User";
+    return lessonPlan.createdBy.name;
+  }, [lessonPlan]);
+
   return (
     <>
       <Head>
@@ -144,7 +150,7 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
             </Badge>
             <span>{lessonPlan.title}</span>
             <span className="block text-sm font-normal tracking-normal">
-              Created by: {lessonPlan.createdBy.name}
+              Created by: {creator}
             </span>
           </div>
         }
