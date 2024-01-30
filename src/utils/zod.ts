@@ -64,3 +64,9 @@ export const lessonPlanCreateSchema = z.object({
     }),
   ),
 });
+
+export const userUpdateSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  email: z.string().optional(),
+});

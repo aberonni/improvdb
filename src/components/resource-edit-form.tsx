@@ -1,4 +1,4 @@
-import { kebabCase } from "lodash";
+import { kebabCase, pickBy } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
@@ -101,16 +101,7 @@ export default function ResourceEditForm({
   let defaultValues = editFormDefaults;
 
   if (resource) {
-    const keys = Object.keys(resource) as (keyof typeof resource)[];
-    const resourceWithoutNulls = keys.reduce((acc, key) => {
-      if (resource[key] == null) {
-        return acc;
-      }
-      return {
-        ...acc,
-        [key]: resource[key],
-      };
-    }, {});
+    const resourceWithoutNulls = pickBy(resource, (v) => v !== null);
 
     defaultValues = {
       ...resourceWithoutNulls,

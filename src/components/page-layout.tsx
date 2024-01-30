@@ -48,6 +48,7 @@ const UserWidget = ({ user }: { user: User }) => (
 );
 
 const userNav = [
+  { name: "My Profile", href: "/user/my-profile" },
   { name: "My Lesson Plans", href: "/user/my-lesson-plans" },
   { name: "My Proposed Resources", href: "/user/my-proposed-resources" },
   { name: "Propose Resource", href: "/resource/create" },

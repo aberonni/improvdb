@@ -41,11 +41,24 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, session, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
+
+      if (trigger === "update") {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+          if (session.name) token.name = session.name;
+        } catch (error) {}
+
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+          if (session.image) token.image = session.image;
+        } catch (error) {}
+      }
+
       return token;
     },
     session: ({ session, token }) => ({
