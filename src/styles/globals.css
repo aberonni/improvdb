@@ -67,6 +67,7 @@
   }
 
   /* https://github.com/radix-ui/primitives/issues/1272#issuecomment-1383428000 */
+  html:has(> body > [data-state="open"]),
   html:has(> body > [data-radix-popper-content-wrapper]),
   html:has(> body > [role="dialog"]) {
     overflow-y: initial;

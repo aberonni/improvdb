@@ -1,8 +1,7 @@
 import { kebabCase } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type UseFormReturn, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import type * as z from "zod";
-import { useToast } from "@/components/ui/use-toast";
 
 import { type RouterOutputs, api } from "@/utils/api";
 import { resourceCreateSchema } from "@/utils/zod";
@@ -41,138 +40,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Icons } from "./ui/icons";
+import { AreYouSureDialog } from "./are-you-sure-dialog";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
-
-const SaveButton = ({
-  form,
-  onSave,
-  isSaving,
-}: {
-  form: UseFormReturn<CreateSchemaType>;
-  onSave: () => void;
-  isSaving: boolean;
-}) => {
-  const { toast } = useToast();
-  const [open, setOpen] = useState(false);
-  const [dontAskAgain, setDontAskAgain] = useState(false);
-
-  useEffect(() => {
-    // Perform localStorage action after page has been mounted on client side
-    setDontAskAgain(
-      localStorage.getItem("dontAskAgainForSaveWarning") ===
-        JSON.stringify(true),
-    );
-  }, []);
-
-  if (!form.formState.isValid) {
-    return (
-      <Button
-        type="button"
-        onClick={() => {
-          onSave();
-          toast({
-            title: "Uh oh!",
-            // variant: "destructive",
-            description: "Please fix the errors in the form before saving.",
-          });
-        }}
-      >
-        Save
-      </Button>
-    );
-  }
-
-  if (!open && dontAskAgain) {
-    return (
-      <Button disabled={isSaving} type="submit">
-        {isSaving ? (
-          <>
-            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Saving...
-          </>
-        ) : (
-          "Save"
-        )}
-      </Button>
-    );
-  }
-
-  return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button disabled={isSaving} type="button">
-          {isSaving ? (
-            <>
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Saving...
-            </>
-          ) : (
-            "Save"
-          )}
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            You are about to save this resource. This action cannot be undone.
-            Your new resource will be pending publication after you submit it.
-            You can monitor the status in your "My Proposed Resources" page.
-            <Separator className="my-2" />
-            You will not be able to edit or delete this resource after saving
-            it!
-          </AlertDialogDescription>
-          <div className="flex items-center justify-center space-x-2 sm:justify-start">
-            <Checkbox
-              id="dontAskAgain"
-              checked={dontAskAgain}
-              onCheckedChange={(val) => setDontAskAgain(val as boolean)}
-            />
-            <label
-              htmlFor="dontAskAgain"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Don't ask me again
-            </label>
-          </div>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="flex-col space-y-2 sm:space-y-0">
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              setOpen(false);
-              if (dontAskAgain) {
-                localStorage.setItem(
-                  "dontAskAgainForSaveWarning",
-                  JSON.stringify(true),
-                );
-              }
-              onSave();
-            }}
-          >
-            Continue
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-};
 
 const editFormDefaults: Partial<CreateSchemaType> = {
   alternativeNames: [],
@@ -655,10 +529,12 @@ export default function ResourceEditForm({
               >
                 Preview
               </Button>
-              <SaveButton
-                form={form}
-                isSaving={isSubmitting}
+              <AreYouSureDialog
+                isFormValid={form.formState.isValid}
+                dialog="ResourceSave"
+                description={`You are about to propose a new resource. This action cannot be undone. Your new resource will be pending publication after you submit it. You can monitor the status in your "My Proposed Resources\" page.`}
                 onSave={handleSubmit(onSubmit)}
+                isSaving={isSubmitting}
               />
             </div>
           </>

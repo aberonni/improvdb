@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type UseFormReturn, useForm, useFieldArray } from "react-hook-form";
 import type * as z from "zod";
-import { useToast } from "@/components/ui/use-toast";
 import AutowidthInput from "react-autowidth-input";
 
 import { type RouterOutputs, api } from "@/utils/api";
@@ -36,7 +35,6 @@ import {
 import { Checkbox } from "./ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
-import { Icons } from "./ui/icons";
 import { Label } from "./ui/label";
 import {
   Table,
@@ -57,52 +55,9 @@ import { ResponsiveCombobox } from "./responsive-combobox";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { LessonPlanVisibility } from "@prisma/client";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { AreYouSureDialog } from "./are-you-sure-dialog";
 
 type CreateSchemaType = z.infer<typeof lessonPlanCreateSchema>;
-
-const SaveButton = ({
-  form,
-  onSave,
-  isSaving,
-}: {
-  form: UseFormReturn<CreateSchemaType>;
-  onSave: () => void;
-  isSaving: boolean;
-}) => {
-  const { toast } = useToast();
-
-  if (!form.formState.isValid) {
-    console.log(form.formState.errors);
-
-    return (
-      <Button
-        type="button"
-        onClick={() => {
-          onSave();
-          toast({
-            title: "Uh oh!",
-            // variant: "destructive",
-            description: "Please fix the errors in the form before saving.",
-          });
-        }}
-      >
-        Save
-      </Button>
-    );
-  }
-
-  return (
-    <Button disabled={isSaving} type="submit">
-      {isSaving ? (
-        <>
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Saving...
-        </>
-      ) : (
-        "Save"
-      )}
-    </Button>
-  );
-};
 
 const defaultEmptyItem: CreateSchemaType["sections"][0]["items"][0] = {
   text: "",
@@ -717,10 +672,12 @@ export default function LessonPlanEditForm({
               >
                 Preview
               </Button>
-              <SaveButton
-                form={form}
-                isSaving={isSubmitting}
+              <AreYouSureDialog
+                isFormValid={form.formState.isValid}
+                dialog="LessonPlanSave"
+                description={`We do not condone the use of this website for sharing lesson plans that are not your own. Please only share lesson plans that you have created yourself.`}
                 onSave={handleSubmit(onSubmit)}
+                isSaving={isSubmitting}
               />
             </div>
           </>
