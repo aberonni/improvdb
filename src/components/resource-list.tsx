@@ -4,10 +4,13 @@ import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
-import type { ColumnDef, Row } from "@tanstack/react-table";
+import {
+  type ColumnDef,
+  createColumnHelper,
+  type Row,
+} from "@tanstack/react-table";
 import { type RouterOutputs } from "@/utils/api";
 import { ResourceConfigurationLabels, ResourceTypeLabels } from "./resource";
-import type { ResourceConfiguration, ResourceType } from "@prisma/client";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +20,10 @@ import { cn } from "@/lib/utils";
 
 type CategoriesInResource =
   RouterOutputs["resource"]["getAll"][0]["categories"];
+
+type SingleResourceType = RouterOutputs["resource"]["getAll"][0];
+
+const columnHelper = createColumnHelper<SingleResourceType>();
 
 function getColumns({
   showPublishedStatus,
@@ -29,143 +36,145 @@ function getColumns({
   showSelection: boolean;
   useFilters: boolean;
 }) {
-  const columns: (ColumnDef<RouterOutputs["resource"]["getAll"][0]> & {
-    accessorKey?: string;
-  })[] = [
-    {
-      accessorKey: "type",
+  const columns = [
+    columnHelper.accessor("type", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={column.id} />
       ),
-      cell: (props) => ResourceTypeLabels[props.getValue<ResourceType>()],
+      cell: (props) => ResourceTypeLabels[props.getValue()],
       filterFn: (row, id, value: string[]) => {
-        return value.includes(row.getValue<string>(id));
+        return value.includes(row.getValue(id));
       },
-    },
-    {
-      accessorKey: "configuration",
+    }),
+    columnHelper.accessor("configuration", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={column.id} />
       ),
-      cell: (props) =>
-        ResourceConfigurationLabels[props.getValue<ResourceConfiguration>()],
+      cell: (props) => ResourceConfigurationLabels[props.getValue()],
       filterFn: (row, id, value: string[]) => {
-        return value.includes(row.getValue<string>(id));
+        return value.includes(row.getValue(id));
       },
-    },
-    {
-      accessorKey: "categories",
+    }),
+    columnHelper.accessor("categories", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={column.id} />
       ),
       cell: (props) => (
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          {(props.getValue<CategoriesInResource>() ?? [])
+          {(props.getValue() ?? [])
             .sort(({ name: a }, { name: b }) => a.localeCompare(b))
-            .map(({ id, name }) => (
-              <Badge key={id}>{name}</Badge>
-            ))}
+            .map(({ id, name }) => {
+              return <Badge key={id}>{name}</Badge>;
+            })}
         </div>
       ),
       filterFn: (row, columnId, value: string[]) => {
-        const categories = row.getValue<CategoriesInResource>(columnId);
+        const categories = row.getValue<CategoriesInResource>("categories");
 
         return value.some((v) => categories.find(({ id }) => v === id));
       },
       getUniqueValues: (row) => {
         return row.categories.map(({ id }) => id);
       },
-    },
-  ];
+    }),
+  ] as Array<ColumnDef<SingleResourceType, unknown>>;
 
   if (showPublishedStatus) {
-    columns.push({
-      accessorKey: "published",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={column.id} />
-      ),
-      cell: (props) => {
-        const published = props.getValue<boolean>();
-        return (
-          <Badge
-            className={cn(
-              "self-start text-white",
-              published && "bg-green-700",
-              !published && "bg-orange-600",
-            )}
-          >
-            {published ? "Published" : "Pending"}
-          </Badge>
-        );
-      },
-    });
+    columns.push(
+      columnHelper.accessor("published", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={column.id} />
+        ),
+        cell: (props) => {
+          const published = props.getValue();
+          return (
+            <Badge
+              className={cn(
+                "self-start text-white",
+                published && "bg-green-700",
+                !published && "bg-orange-600",
+              )}
+            >
+              {published ? "Published" : "Pending"}
+            </Badge>
+          );
+        },
+      }) as ColumnDef<SingleResourceType, unknown>,
+    );
   }
 
   if (showEditProposals) {
-    columns.push({
-      accessorKey: "editProposalOriginalResourceId",
-      header: () => null,
-      cell: (props) => {
-        const originalResourceId = props.getValue<string>();
-        return originalResourceId && <Badge>Proposal</Badge>;
-      },
-    });
+    columns.push(
+      columnHelper.accessor("editProposalOriginalResourceId", {
+        header: () => null,
+        cell: (props) => {
+          const originalResourceId = props.getValue();
+          return originalResourceId && <Badge>Proposal</Badge>;
+        },
+      }) as ColumnDef<SingleResourceType, unknown>,
+    );
   }
 
   if (showSelection) {
-    columns.unshift({
-      accessorKey: "title",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={column.id}
-          className="ml-2"
-        />
-      ),
-      cell: (props) => props.getValue<string>(),
-    });
+    columns.unshift(
+      columnHelper.accessor("title", {
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={column.id}
+            className="ml-2"
+          />
+        ),
+        cell: (props) => props.getValue(),
+      }) as ColumnDef<SingleResourceType, unknown>,
+    );
 
-    columns.unshift({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    });
+    columns.unshift(
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      }),
+    );
   } else {
-    columns.unshift({
-      accessorKey: "title",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={column.id}
-          className="ml-2"
-        />
-      ),
-      cell: (props) => (
-        <Link
-          href={`/resource/${props.row.original.id}`}
-          className="hover:underline"
-        >
-          {props.getValue<string>()}
-        </Link>
-      ),
-    });
+    columns.unshift(
+      columnHelper.accessor("title", {
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={column.id}
+            className="ml-2"
+          />
+        ),
+        cell: (props) => (
+          <Link
+            href={`/resource/${props.row.original.id}`}
+            className="hover:underline"
+          >
+            {props.getValue()}
+          </Link>
+        ),
+      }) as ColumnDef<SingleResourceType, unknown>,
+    );
   }
 
   return useFilters

@@ -5,46 +5,50 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 import type { RouterOutputs } from "@/utils/api";
-import { type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { LessonPlanVisibilityLabels } from "./lesson-plan";
 
-const columns: ColumnDef<RouterOutputs["lessonPlan"]["getMyLessonPlans"][0]>[] =
-  [
-    {
-      accessorKey: "title",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={column.id}
-          className="ml-2"
-        />
-      ),
-      cell: (props) => (
-        <Link
-          href={`/lesson-plan/${props.row.original.id}`}
-          className="hover:underline"
-        >
-          {props.getValue<string>()}
-        </Link>
-      ),
+const columnHelper =
+  createColumnHelper<RouterOutputs["lessonPlan"]["getMyLessonPlans"][0]>();
+
+const columns = [
+  columnHelper.accessor("title", {
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={column.id}
+        className="ml-2"
+      />
+    ),
+    cell: (props) => (
+      <Link
+        href={`/lesson-plan/${props.row.original.id}`}
+        className="hover:underline"
+      >
+        {props.getValue()}
+      </Link>
+    ),
+  }),
+  columnHelper.accessor("theme", {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={column.id} />
+    ),
+  }),
+  columnHelper.accessor("visibility", {
+    header: () => null,
+    cell: (props) => {
+      return (
+        <div className="text-right">
+          <Badge variant="outline">
+            {LessonPlanVisibilityLabels[props.getValue()].label}
+          </Badge>
+        </div>
+      );
     },
-    {
-      accessorKey: "theme",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={column.id} />
-      ),
-    },
-    {
-      accessorKey: "private",
-      header: () => null,
-      cell: (props) => {
-        return (
-          <Badge>{props.getValue<boolean>() ? "Private" : "Public"}</Badge>
-        );
-      },
-    },
-  ];
+  }),
+];
 
 const columnsWithoutSorting = columns.map((column) => ({
   ...column,
@@ -56,7 +60,7 @@ export const LessonPlanList = ({
   useFilters = false,
   usePagination = false,
   queryResult,
-  showPrivateStatus = false,
+  showVisibility = false,
 }: {
   useFilters?: boolean;
   usePagination?: boolean;
@@ -64,7 +68,7 @@ export const LessonPlanList = ({
     RouterOutputs["lessonPlan"]["getMyLessonPlans"],
     unknown
   >;
-  showPrivateStatus?: boolean;
+  showVisibility?: boolean;
 }) => {
   const { data, isLoading } = queryResult;
 
@@ -82,10 +86,10 @@ export const LessonPlanList = ({
 
   let dataTableColumns = useFilters ? columns : columnsWithoutSorting;
 
-  if (!showPrivateStatus) {
+  if (!showVisibility) {
     dataTableColumns = dataTableColumns.filter(
       // @ts-expect-error some bug in tanstack type defs here
-      (column) => column.accessorKey !== "private",
+      (column) => column.accessorKey !== "visibility",
     );
   }
 
