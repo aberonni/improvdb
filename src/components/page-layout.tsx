@@ -74,8 +74,9 @@ export const PageLayout = ({
     const nav = [
       { name: "Home", href: "/" },
       { name: "About", href: "/about" },
-      { name: "Create Lesson Plan", href: "/lesson-plan/create" },
       { name: "Browse Resources", href: "/resource/browse" },
+      { name: "Browse Lesson Plans", href: "/lesson-plan/browse" },
+      { name: "Create Lesson Plan", href: "/lesson-plan/create" },
     ];
 
     if (!session?.user) {

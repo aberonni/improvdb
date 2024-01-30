@@ -630,6 +630,7 @@ export default function ResourceEditForm({
                             href="https://www.markdownguide.org/basic-syntax/"
                             target="_blank"
                             className="underline hover:no-underline"
+                            rel="noreferrer"
                           >
                             Markdown
                           </a>

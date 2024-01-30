@@ -3,6 +3,7 @@ import {
   type Category,
   type Resource,
   UserRole,
+  LessonPlanVisibility,
 } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -141,7 +142,7 @@ export const resourceRouter = createTRPCRouter({
             where: {
               section: {
                 lessonPlan: {
-                  private: false,
+                  visibility: LessonPlanVisibility.PUBLIC,
                 },
               },
             },

@@ -102,17 +102,23 @@ model LessonPlanSection {
   @@index([lessonPlanId])
 }
 
+enum LessonPlanVisibility {
+  PRIVATE
+  UNLISTED
+  PUBLIC
+}
+
 model LessonPlan {
-  id          String   @id @default(cuid())
+  id          String               @id @default(cuid())
   title       String
-  theme       String?  @db.Text
-  description String?  @db.Text
-  private     Boolean  @default(true)
-  useDuration Boolean  @default(true)
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  theme       String?              @db.Text
+  description String?              @db.Text
+  visibility  LessonPlanVisibility @default(PRIVATE)
+  useDuration Boolean              @default(true)
+  createdBy   User                 @relation(fields: [createdById], references: [id])
   createdById String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
   sections LessonPlanSection[]
 

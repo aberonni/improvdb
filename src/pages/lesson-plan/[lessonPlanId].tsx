@@ -9,19 +9,16 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useToast } from "@/components/ui/use-toast";
-import { SingleLessonPlanComponent } from "@/components/lesson-plan";
+import {
+  LessonPlanVisibilityLabels,
+  SingleLessonPlanComponent,
+} from "@/components/lesson-plan";
 import { useMemo, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import {
-  DownloadIcon,
-  LockClosedIcon,
-  LockOpen1Icon,
-  Pencil2Icon,
-  TrashIcon,
-} from "@radix-ui/react-icons";
+import { DownloadIcon, Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
+import { LessonPlanSharePopover } from "@/components/lesson-plan-share-popover";
 
 const AdminToolbar = ({
   lessonPlan,
@@ -34,31 +31,8 @@ const AdminToolbar = ({
   showAllResourceDescriptions: boolean;
   setShowAllResourceDescriptions: (show: boolean) => void;
 }) => {
-  const utils = api.useUtils();
   const router = useRouter();
   const { toast } = useToast();
-
-  const { mutate: setPrivate, isLoading: isSettingPublishedStatus } =
-    api.lessonPlan.setPrivate.useMutation({
-      onSuccess: () => {
-        void utils.lessonPlan.getById.invalidate();
-        toast({
-          title: "Success!",
-          description: "Lesson plan updated.",
-        });
-      },
-      onError: (e) => {
-        const errorMessage =
-          e.message ??
-          e.data?.zodError?.fieldErrors.content?.[0] ??
-          "Failed to update lesson plan! Please try again later.";
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description: errorMessage,
-        });
-      },
-    });
 
   const { mutate: deleteLessonPlan, isLoading: isDeletingLessonPlan } =
     api.lessonPlan.delete.useMutation({
@@ -83,61 +57,37 @@ const AdminToolbar = ({
     });
 
   return (
-    <div className="mt-4 flex w-full flex-col items-stretch gap-2 space-y-2 rounded-md bg-accent px-4 py-2 print:hidden md:flex-row md:items-center md:space-y-0">
-      <Button onClick={() => window.print()} className="md:order-2">
-        <DownloadIcon className="mr-2 h-4 w-4" />
-        Print / Download
-      </Button>
-      {isOwner && (
-        <>
-          <Link
-            href={`/lesson-plan/${lessonPlan.id}/edit`}
-            className={cn(buttonVariants({ variant: "default" }), "md:order-3")}
-          >
-            <Pencil2Icon className="mr-2 h-4 w-4" />
-            Edit
-          </Link>
-          {lessonPlan.private ? (
-            <Button
-              onClick={() =>
-                setPrivate({
-                  id: lessonPlan.id,
-                  private: false,
-                })
-              }
-              disabled={isSettingPublishedStatus}
-              className="md:order-4"
+    <div className="mt-4 flex w-full flex-col items-stretch gap-2 py-2 print:hidden md:flex-row md:items-center md:rounded-md md:bg-accent md:px-4">
+      <div className="shrink-0 space-y-2 md:order-1 md:space-x-2 md:space-y-0 [&>*]:w-full [&>*]:md:w-auto">
+        <Button onClick={() => window.print()}>
+          <DownloadIcon className="mr-2 h-4 w-4" />
+          Print / Download
+        </Button>
+        {isOwner && (
+          <>
+            <Link
+              href={`/lesson-plan/${lessonPlan.id}/edit`}
+              className={buttonVariants({ variant: "default" })}
             >
-              <LockOpen1Icon className="mr-2 h-4 w-4" />
-              Make public
-            </Button>
-          ) : (
+              <Pencil2Icon className="mr-2 h-4 w-4" />
+              Edit
+            </Link>
+            <LessonPlanSharePopover
+              lessonPlanId={lessonPlan.id}
+              visibility={lessonPlan.visibility}
+            />
             <Button
-              onClick={() =>
-                setPrivate({
-                  id: lessonPlan.id,
-                  private: true,
-                })
-              }
-              disabled={isSettingPublishedStatus}
-              className="md:order-5"
+              onClick={() => deleteLessonPlan({ id: lessonPlan.id })}
+              disabled={isDeletingLessonPlan}
+              variant="destructive"
             >
-              <LockClosedIcon className="mr-2 h-4 w-4" />
-              Make private
+              <TrashIcon className="mr-2 h-4 w-4" />
+              Delete
             </Button>
-          )}
-          <Button
-            onClick={() => deleteLessonPlan({ id: lessonPlan.id })}
-            disabled={isDeletingLessonPlan}
-            variant="destructive"
-            className="md:order-6"
-          >
-            <TrashIcon className="mr-2 h-4 w-4" />
-            Delete
-          </Button>
-        </>
-      )}
-      <div className="mr-auto flex items-center py-2 md:order-1 md:py-0">
+          </>
+        )}
+      </div>
+      <div className="mt-4 flex w-full items-center rounded-md bg-accent p-4 md:mt-0 md:p-0">
         <Checkbox
           id="showAllResourceDescriptions"
           checked={showAllResourceDescriptions}
@@ -190,7 +140,7 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
         title={
           <div className="flex flex-col items-start space-y-2">
             <Badge variant="secondary" className="print:hidden">
-              {lessonPlan.private ? "Private" : "Public"}
+              {LessonPlanVisibilityLabels[lessonPlan.visibility].label}
             </Badge>
             <span>{lessonPlan.title}</span>
             <span className="block text-sm font-normal tracking-normal">

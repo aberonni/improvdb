@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { LessonPlanVisibility, UserRole } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -48,7 +48,7 @@ export const lessonPlanRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.db.lessonPlan.findMany({
         where: {
-          private: false,
+          visibility: LessonPlanVisibility.PUBLIC,
         },
         take: input?.take ?? 1000,
         orderBy: {
@@ -116,7 +116,7 @@ export const lessonPlanRouter = createTRPCRouter({
       }
 
       const userCantSeeLessonPlan =
-        lessonPlan.private &&
+        lessonPlan.visibility === LessonPlanVisibility.PRIVATE &&
         ctx.session?.user.role !== UserRole.ADMIN &&
         lessonPlan.createdById !== ctx.session?.user.id;
 
@@ -241,11 +241,11 @@ export const lessonPlanRouter = createTRPCRouter({
         lessonPlan,
       };
     }),
-  setPrivate: privateProcedure
+  setVisibility: privateProcedure
     .input(
       z.object({
         id: z.string(),
-        private: z.boolean(),
+        visibility: z.nativeEnum(LessonPlanVisibility),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -262,12 +262,19 @@ export const lessonPlanRouter = createTRPCRouter({
         });
       }
 
+      if (lessonPlan.createdById !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Lesson Plan ${input.id} is not owned by you`,
+        });
+      }
+
       lessonPlan = await ctx.db.lessonPlan.update({
         where: {
           id: input.id,
         },
         data: {
-          private: input.private,
+          visibility: input.visibility,
         },
       });
 

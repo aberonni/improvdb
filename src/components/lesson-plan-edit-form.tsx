@@ -29,7 +29,10 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
-import { SingleLessonPlanComponent } from "./lesson-plan";
+import {
+  LessonPlanVisibilityLabels,
+  SingleLessonPlanComponent,
+} from "./lesson-plan";
 import { Checkbox } from "./ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
@@ -52,6 +55,8 @@ import {
 } from "@/components/ui/tooltip";
 import { ResponsiveCombobox } from "./responsive-combobox";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { LessonPlanVisibility } from "@prisma/client";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 type CreateSchemaType = z.infer<typeof lessonPlanCreateSchema>;
 
@@ -115,7 +120,7 @@ const defaultEmptySection: CreateSchemaType["sections"][0] = {
 };
 
 const editFormDefaults: Partial<CreateSchemaType> = {
-  private: true,
+  visibility: LessonPlanVisibility.PRIVATE,
   useDuration: true,
   sections: [],
 };
@@ -124,13 +129,11 @@ const SectionItems = ({
   sectionIndex,
   form,
   resources,
-  resourcesLoading,
   durationEnabled,
 }: {
   sectionIndex: number;
   form: UseFormReturn<CreateSchemaType>;
   resources?: RouterOutputs["resource"]["getAllOnlyIdAndTitle"];
-  resourcesLoading: boolean;
   durationEnabled: boolean;
 }) => {
   const {
@@ -353,8 +356,7 @@ export default function LessonPlanEditForm({
 }) {
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
 
-  const { data: resources, isLoading: isLoadingResources } =
-    api.resource.getAllOnlyIdAndTitle.useQuery();
+  const { data: resources } = api.resource.getAllOnlyIdAndTitle.useQuery();
 
   let defaultValues = editFormDefaults;
 
@@ -512,22 +514,40 @@ export default function LessonPlanEditForm({
 
                 <FormField
                   control={form.control}
-                  name="private"
+                  name="visibility"
                   render={({ field }) => (
-                    <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0 rounded-md border border-input p-4">
+                    <FormItem className="w-full space-y-3 rounded-md border border-input p-4">
+                      <FormLabel>Visibility</FormLabel>
                       <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-2"
+                        >
+                          {Object.entries(LessonPlanVisibilityLabels).map(
+                            ([visibilityKey, visibilityLabel]) => (
+                              <FormItem
+                                className="flex items-start space-x-3 space-y-0"
+                                key={visibilityKey}
+                              >
+                                <FormControl>
+                                  <RadioGroupItem value={visibilityKey} />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  {visibilityLabel.label}
+                                  <br />
+                                  <span className="mt-1 inline-block text-muted-foreground">
+                                    {visibilityLabel.description}
+                                  </span>
+                                </FormLabel>
+                              </FormItem>
+                            ),
+                          )}
+                        </RadioGroup>
                       </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>Private</FormLabel>
-                        <FormDescription className="pl-0">
-                          If checked, the lesson plan will only be visible to
-                          you. You can change this later.
-                        </FormDescription>
-                      </div>
+                      {errors.visibility && (
+                        <FormMessage>{errors.visibility.message}</FormMessage>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -632,7 +652,6 @@ export default function LessonPlanEditForm({
                             sectionIndex={sectionIndex}
                             form={form}
                             resources={resources}
-                            resourcesLoading={isLoadingResources}
                             durationEnabled={durationEnabled}
                           />
                         </TableBody>

@@ -13,7 +13,7 @@ export default function About() {
       >
         <p>
           ImprovDB was developed by{" "}
-          <a href="https://domenicogemoli.com" target="_blank">
+          <a href="https://domenicogemoli.com" target="_blank" rel="noreferrer">
             Dom Gemoli
           </a>
           , an improv teacher and web developer.
@@ -44,7 +44,11 @@ export default function About() {
         <p>
           Do you have feedback? Feature requests? Have you found a bug? I would
           love to hear about it. The best way is to open an issue on the{" "}
-          <a href="https://github.com/aberonni/improvdb/issues" target="_blank">
+          <a
+            href="https://github.com/aberonni/improvdb/issues"
+            target="_blank"
+            rel="noreferrer"
+          >
             GitHub repository
           </a>
           .

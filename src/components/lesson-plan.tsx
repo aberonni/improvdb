@@ -29,11 +29,30 @@ import {
   OpenInNewWindowIcon,
   PlusIcon,
 } from "@radix-ui/react-icons";
-import { ResourceType } from "@prisma/client";
+import { type LessonPlanVisibility, ResourceType } from "@prisma/client";
 
 type ApiLessonPlan = Readonly<RouterOutputs["lessonPlan"]["getById"]>;
 type CreationLessonPlan = z.infer<typeof lessonPlanCreateSchema>;
 type LessonPlanUnion = ApiLessonPlan | CreationLessonPlan;
+
+export const LessonPlanVisibilityLabels: Record<
+  LessonPlanVisibility,
+  { label: string; description: string }
+> = {
+  PUBLIC: {
+    label: "🌎 Public",
+    description:
+      "Anyone can view this lesson plan. It will be listed amongst the public lesson plans.",
+  },
+  UNLISTED: {
+    label: "🔗 Unlisted",
+    description: "Anyone with the link can view this lesson plan.",
+  },
+  PRIVATE: {
+    label: "🔒 Private",
+    description: "Only you can view this lesson plan.",
+  },
+};
 
 function LessonPlanInfoBox({
   title,
@@ -196,6 +215,7 @@ export function SingleLessonPlanComponent({
                           {!isPreviewItem(item) ? (
                             <>
                               <ReactMarkdown
+                                // eslint-disable-next-line react/no-children-prop
                                 children={item.resource.description}
                                 className="prose-sm prose-zinc mt-4 max-w-full rounded-md border p-4 dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
                                 components={{
@@ -211,6 +231,7 @@ export function SingleLessonPlanComponent({
                                           href={href}
                                           ref={ref}
                                           target="_blank"
+                                          rel="noreferrer"
                                           {...props}
                                         />
                                       );

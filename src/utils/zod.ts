@@ -1,4 +1,8 @@
-import { ResourceType, ResourceConfiguration } from "@prisma/client";
+import {
+  ResourceType,
+  ResourceConfiguration,
+  LessonPlanVisibility,
+} from "@prisma/client";
 import * as z from "zod";
 
 const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
@@ -42,7 +46,7 @@ export const lessonPlanCreateSchema = z.object({
   theme: z.string().optional(),
   description: z.string().optional(),
   useDuration: z.boolean(),
-  private: z.boolean(),
+  visibility: z.nativeEnum(LessonPlanVisibility),
   sections: z.array(
     z.object({
       id: z.string().optional(),
