@@ -27,9 +27,9 @@ export default function About() {
         </p>
 
         <p className="text-xl text-muted-foreground">
-          Many teachers could share lesson plans - but these lesson plans were
-          often just a list of things that were only comprehensible to the
-          people who had written them.
+          Many teachers share lesson plans - but these lesson plans are often
+          just a list of things that are only comprehensible to the people who
+          had written them.
         </p>
 
         <p>
@@ -50,6 +50,14 @@ export default function About() {
             rel="noreferrer"
           >
             GitHub repository
+          </a>{" "}
+          but you can also just{" "}
+          <a
+            href="mailto:domenicogemoli@gmail.com"
+            target="_blank"
+            rel="noreferrer"
+          >
+            send me an email
           </a>
           .
         </p>
