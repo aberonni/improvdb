@@ -1,5 +1,7 @@
 import Head from "next/head";
+import Image from "next/image";
 import { PageLayout } from "@/components/page-layout";
+import { Separator } from "@/components/ui/separator";
 
 export default function About() {
   return (
@@ -41,6 +43,20 @@ export default function About() {
           constantly rewrite the same things over and over again.
         </p>
 
+        <Separator />
+
+        <p>
+          This website is open source and free to use. You can find the source
+          code on{" "}
+          <a
+            href="https://github.com/aberonni/improvdb"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+          .
+        </p>
         <p>
           Do you have feedback? Feature requests? Have you found a bug? I would
           love to hear about it. The best way is to open an issue on the{" "}
@@ -60,6 +76,21 @@ export default function About() {
             send me an email
           </a>
           .
+        </p>
+
+        <p>
+          <a
+            href="https://ko-fi.com/domgemoli"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Image
+              src="/images/kofi_button_stroke.png"
+              alt="Support me on Ko-fi"
+              width={192}
+              height={30}
+            />
+          </a>
         </p>
       </PageLayout>
     </>
