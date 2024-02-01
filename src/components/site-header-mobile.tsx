@@ -93,7 +93,7 @@ export function SiteHeaderMobile({
                         ? session.user.name
                         : "Member's area"}
                     </h4>
-                    <div className="flex flex-col space-y-3 pl-6 pt-3">
+                    <div className="flex flex-col space-y-3 pl-6 pt-4">
                       {userNavigation.map((item) => (
                         <MobileLink
                           href={item.href}
@@ -103,6 +103,14 @@ export function SiteHeaderMobile({
                           {item.name}
                         </MobileLink>
                       ))}
+                      <button
+                        onClick={() => {
+                          setOpen(false);
+                        }}
+                        className=" mt-0 inline h-auto w-full pl-0 pt-0 text-left text-base font-normal text-foreground/60"
+                      >
+                        Sign Out
+                      </button>
                     </div>
                   </div>
                 ) : (
@@ -111,6 +119,7 @@ export function SiteHeaderMobile({
                       setOpen(false);
                     }}
                     variant="link"
+                    className="mt-1 w-full justify-start pl-6 text-base"
                   >
                     Sign In
                   </Button>
