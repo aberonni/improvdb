@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { type ReactNode, useState } from "react";
 import { Logo } from "./logo";
 import { type SiteHeaderLinks } from "./site-header";
-import { useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeaderMobile({
@@ -106,6 +106,9 @@ export function SiteHeaderMobile({
                       <button
                         onClick={() => {
                           setOpen(false);
+                          void signOut({
+                            callbackUrl: "/",
+                          });
                         }}
                         className=" mt-0 inline h-auto w-full pl-0 pt-0 text-left text-base font-normal text-foreground/60"
                       >
@@ -117,6 +120,7 @@ export function SiteHeaderMobile({
                   <Button
                     onClick={() => {
                       setOpen(false);
+                      void signIn();
                     }}
                     variant="link"
                     className="mt-1 w-full justify-start pl-6 text-base"

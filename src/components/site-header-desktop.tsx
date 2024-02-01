@@ -105,7 +105,7 @@ export const SiteHeaderDesktop = ({
                   }
                   className="cursor-pointer"
                 >
-                  Sign out
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -116,7 +116,7 @@ export const SiteHeaderDesktop = ({
               onClick={() => signIn()}
               className="text-foreground/60 hover:text-foreground/80 hover:no-underline"
             >
-              Sign in
+              Sign In
             </Button>
           )}
           <ThemeToggle />
