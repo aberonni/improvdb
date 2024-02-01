@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { cn } from "@/lib/utils";
+import { TitleCellContent } from "./data-table/data-table-title-cell-content";
 
 type CategoriesInResource =
   RouterOutputs["resource"]["getAll"][0]["categories"];
@@ -42,18 +43,14 @@ function getColumns({
         <DataTableColumnHeader column={column} title={column.id} />
       ),
       cell: (props) => ResourceTypeLabels[props.getValue()],
-      filterFn: (row, id, value: string[]) => {
-        return value.includes(row.getValue(id));
-      },
+      filterFn: "arrIncludesSome",
     }),
     columnHelper.accessor("configuration", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={column.id} />
       ),
       cell: (props) => ResourceConfigurationLabels[props.getValue()],
-      filterFn: (row, id, value: string[]) => {
-        return value.includes(row.getValue(id));
-      },
+      filterFn: "arrIncludesSome",
     }),
     columnHelper.accessor("categories", {
       header: ({ column }) => (
@@ -75,6 +72,25 @@ function getColumns({
       },
       getUniqueValues: (row) => {
         return row.categories.map(({ id }) => id);
+      },
+    }),
+    columnHelper.accessor("alternativeNames", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={"Alternative Names"} />
+      ),
+      cell: (props) => {
+        const names = props.getValue();
+        if (!names) return null;
+
+        return (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            {names.split(";").map((name) => (
+              <Badge variant="outline" key={name}>
+                {name}
+              </Badge>
+            ))}
+          </div>
+        );
       },
     }),
   ] as Array<ColumnDef<SingleResourceType, unknown>>;
@@ -125,7 +141,12 @@ function getColumns({
             className="ml-2"
           />
         ),
-        cell: (props) => props.getValue(),
+        cell: ({ getValue, column: { getFilterValue } }) => (
+          <TitleCellContent
+            title={getValue()}
+            filter={getFilterValue() as string}
+          />
+        ),
       }) as ColumnDef<SingleResourceType, unknown>,
     );
 
@@ -165,12 +186,15 @@ function getColumns({
             className="ml-2"
           />
         ),
-        cell: (props) => (
+        cell: ({ getValue, row, column: { getFilterValue } }) => (
           <Link
-            href={`/resource/${props.row.original.id}`}
+            href={`/resource/${row.original.id}`}
             className="hover:underline"
           >
-            {props.getValue()}
+            <TitleCellContent
+              title={getValue()}
+              filter={getFilterValue() as string}
+            />
           </Link>
         ),
       }) as ColumnDef<SingleResourceType, unknown>,
@@ -231,6 +255,7 @@ export const ResourceList = ({
       isLoading={isLoading}
       useFilters={useFilters}
       usePagination={usePagination}
+      hiddenColumnsByDefault={["alternativeNames"]}
       hiddenColumnsOnMobile={["categories", "configuration"]}
       onSelectionChange={onSelectionChange}
     />

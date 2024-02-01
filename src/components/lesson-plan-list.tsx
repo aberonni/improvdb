@@ -9,6 +9,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { LessonPlanVisibilityLabels } from "./lesson-plan";
+import { TitleCellContent } from "./data-table/data-table-title-cell-content";
 
 const columnHelper =
   createColumnHelper<RouterOutputs["lessonPlan"]["getMyLessonPlans"][0]>();
@@ -22,12 +23,15 @@ const columns = [
         className="ml-2"
       />
     ),
-    cell: (props) => (
+    cell: ({ getValue, row, column: { getFilterValue } }) => (
       <Link
-        href={`/lesson-plan/${props.row.original.id}`}
+        href={`/lesson-plan/${row.original.id}`}
         className="hover:underline"
       >
-        {props.getValue()}
+        <TitleCellContent
+          title={getValue()}
+          filter={getFilterValue() as string}
+        />
       </Link>
     ),
   }),

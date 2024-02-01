@@ -40,6 +40,7 @@ interface DataTableProps<TData, TValue = unknown> {
   usePagination?: boolean;
   useFilters?: boolean;
   isLoading?: boolean;
+  hiddenColumnsByDefault?: (keyof VisibilityState)[];
   hiddenColumnsOnMobile?: (keyof VisibilityState)[];
   onSelectionChange?: (selectedRows: Row<TData>[]) => void;
 }
@@ -50,6 +51,7 @@ export function DataTable<TData, TValue = unknown>({
   usePagination = false,
   useFilters = false,
   isLoading = false,
+  hiddenColumnsByDefault = [],
   hiddenColumnsOnMobile = [],
   onSelectionChange,
 }: DataTableProps<TData, TValue>) {
@@ -61,8 +63,6 @@ export function DataTable<TData, TValue = unknown>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
-    if (hiddenColumnsOnMobile.length === 0) return;
-
     setColumnVisibility((prev) => ({
       ...prev,
       ...Object.fromEntries(
@@ -70,8 +70,18 @@ export function DataTable<TData, TValue = unknown>({
           .filter((key) => !prev[key])
           .map((key) => [key, isDesktop]),
       ),
+      ...Object.fromEntries(
+        hiddenColumnsByDefault
+          .filter((key) => !prev[key])
+          .map((key) => [key, false]),
+      ),
     }));
-  }, [hiddenColumnsOnMobile, isDesktop, setColumnVisibility]);
+  }, [
+    hiddenColumnsByDefault,
+    hiddenColumnsOnMobile,
+    isDesktop,
+    setColumnVisibility,
+  ]);
 
   const table = useReactTable({
     data: data ?? [],
