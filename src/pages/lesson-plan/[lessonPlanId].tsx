@@ -123,6 +123,12 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
     return user?.id === lessonPlan?.createdById;
   }, [user, lessonPlan]);
 
+  const creator = useMemo(() => {
+    if (!lessonPlan?.createdBy.name && lessonPlan?.createdBy.name === "")
+      return "Unnamed User";
+    return lessonPlan?.createdBy.name;
+  }, [lessonPlan]);
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -130,12 +136,6 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
   if (!lessonPlan) {
     return <div>404</div>;
   }
-
-  const creator = useMemo(() => {
-    if (!lessonPlan.createdBy.name && lessonPlan.createdBy.name === "")
-      return "Unnamed User";
-    return lessonPlan.createdBy.name;
-  }, [lessonPlan]);
 
   return (
     <>
