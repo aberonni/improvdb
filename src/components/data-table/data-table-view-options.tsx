@@ -3,6 +3,7 @@
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { EyeOpenIcon } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
+import { startCase } from "lodash";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,11 +42,10 @@ export function DataTableViewOptions<TData>({
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
-                className="capitalize"
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {startCase(column.id)}
               </DropdownMenuCheckboxItem>
             );
           })}
