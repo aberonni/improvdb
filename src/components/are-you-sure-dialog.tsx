@@ -65,7 +65,7 @@ export const AreYouSureDialog = ({
     setDontAskAgain(
       localStorage.getItem(localStorageId) === JSON.stringify(true),
     );
-  }, []);
+  }, [localStorageId]);
 
   if (!isFormValid) {
     return (

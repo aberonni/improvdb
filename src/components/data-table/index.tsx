@@ -115,7 +115,7 @@ export function DataTable<TData, TValue = unknown>({
     if (!onSelectionChange) return;
 
     onSelectionChange(table.getFilteredSelectedRowModel().rows);
-  }, [rowSelection]);
+  }, [onSelectionChange, rowSelection, table]);
 
   return (
     <div className="space-y-4">

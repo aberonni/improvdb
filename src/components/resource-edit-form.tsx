@@ -136,6 +136,8 @@ export default function ResourceEditForm({
     watch,
   } = form;
 
+  const watchTitle = watch("title");
+
   useEffect(() => {
     if (resource) {
       return;
@@ -143,7 +145,7 @@ export default function ResourceEditForm({
     const title = getValues("title");
     setValue("id", kebabCase(title));
     clearErrors("id");
-  }, [watch("title")]);
+  }, [clearErrors, getValues, resource, setValue, watchTitle]);
 
   const watchType = watch("type");
   const configurationDisabled = useMemo(
@@ -156,7 +158,7 @@ export default function ResourceEditForm({
     if (type === ResourceType.LONG_FORM) {
       setValue("configuration", ResourceConfiguration.SCENE);
     }
-  }, [watch("type")]);
+  }, [getValues, setValue, watchType]);
 
   return (
     <Form {...form}>

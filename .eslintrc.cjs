@@ -9,6 +9,7 @@ const config = {
     "@typescript-eslint",
     "import",
     "no-relative-import-paths",
+    "react-hooks",
   ],
   extends: [
     "plugin:import/recommended",
@@ -64,6 +65,9 @@ const config = {
         rootDir: "src",
       },
     ],
+
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
   },
   settings: {
     react: {
