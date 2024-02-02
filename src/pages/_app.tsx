@@ -2,6 +2,7 @@ import { type Session } from "next-auth";
 import { type AppType } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import NextNProgress from "nextjs-progressbar";
+import { AxiomWebVitals } from "next-axiom";
 
 import { api } from "@/utils/api";
 
@@ -38,6 +39,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           --font-sans: ${fontSans.variable};
         }
       `}</style>
+      <AxiomWebVitals />
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <div className="min-h-screen bg-background antialiased">
           <NextNProgress />
