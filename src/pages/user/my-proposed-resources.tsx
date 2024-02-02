@@ -1,7 +1,7 @@
 import Head from "next/head";
+
 import { PageLayout } from "@/components/page-layout";
 import { ResourceList } from "@/components/resource-list";
-
 import { api } from "@/utils/api";
 
 export default function MyProposedResources() {

@@ -1,13 +1,26 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LessonPlanVisibility } from "@prisma/client";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  DesktopIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
+import { useMemo, useState } from "react";
+import AutowidthInput from "react-autowidth-input";
 import { type UseFormReturn, useForm, useFieldArray } from "react-hook-form";
 import type * as z from "zod";
-import AutowidthInput from "react-autowidth-input";
 
-import { type RouterOutputs, api } from "@/utils/api";
-import { lessonPlanCreateSchema } from "@/utils/zod";
-import { useMemo, useState } from "react";
-
+import { AreYouSureDialog } from "@/components/are-you-sure-dialog";
+import {
+  LessonPlanVisibilityLabels,
+  SingleLessonPlanComponent,
+} from "@/components/lesson-plan";
+import { ResponsiveCombobox } from "@/components/responsive-combobox";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -18,24 +31,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
-import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  DesktopIcon,
-  PlusIcon,
-  TrashIcon,
-} from "@radix-ui/react-icons";
-import {
-  LessonPlanVisibilityLabels,
-  SingleLessonPlanComponent,
-} from "./lesson-plan";
-import { Checkbox } from "./ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Separator } from "./ui/separator";
-import { Label } from "./ui/label";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -43,19 +46,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./ui/table";
-
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ResponsiveCombobox } from "./responsive-combobox";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { LessonPlanVisibility } from "@prisma/client";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { AreYouSureDialog } from "./are-you-sure-dialog";
+import { cn } from "@/lib/utils";
+import { type RouterOutputs, api } from "@/utils/api";
+import { lessonPlanCreateSchema } from "@/utils/zod";
 
 type CreateSchemaType = z.infer<typeof lessonPlanCreateSchema>;
 

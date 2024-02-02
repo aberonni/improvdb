@@ -1,10 +1,10 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
-import { api } from "@/utils/api";
-import { useRouter } from "next/router";
 import { useToast } from "@/components/ui/use-toast";
+import { api } from "@/utils/api";
 
 export default function Create() {
   const utils = api.useUtils();

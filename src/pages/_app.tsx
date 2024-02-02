@@ -1,18 +1,17 @@
-import { type Session } from "next-auth";
 import { type AppType } from "next/app";
+import { Inter as FontSans } from "next/font/google";
+import Head from "next/head";
+import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import NextNProgress from "nextjs-progressbar";
 import { AxiomWebVitals } from "next-axiom";
+import NextNProgress from "nextjs-progressbar";
 
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { usePreserveScroll } from "@/hooks/use-preserve-scroll";
 import { api } from "@/utils/api";
 
 import "@/styles/globals.css";
-import { usePreserveScroll } from "@/hooks/use-preserve-scroll";
-import Head from "next/head";
-import { Toaster } from "@/components/ui/toaster";
-import { ThemeProvider } from "@/components/theme-provider";
-
-import { Inter as FontSans } from "next/font/google";
 
 export const fontSans = FontSans({
   subsets: ["latin"],

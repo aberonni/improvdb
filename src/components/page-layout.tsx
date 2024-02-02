@@ -1,17 +1,15 @@
+import { type UserRole } from "@prisma/client";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/router";
+import { useSession, signIn } from "next-auth/react";
 import { type PropsWithChildren } from "react";
 
-import { useSession, signIn } from "next-auth/react";
-
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
-
+import { LoadingPage } from "@/components/loading";
+import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/router";
-import { LoadingPage } from "./loading";
-import { type UserRole } from "@prisma/client";
-import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
-import { SiteHeader } from "./site-header";
 
 export const PageLayout = ({
   children,

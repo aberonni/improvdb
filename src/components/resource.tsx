@@ -1,18 +1,18 @@
-import ReactMarkdown from "react-markdown";
+import { type ResourceConfiguration, ResourceType } from "@prisma/client";
 import Link from "next/link";
+import { useMemo } from "react";
+import ReactMarkdown from "react-markdown";
 import type * as z from "zod";
 
-import type { RouterOutputs } from "@/utils/api";
-import { type ResourceConfiguration, ResourceType } from "@prisma/client";
-import { useMemo } from "react";
-import { type resourceCreateSchema } from "@/utils/zod";
-import { Separator } from "./ui/separator";
 import {
   SplitPageLayout,
   SplitPageLayoutContent,
   SplitPageLayoutSidebar,
-} from "./page-layout";
-import { buttonVariants } from "./ui/button";
+} from "@/components/page-layout";
+import { buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import type { RouterOutputs } from "@/utils/api";
+import { type resourceCreateSchema } from "@/utils/zod";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "🚀 Warm-up / Exercise",

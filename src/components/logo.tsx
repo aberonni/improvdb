@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 
 type LogoProps = React.HTMLAttributes<HTMLAnchorElement>;

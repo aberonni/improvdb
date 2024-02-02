@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,11 +10,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "./ui/alert-dialog";
-import { Checkbox } from "./ui/checkbox";
-import { Button } from "./ui/button";
-import { useToast } from "./ui/use-toast";
-import { Icons } from "./ui/icons";
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Icons } from "@/components/ui/icons";
+import { useToast } from "@/components/ui/use-toast";
 
 export const AreYouSureDialogs = {
   ResourceSave: "ResourceSave",

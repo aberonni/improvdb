@@ -1,15 +1,15 @@
-import Link from "next/link";
-import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-
-import type { RouterOutputs } from "@/utils/api";
 import { createColumnHelper } from "@tanstack/react-table";
+import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
+import Link from "next/link";
+
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { LessonPlanVisibilityLabels } from "./lesson-plan";
-import { TitleCellContent } from "./data-table/data-table-title-cell-content";
+import { TitleCellContent } from "@/components/data-table/data-table-title-cell-content";
+import { LessonPlanVisibilityLabels } from "@/components/lesson-plan";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import type { RouterOutputs } from "@/utils/api";
 
 const columnHelper =
   createColumnHelper<RouterOutputs["lessonPlan"]["getMyLessonPlans"][0]>();

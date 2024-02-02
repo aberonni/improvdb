@@ -1,10 +1,9 @@
+import { UserRole } from "@prisma/client";
+import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 
-import { useSession } from "next-auth/react";
-
-import { UserRole } from "@prisma/client";
-import { SiteHeaderMobile } from "./site-header-mobile";
-import { SiteHeaderDesktop } from "./site-header-desktop";
+import { SiteHeaderDesktop } from "@/components/site-header-desktop";
+import { SiteHeaderMobile } from "@/components/site-header-mobile";
 
 export type SiteHeaderLinks = {
   name: string;

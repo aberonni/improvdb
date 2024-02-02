@@ -1,17 +1,13 @@
+import type { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { Cross2Icon, MixerHorizontalIcon } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
 } from "@/components/resource";
-import type { ResourceConfiguration, ResourceType } from "@prisma/client";
-import { api } from "@/utils/api";
-import { useMediaQuery } from "@/hooks/use-media-query";
-
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -21,7 +17,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
+import { api } from "@/utils/api";
 
 interface DataTableFiltersProps<TData> {
   table: Table<TData>;

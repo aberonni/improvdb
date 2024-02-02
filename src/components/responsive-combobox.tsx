@@ -1,10 +1,10 @@
 // https://ui.shadcn.com/docs/components/combobox
 "use client";
 
-import * as React from "react";
 import type { Command as CommandPrimitive } from "cmdk";
+import * as React from "react";
+import { useState } from "react";
 
-import { useMediaQuery } from "@/hooks/use-media-query";
 import {
   Command,
   CommandEmpty,
@@ -19,7 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 type Option = {
   value: string;

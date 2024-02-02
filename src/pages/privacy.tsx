@@ -1,4 +1,5 @@
 import Head from "next/head";
+
 import { PageLayout } from "@/components/page-layout";
 
 export default function PrivacyPage() {

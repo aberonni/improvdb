@@ -1,13 +1,15 @@
-import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import fs from "fs";
+
+import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import lodash from "lodash";
+
+import { db } from "@/server/db";
+import type { RouterOutputs } from "@/utils/api";
+
 // necessary because of https://stackoverflow.com/a/54302557
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const { startCase } = lodash;
 
-import { db } from "@/server/db";
-
-import type { RouterOutputs } from "@/utils/api";
 type JSONResource = RouterOutputs["resource"]["getById"] & {
   categories: string[];
 };

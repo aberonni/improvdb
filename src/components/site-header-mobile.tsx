@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { type ReactNode, useState } from "react";
 
-import { cn } from "@/lib/utils";
+import { Logo } from "@/components/logo";
+import { type SiteHeaderLinks } from "@/components/site-header";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { type ReactNode, useState } from "react";
-import { Logo } from "./logo";
-import { type SiteHeaderLinks } from "./site-header";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { ThemeToggle } from "./theme-toggle";
+import { cn } from "@/lib/utils";
 
 export function SiteHeaderMobile({
   navigation,

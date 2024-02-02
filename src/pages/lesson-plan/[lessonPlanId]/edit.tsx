@@ -1,14 +1,14 @@
-import Head from "next/head";
-import { api } from "@/utils/api";
-
 import type { GetStaticProps, NextPage } from "next";
-import { PageLayout } from "@/components/page-layout";
-import { generateSSGHelper } from "@/server/helpers/ssgHelper";
-import { LoadingPage } from "@/components/loading";
-import LessonPlanEditForm from "@/components/lesson-plan-edit-form";
+import Head from "next/head";
 import { useRouter } from "next/router";
-import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "next-auth/react";
+
+import LessonPlanEditForm from "@/components/lesson-plan-edit-form";
+import { LoadingPage } from "@/components/loading";
+import { PageLayout } from "@/components/page-layout";
+import { useToast } from "@/components/ui/use-toast";
+import { generateSSGHelper } from "@/server/helpers/ssgHelper";
+import { api } from "@/utils/api";
 
 export const LessonPlanEditPage: NextPage<{ lessonPlanId: string }> = ({
   lessonPlanId,

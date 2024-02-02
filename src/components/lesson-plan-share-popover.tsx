@@ -1,14 +1,19 @@
 import { type LessonPlanVisibility } from "@prisma/client";
-import { useToast } from "./ui/use-toast";
-import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
 import { Link1Icon, Share1Icon } from "@radix-ui/react-icons";
+import { useState } from "react";
+
+import { LessonPlanVisibilityLabels } from "@/components/lesson-plan";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/utils/api";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { LessonPlanVisibilityLabels } from "./lesson-plan";
-import { Label } from "./ui/label";
-import { Icons } from "./ui/icons";
 
 export const LessonPlanSharePopover = ({
   lessonPlanId,

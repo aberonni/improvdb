@@ -6,15 +6,15 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { type Session } from "next-auth";
+import { UserRole } from "@prisma/client";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { type Session } from "next-auth";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { db } from "@/server/db";
 import { getServerAuthSession } from "@/server/auth";
-import { UserRole } from "@prisma/client";
+import { db } from "@/server/db";
 
 /**
  * 1. CONTEXT

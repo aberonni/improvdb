@@ -1,24 +1,24 @@
-import Head from "next/head";
-import { type RouterOutputs, api } from "@/utils/api";
-
+import { DownloadIcon, Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import type { GetStaticProps, NextPage } from "next";
-import { PageLayout } from "@/components/page-layout";
-import { generateSSGHelper } from "@/server/helpers/ssgHelper";
-import { LoadingPage } from "@/components/loading";
-import { Button, buttonVariants } from "@/components/ui/button";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useToast } from "@/components/ui/use-toast";
+import { useSession } from "next-auth/react";
+import { useMemo, useState } from "react";
+
 import {
   LessonPlanVisibilityLabels,
   SingleLessonPlanComponent,
 } from "@/components/lesson-plan";
-import { useMemo, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { useSession } from "next-auth/react";
-import { DownloadIcon, Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import { LessonPlanSharePopover } from "@/components/lesson-plan-share-popover";
+import { LoadingPage } from "@/components/loading";
+import { PageLayout } from "@/components/page-layout";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/components/ui/use-toast";
+import { generateSSGHelper } from "@/server/helpers/ssgHelper";
+import { type RouterOutputs, api } from "@/utils/api";
 
 const AdminToolbar = ({
   lessonPlan,

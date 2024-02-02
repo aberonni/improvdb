@@ -1,12 +1,13 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { pickBy } from "lodash";
 import Head from "next/head";
-import { PageLayout } from "@/components/page-layout";
+import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
-import { type RouterOutputs, api } from "@/utils/api";
-import { userUpdateSchema } from "@/utils/zod";
-import { pickBy } from "lodash";
+import { LoadingPage } from "@/components/loading";
+import { PageLayout } from "@/components/page-layout";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,12 +16,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useSession } from "next-auth/react";
-import { LoadingPage } from "@/components/loading";
+import { type RouterOutputs, api } from "@/utils/api";
+import { userUpdateSchema } from "@/utils/zod";
 
 const MyProfileForm = ({
   user,

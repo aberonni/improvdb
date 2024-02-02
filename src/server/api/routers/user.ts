@@ -1,6 +1,7 @@
+import { TRPCError } from "@trpc/server";
+
 import { createTRPCRouter, privateProcedure } from "@/server/api/trpc";
 import { userUpdateSchema } from "@/utils/zod";
-import { TRPCError } from "@trpc/server";
 
 export const userRouter = createTRPCRouter({
   getUser: privateProcedure.query(({ ctx }) => {

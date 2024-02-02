@@ -1,16 +1,16 @@
 import type { GetServerSidePropsContext } from "next";
-import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/server/auth";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
 
-import { cn } from "@/lib/utils";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { Logo } from "@/components/logo";
-import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { authOptions } from "@/server/auth";
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 

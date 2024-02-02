@@ -1,11 +1,25 @@
-import ReactMarkdown from "react-markdown";
+import { type LessonPlanVisibility, ResourceType } from "@prisma/client";
+import {
+  MinusIcon,
+  OpenInNewWindowIcon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
 import Link from "next/link";
+import { useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import type * as z from "zod";
 
-import type { RouterOutputs } from "@/utils/api";
-import { useMemo, useState } from "react";
-import { type lessonPlanCreateSchema } from "@/utils/zod";
-
+import {
+  ResourceConfigurationLabels,
+  ResourceTypeLabels,
+} from "@/components/resource";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -14,22 +28,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { ResourceConfigurationLabels, ResourceTypeLabels } from "./resource";
-import { Label } from "./ui/label";
-import { Separator } from "./ui/separator";
 import { cn } from "@/lib/utils";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "./ui/collapsible";
-import {
-  MinusIcon,
-  OpenInNewWindowIcon,
-  PlusIcon,
-} from "@radix-ui/react-icons";
-import { type LessonPlanVisibility, ResourceType } from "@prisma/client";
+import type { RouterOutputs } from "@/utils/api";
+import { type lessonPlanCreateSchema } from "@/utils/zod";
 
 type ApiLessonPlan = Readonly<RouterOutputs["lessonPlan"]["getById"]>;
 type CreationLessonPlan = z.infer<typeof lessonPlanCreateSchema>;

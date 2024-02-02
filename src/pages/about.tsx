@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+
 import { PageLayout } from "@/components/page-layout";
 import { Separator } from "@/components/ui/separator";
 

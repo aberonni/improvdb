@@ -1,8 +1,9 @@
 "use client";
 
 import { type Table } from "@tanstack/react-table";
-import { DataTableViewOptions } from "./data-table-view-options";
-import { DataTableFilters } from "./data-table-filters";
+
+import { DataTableFilters } from "@/components/data-table/data-table-filters";
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;

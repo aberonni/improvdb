@@ -1,8 +1,8 @@
 import { categoryRouter } from "@/server/api/routers/category";
+import { lessonPlanRouter } from "@/server/api/routers/lessonPlan";
 import { resourceRouter } from "@/server/api/routers/resource";
+import { userRouter } from "@/server/api/routers/user";
 import { createTRPCRouter } from "@/server/api/trpc";
-import { lessonPlanRouter } from "./routers/lessonPlan";
-import { userRouter } from "./routers/user";
 
 /**
  * This is the primary router for your server.

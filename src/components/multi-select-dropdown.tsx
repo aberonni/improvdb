@@ -8,7 +8,8 @@ import { useState } from "react";
 import Select from "react-select";
 import type { Props } from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { Button } from "./ui/button";
+
+import { Button } from "@/components/ui/button";
 
 const controlStyles = {
   base: "flex min-h-9 w-full rounded-md border border-input bg-transparent text-sm shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50",

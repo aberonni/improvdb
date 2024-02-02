@@ -1,23 +1,26 @@
 "use client";
 
-import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-
 import {
   type ColumnDef,
   createColumnHelper,
   type Row,
 } from "@tanstack/react-table";
-import { type RouterOutputs } from "@/utils/api";
-import { ResourceConfigurationLabels, ResourceTypeLabels } from "./resource";
+import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { TitleCellContent } from "@/components/data-table/data-table-title-cell-content";
+import {
+  ResourceConfigurationLabels,
+  ResourceTypeLabels,
+} from "@/components/resource";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { TitleCellContent } from "./data-table/data-table-title-cell-content";
+import { type RouterOutputs } from "@/utils/api";
 
 type CategoriesInResource =
   RouterOutputs["resource"]["getAll"][0]["categories"];

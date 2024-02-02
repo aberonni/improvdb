@@ -4,8 +4,14 @@ const config = {
   parserOptions: {
     project: true,
   },
-  plugins: ["react", "@typescript-eslint"],
+  plugins: [
+    "react",
+    "@typescript-eslint",
+    "import",
+    "no-relative-import-paths",
+  ],
   extends: [
+    "plugin:import/recommended",
     "plugin:react/recommended",
     "plugin:@next/next/recommended",
     "plugin:@typescript-eslint/recommended-type-checked",
@@ -37,10 +43,34 @@ const config = {
       },
     ],
     "@typescript-eslint/switch-exhaustiveness-check": "error",
+
+    "import/no-unresolved": "off",
+    "import/order": [
+      "warn",
+      {
+        "newlines-between": "always",
+        alphabetize: {
+          order: "asc",
+          caseInsensitive: true,
+        },
+      },
+    ],
+    "import/no-relative-packages": "warn",
+    "import/no-relative-parent-imports": "warn",
+    "no-relative-import-paths/no-relative-import-paths": [
+      "warn",
+      {
+        prefix: "@",
+        rootDir: "src",
+      },
+    ],
   },
   settings: {
     react: {
       version: "detect",
+    },
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"],
     },
   },
 };

@@ -1,21 +1,25 @@
-import { kebabCase, pickBy } from "lodash";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ResourceConfiguration, ResourceType } from "@prisma/client";
+import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
+import { kebabCase, pickBy } from "lodash";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
-import { type RouterOutputs, api } from "@/utils/api";
-import { resourceCreateSchema } from "@/utils/zod";
+import { AreYouSureDialog } from "@/components/are-you-sure-dialog";
 import { MultiSelectDropown } from "@/components/multi-select-dropdown";
-import { ResourceConfiguration, ResourceType } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
   SingleResourceComponent,
 } from "@/components/resource";
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Form,
   FormControl,
@@ -25,7 +29,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -35,16 +38,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-
-import { cn } from "@/lib/utils";
-import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
 import { Separator } from "@/components/ui/separator";
-import { AreYouSureDialog } from "./are-you-sure-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { type RouterOutputs, api } from "@/utils/api";
+import { resourceCreateSchema } from "@/utils/zod";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 

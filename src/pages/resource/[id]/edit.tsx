@@ -1,15 +1,15 @@
-import Head from "next/head";
-import { api } from "@/utils/api";
-
-import type { GetStaticProps, NextPage } from "next";
-import { PageLayout } from "@/components/page-layout";
-import { generateSSGHelper } from "@/server/helpers/ssgHelper";
-import { LoadingPage } from "@/components/loading";
-import ResourceEditForm from "@/components/resource-edit-form";
-import { useRouter } from "next/router";
-import { useToast } from "@/components/ui/use-toast";
 import { UserRole } from "@prisma/client";
+import type { GetStaticProps, NextPage } from "next";
+import Head from "next/head";
+import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+
+import { LoadingPage } from "@/components/loading";
+import { PageLayout } from "@/components/page-layout";
+import ResourceEditForm from "@/components/resource-edit-form";
+import { useToast } from "@/components/ui/use-toast";
+import { generateSSGHelper } from "@/server/helpers/ssgHelper";
+import { api } from "@/utils/api";
 
 export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const { data: resource, isLoading: isLoadingResource } =

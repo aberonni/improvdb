@@ -1,8 +1,13 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { type User } from "next-auth";
+import { signIn, signOut, useSession } from "next-auth/react";
 
+import { Logo } from "@/components/logo";
+import { type SiteHeaderLinks } from "@/components/site-header";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,15 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { type User } from "next-auth";
-import { ThemeToggle } from "./theme-toggle";
-import { Logo } from "./logo";
-
-import { type SiteHeaderLinks } from "./site-header";
-import { useRouter } from "next/router";
 
 const UserWidget = ({ user }: { user: User }) => (
   <div className="flex items-center">
