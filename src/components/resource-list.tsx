@@ -256,7 +256,11 @@ export const ResourceList = ({
       columns={columns}
       data={data}
       isLoading={isLoading}
-      useFilters={useFilters}
+      filters={
+        useFilters
+          ? ["title", "type", "configuration", "categories"]
+          : undefined
+      }
       usePagination={usePagination}
       hiddenColumnsByDefault={["alternativeNames"]}
       hiddenColumnsOnMobile={["categories", "configuration"]}

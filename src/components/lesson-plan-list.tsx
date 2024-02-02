@@ -102,7 +102,7 @@ export const LessonPlanList = ({
       columns={dataTableColumns}
       data={data}
       isLoading={isLoading}
-      useFilters={useFilters}
+      filters={useFilters ? ["title"] : undefined}
       usePagination={usePagination}
     />
   );

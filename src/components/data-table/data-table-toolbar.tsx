@@ -7,14 +7,16 @@ import { DataTableViewOptions } from "@/components/data-table/data-table-view-op
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  filters: string[];
 }
 
 export function DataTableToolbar<TData>({
   table,
+  filters,
 }: DataTableToolbarProps<TData>) {
   return (
     <div className="flex items-center justify-between">
-      <DataTableFilters table={table} />
+      <DataTableFilters table={table} filters={filters} />
       <DataTableViewOptions table={table} />
     </div>
   );

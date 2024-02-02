@@ -38,7 +38,7 @@ interface DataTableProps<TData, TValue = unknown> {
   })[];
   data?: TData[];
   usePagination?: boolean;
-  useFilters?: boolean;
+  filters?: string[];
   isLoading?: boolean;
   hiddenColumnsByDefault?: (keyof VisibilityState)[];
   hiddenColumnsOnMobile?: (keyof VisibilityState)[];
@@ -49,7 +49,7 @@ export function DataTable<TData, TValue = unknown>({
   columns,
   data,
   usePagination = false,
-  useFilters = false,
+  filters,
   isLoading = false,
   hiddenColumnsByDefault = [],
   hiddenColumnsOnMobile = [],
@@ -63,6 +63,13 @@ export function DataTable<TData, TValue = unknown>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
+    if (
+      hiddenColumnsByDefault.length === 0 &&
+      hiddenColumnsOnMobile.length === 0
+    ) {
+      return;
+    }
+
     setColumnVisibility((prev) => ({
       ...prev,
       ...Object.fromEntries(
@@ -97,11 +104,11 @@ export function DataTable<TData, TValue = unknown>({
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: useFilters ? getFilteredRowModel() : undefined,
+    getFilteredRowModel: filters ? getFilteredRowModel() : undefined,
     getPaginationRowModel: usePagination ? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: useFilters ? getFacetedRowModel() : undefined,
-    getFacetedUniqueValues: useFilters ? getFacetedUniqueValues() : undefined,
+    getFacetedRowModel: filters ? getFacetedRowModel() : undefined,
+    getFacetedUniqueValues: filters ? getFacetedUniqueValues() : undefined,
   });
 
   useEffect(() => {
@@ -112,7 +119,7 @@ export function DataTable<TData, TValue = unknown>({
 
   return (
     <div className="space-y-4">
-      {useFilters && <DataTableToolbar table={table} />}
+      {filters && <DataTableToolbar table={table} filters={filters} />}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

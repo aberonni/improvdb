@@ -24,11 +24,13 @@ import { api } from "@/utils/api";
 
 interface DataTableFiltersProps<TData> {
   table: Table<TData>;
+  filters: string[];
 }
 
 function DataTableFiltersContent<TData>({
   table,
   className,
+  filters,
 }: DataTableFiltersProps<TData> & { className?: string }) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const { data: categories, isLoading: isLoadingCategories } =
@@ -36,15 +38,17 @@ function DataTableFiltersContent<TData>({
 
   return (
     <div className={cn("flex flex-1 items-center space-x-2", className)}>
-      <Input
-        placeholder="Filter Title..."
-        value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-        onChange={(event) =>
-          table.getColumn("title")?.setFilterValue(event.target.value)
-        }
-        className="h-8 w-[150px] lg:w-[250px]"
-      />
-      {table.getColumn("type") && (
+      {filters.includes("title") && (
+        <Input
+          placeholder="Filter Title..."
+          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("title")?.setFilterValue(event.target.value)
+          }
+          className="h-8 w-[150px] lg:w-[250px]"
+        />
+      )}
+      {filters.includes("type") && (
         <DataTableFacetedFilter
           column={table.getColumn("type")}
           title="Type"
@@ -54,7 +58,7 @@ function DataTableFiltersContent<TData>({
           }))}
         />
       )}
-      {table.getColumn("configuration") && (
+      {filters.includes("configuration") && (
         <DataTableFacetedFilter
           column={table.getColumn("configuration")}
           title="Configuration"
@@ -69,7 +73,7 @@ function DataTableFiltersContent<TData>({
           )}
         />
       )}
-      {table.getColumn("categories") && (
+      {filters.includes("categories") && (
         <DataTableFacetedFilter
           column={table.getColumn("categories")}
           title="Category"
@@ -96,11 +100,12 @@ function DataTableFiltersContent<TData>({
 
 export function DataTableFilters<TData>({
   table,
+  filters,
 }: DataTableFiltersProps<TData>) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   if (isDesktop) {
-    return <DataTableFiltersContent table={table} />;
+    return <DataTableFiltersContent table={table} filters={filters} />;
   }
 
   return (
@@ -120,6 +125,7 @@ export function DataTableFilters<TData>({
           </DrawerHeader>
           <DataTableFiltersContent
             table={table}
+            filters={filters}
             className="flex-col items-stretch space-x-0 space-y-2 p-4 [&>*]:w-full"
           />
           <DrawerFooter className="pt-4">
