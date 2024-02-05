@@ -16,9 +16,10 @@ import {
   adminProcedure,
   privateProcedure,
   publicProcedure,
+  type createTRPCContext,
 } from "@/server/api/trpc";
 import { sendMail, sendMailToAdmins } from "@/server/nodemailer";
-import { resourceCreateSchema } from "@/utils/zod";
+import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -37,6 +38,84 @@ function cleanCategories(
     categories: resource.categories.map(({ category }) => category),
   }));
 }
+
+const updateResource = async ({
+  ctx,
+  input: updatedResource,
+}: {
+  ctx: Awaited<ReturnType<typeof createTRPCContext>>;
+  input: z.infer<typeof resourceCreateSchema>;
+}) => {
+  const originalResource = await ctx.db.resource.findUnique({
+    where: {
+      id: updatedResource.id,
+    },
+    include: {
+      categories: {
+        select: {
+          categoryId: true,
+        },
+      },
+      relatedResources: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!originalResource) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: `Resource ${updatedResource.id} not found`,
+    });
+  }
+
+  const resource = await ctx.db.resource.update({
+    where: {
+      id: updatedResource.id,
+    },
+    data: {
+      ...updatedResource,
+      categories: {
+        createMany: {
+          data: updatedResource.categories
+            .filter(
+              ({ value }) =>
+                !originalResource.categories.find(
+                  ({ categoryId }) => categoryId === value,
+                ),
+            )
+            .map(({ value }) => ({
+              categoryId: value,
+            })),
+        },
+        deleteMany: originalResource.categories.filter((cat) => {
+          return !updatedResource.categories.find(
+            ({ value }) => value === cat.categoryId,
+          );
+        }),
+      },
+      relatedResources: {
+        connect: updatedResource.relatedResources.map(({ value }) => ({
+          id: value,
+        })),
+        disconnect: originalResource.relatedResources.filter((res) => {
+          return !updatedResource.relatedResources.find(
+            ({ value }) => value === res.id,
+          );
+        }),
+      },
+      alternativeNames: updatedResource.alternativeNames
+        .map(({ value }) => value)
+        .join(";"),
+    },
+  });
+
+  return {
+    resource,
+  };
+};
 
 export const resourceRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -98,7 +177,14 @@ export const resourceRouter = createTRPCRouter({
     return ctx.db.resource
       .findMany({
         where: {
-          createdBy: ctx.session.user,
+          OR: [
+            {
+              createdBy: ctx.session.user,
+            },
+            {
+              editProposalAuthor: ctx.session.user,
+            },
+          ],
         },
         take: 1000,
         orderBy: {
@@ -258,79 +344,7 @@ export const resourceRouter = createTRPCRouter({
         resource,
       };
     }),
-  update: adminProcedure
-    .input(resourceCreateSchema)
-    .mutation(async ({ ctx, input: updatedResource }) => {
-      const originalResource = await ctx.db.resource.findUnique({
-        where: {
-          id: updatedResource.id,
-        },
-        include: {
-          categories: {
-            select: {
-              categoryId: true,
-            },
-          },
-          relatedResources: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      if (!originalResource) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `Resource ${updatedResource.id} not found`,
-        });
-      }
-
-      const resource = await ctx.db.resource.update({
-        where: {
-          id: updatedResource.id,
-        },
-        data: {
-          ...updatedResource,
-          categories: {
-            createMany: {
-              data: updatedResource.categories
-                .filter(
-                  ({ value }) =>
-                    !originalResource.categories.find(
-                      ({ categoryId }) => categoryId === value,
-                    ),
-                )
-                .map(({ value }) => ({
-                  categoryId: value,
-                })),
-            },
-            deleteMany: originalResource.categories.filter((cat) => {
-              return !updatedResource.categories.find(
-                ({ value }) => value === cat.categoryId,
-              );
-            }),
-          },
-          relatedResources: {
-            connect: updatedResource.relatedResources.map(({ value }) => ({
-              id: value,
-            })),
-            disconnect: originalResource.relatedResources.filter((res) => {
-              return !updatedResource.relatedResources.find(
-                ({ value }) => value === res.id,
-              );
-            }),
-          },
-          alternativeNames: updatedResource.alternativeNames
-            .map(({ value }) => value)
-            .join(";"),
-        },
-      });
-
-      return {
-        resource,
-      };
-    }),
+  update: adminProcedure.input(resourceCreateSchema).mutation(updateResource),
   proposeUpdate: privateProcedure
     .input(resourceCreateSchema)
     .mutation(async ({ ctx, input }) => {
@@ -372,6 +386,7 @@ export const resourceRouter = createTRPCRouter({
           id: input.id + "_proposal_" + Date.now(),
           published: false,
           editProposalOriginalResourceId: input.id,
+          editProposalAuthorId: ctx.session.user.id,
           createdById: originalResource.createdById,
           categories: {
             createMany: {
@@ -403,6 +418,65 @@ export const resourceRouter = createTRPCRouter({
         resource,
       };
     }),
+  acceptProposedUpdate: adminProcedure
+    .input(resourceProposalSchema)
+    .mutation(
+      async ({ ctx, input: { id: proposalId, ...proposedUpdates } }) => {
+        const proposal = await ctx.db.resource.findUnique({
+          where: {
+            id: proposalId,
+          },
+          select: {
+            editProposalAuthor: {
+              select: {
+                email: true,
+              },
+            },
+            editProposalOriginalResourceId: true,
+          },
+        });
+
+        if (!proposal) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `Resource ${proposalId} not found`,
+          });
+        }
+
+        if (!proposal.editProposalOriginalResourceId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `Resource ${proposalId} is not a proposal`,
+          });
+        }
+
+        const { resource } = await updateResource({
+          ctx,
+          input: {
+            ...proposedUpdates,
+            id: proposal.editProposalOriginalResourceId,
+          },
+        });
+
+        if (proposal.editProposalAuthor?.email) {
+          void sendMail({
+            subject: `Your proposed resource edit to "${resource.title}" has been accepted`,
+            html: `<p>Your proposed resource edit has been accepted: <a href="https://improvdb.com/resource/${proposal.editProposalOriginalResourceId}">View resource: "${resource.title}"</a></p>`,
+            to: proposal.editProposalAuthor.email,
+          });
+        }
+
+        await ctx.db.resource.delete({
+          where: {
+            id: proposalId,
+          },
+        });
+
+        return {
+          resource,
+        };
+      },
+    ),
   delete: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -468,8 +542,8 @@ export const resourceRouter = createTRPCRouter({
 
       if (input.published && updatedResource.createdBy.email) {
         void sendMail({
-          subject: "Your proposed resource has been published",
-          html: `<p>Your proposed resource has been published: <a href="https://improvdb.com/resource/${resource.id}">View resource</a></p>`,
+          subject: `Your proposed resource, "${resource.title}", has been published`,
+          html: `<p>Your proposed resource has been published: <a href="https://improvdb.com/resource/${resource.id}">View resource "${resource.title}}</a></p>`,
           to: updatedResource.createdBy.email,
         });
       }

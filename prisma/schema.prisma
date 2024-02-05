@@ -50,16 +50,19 @@ model Resource {
   relatedResourceParent Resource[] @relation("RelatedResources") // parent Resource (parent Resource of a suggested Resource)
 
   published   Boolean  @default(false)
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id], name: "Resources", onUpdate: Cascade, onDelete: Cascade)
   createdById String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   editProposalOriginalResourceId String?
+  editProposalAuthor             User?   @relation(fields: [editProposalAuthorId], references: [id], name: "Proposals", onUpdate: Cascade, onDelete: Cascade)
+  editProposalAuthorId           String?
 
   lessonPlanItems LessonPlanItem[]
 
   @@index([createdById])
+  @@index([editProposalAuthorId])
 }
 
 model CategoriesOnResources {
@@ -169,7 +172,8 @@ model User {
   role          UserRole?    @default(USER)
   accounts      Account[]
   sessions      Session[]
-  resources     Resource[]
+  resources     Resource[]  @relation("Resources")
+  proposals     Resource[]  @relation("Proposals")
   lessonPlans   LessonPlan[]
 }
 

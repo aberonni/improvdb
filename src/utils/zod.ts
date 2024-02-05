@@ -41,6 +41,11 @@ export const resourceCreateSchema = z.object({
   relatedResources: z.array(z.object({ label: z.string(), value: z.string() })),
 });
 
+export const resourceProposalSchema = z.object({
+  ...resourceCreateSchema.shape,
+  id: z.string(),
+});
+
 export const lessonPlanCreateSchema = z.object({
   title: z.string().min(2).max(50),
   theme: z.string().optional(),

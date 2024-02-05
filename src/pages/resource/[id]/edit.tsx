@@ -23,8 +23,17 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const router = useRouter();
   const { toast } = useToast();
 
+  const reviewingProposal =
+    isAdmin &&
+    resource?.editProposalOriginalResourceId !== undefined &&
+    resource?.editProposalOriginalResourceId !== null;
+
   const { mutate: updateResource, isLoading: isSubmitting } = (
-    isAdmin ? api.resource.update : api.resource.proposeUpdate
+    reviewingProposal
+      ? api.resource.acceptProposedUpdate
+      : isAdmin
+        ? api.resource.update
+        : api.resource.proposeUpdate
   ).useMutation({
     onSuccess: ({ resource: res }) => {
       void router.push(
@@ -56,7 +65,9 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     return <div>404</div>;
   }
 
-  const title = `${isAdmin ? "Edit" : "Propose Changes"}: "${resource.title}"`;
+  const title = `${
+    reviewingProposal ? "Review Proposal" : isAdmin ? "Edit" : "Propose Changes"
+  }: "${resource.title}"`;
 
   return (
     <>
@@ -68,6 +79,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           resource={resource}
           isSubmitting={isSubmitting}
           isEditing
+          isEditingProposal={reviewingProposal}
           onSubmit={(values) => {
             if (isSubmitting) {
               return;

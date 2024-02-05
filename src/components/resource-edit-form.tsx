@@ -42,7 +42,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
-import { resourceCreateSchema } from "@/utils/zod";
+import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -84,11 +84,13 @@ export default function ResourceEditForm({
   onSubmit,
   isSubmitting,
   isEditing = false,
+  isEditingProposal = false,
 }: {
   resource?: Readonly<RouterOutputs["resource"]["getById"]>;
   onSubmit: (values: z.infer<typeof resourceCreateSchema>) => void;
   isSubmitting: boolean;
   isEditing?: boolean;
+  isEditingProposal?: boolean;
 }) {
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
   const [optionalFieldsOpen, setOptionalFieldsOpen] = useState(true);
@@ -123,8 +125,12 @@ export default function ResourceEditForm({
     };
   }
 
+  const resolverSchema = isEditingProposal
+    ? resourceProposalSchema
+    : resourceCreateSchema;
+
   const form = useForm<CreateSchemaType>({
-    resolver: zodResolver(resourceCreateSchema),
+    resolver: zodResolver(resolverSchema),
     defaultValues,
   });
 
