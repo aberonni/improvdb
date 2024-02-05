@@ -1,8 +1,6 @@
-import { UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
 
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
@@ -11,44 +9,45 @@ import { useToast } from "@/components/ui/use-toast";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
-export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
+export const ResourceClonePage: NextPage<{ id: string }> = ({ id }) => {
   const { data: resource, isLoading: isLoadingResource } =
     api.resource.getById.useQuery({
       id,
     });
 
-  const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
-
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: updateResource, isLoading: isSubmitting } = (
-    isAdmin ? api.resource.update : api.resource.proposeUpdate
-  ).useMutation({
-    onSuccess: ({ resource: res }) => {
-      void router.push(
-        isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
-      );
-      toast({
-        title: "Success!",
-        description: "Resource proposal saved.",
-      });
-    },
-    onError: (e) => {
-      const errorMessage =
-        e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
+  const { mutate: createResource, isLoading: isSubmitting } =
+    api.resource.create.useMutation({
+      onSuccess: ({ resource: res }) => {
+        void router.push("/resource/" + res.id);
+      },
+      onError: (e) => {
+        if (e.data?.code === "CONFLICT") {
+          toast({
+            title: "Uh oh! Something went wrong.",
+            variant: "destructive",
+            description:
+              "A resource already exists at this URL. Please choose a new URL.",
+          });
+          return;
+        }
 
-      toast({
-        title: "Uh oh! Something went wrong.",
-        variant: "destructive",
-        description:
-          errorMessage ?? "Failed to update resource! Please try again later.",
-      });
-    },
-  });
+        const errorMessage =
+          e.message ??
+          e.data?.zodError?.fieldErrors.content?.[0] ??
+          "Failed to create resource! Please try again later.";
 
-  if (isLoadingResource || status === "loading") {
+        toast({
+          title: "Uh oh! Something went wrong.",
+          variant: "destructive",
+          description: errorMessage,
+        });
+      },
+    });
+
+  if (isLoadingResource) {
     return <LoadingPage />;
   }
 
@@ -56,7 +55,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     return <div>404</div>;
   }
 
-  const title = `${isAdmin ? "Edit" : "Propose Changes"}: "${resource.title}"`;
+  const title = `Clone: "${resource.title}"`;
 
   return (
     <>
@@ -67,12 +66,11 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
         <ResourceEditForm
           resource={resource}
           isSubmitting={isSubmitting}
-          isEditing
           onSubmit={(values) => {
             if (isSubmitting) {
               return;
             }
-            updateResource(values);
+            createResource(values);
           }}
         />
       </PageLayout>
@@ -104,4 +102,4 @@ export const getStaticPaths = () => {
   };
 };
 
-export default ResourceEditPage;
+export default ResourceClonePage;

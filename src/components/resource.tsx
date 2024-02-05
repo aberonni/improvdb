@@ -11,6 +11,7 @@ import {
 } from "@/components/page-layout";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
 
@@ -57,7 +58,7 @@ export function SingleResourceComponent({
   return (
     <SplitPageLayout>
       <SplitPageLayoutSidebar>
-        <div className="space-y-6">
+        <div className="space-y-6 md:flex md:min-h-full md:flex-col">
           <h4 className="tracking-tight text-muted-foreground">
             {ResourceTypeLabels[resource.type]}
             <br />
@@ -163,12 +164,26 @@ export function SingleResourceComponent({
             </>
           )}
           {showProposeChanges && (
-            <Link
-              href={`/resource/${resource.id}/edit`}
-              className={buttonVariants({ variant: "default" })}
-            >
-              Propose Changes
-            </Link>
+            <div className="flex w-full flex-row gap-2 md:mt-auto">
+              <Link
+                href={`/resource/${resource.id}/edit`}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "grow text-center",
+                )}
+              >
+                Propose Changes
+              </Link>
+              <Link
+                href={`/resource/${resource.id}/clone`}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "grow text-center",
+                )}
+              >
+                Clone Resource
+              </Link>
+            </div>
           )}
         </div>
       </SplitPageLayoutSidebar>

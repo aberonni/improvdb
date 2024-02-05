@@ -83,10 +83,12 @@ export default function ResourceEditForm({
   resource,
   onSubmit,
   isSubmitting,
+  isEditing = false,
 }: {
   resource?: Readonly<RouterOutputs["resource"]["getById"]>;
   onSubmit: (values: z.infer<typeof resourceCreateSchema>) => void;
   isSubmitting: boolean;
+  isEditing?: boolean;
 }) {
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
   const [optionalFieldsOpen, setOptionalFieldsOpen] = useState(true);
@@ -139,13 +141,13 @@ export default function ResourceEditForm({
   const watchTitle = watch("title");
 
   useEffect(() => {
-    if (resource) {
+    if (isEditing) {
       return;
     }
     const title = getValues("title");
     setValue("id", kebabCase(title));
     clearErrors("id");
-  }, [clearErrors, getValues, resource, setValue, watchTitle]);
+  }, [clearErrors, getValues, isEditing, setValue, watchTitle]);
 
   const watchType = watch("type");
   const configurationDisabled = useMemo(
@@ -182,22 +184,20 @@ export default function ResourceEditForm({
           </>
         ) : (
           <>
-            {!resource && (
-              <Alert className="mb-4" variant="warning">
-                <AlertTitle>About proposing new resources</AlertTitle>
-                <AlertDescription>
-                  <br />
-                  Currently, anyone can propose new resources, but only admins
-                  can approve them, and subsequently edit or delete them. You
-                  will not be able to use them in your lesson plans until they
-                  have been approved by an admin.
-                  <br />
-                  <br />
-                  This website is a work in progress, and these limitations on
-                  new resources are subject to change.
-                </AlertDescription>
-              </Alert>
-            )}
+            <Alert className="mb-4" variant="warning">
+              <AlertTitle>About proposing new resources</AlertTitle>
+              <AlertDescription>
+                <br />
+                Currently, anyone can propose new resources, but only admins can
+                approve them, and subsequently edit or delete them. You will not
+                be able to use them in your lesson plans until they have been
+                approved by an admin.
+                <br />
+                <br />
+                This website is a work in progress, and these limitations on new
+                resources are subject to change.
+              </AlertDescription>
+            </Alert>
             <FormField
               control={control}
               name="title"
@@ -230,7 +230,7 @@ export default function ResourceEditForm({
                           <Input
                             placeholder="id"
                             className="pl-20"
-                            disabled={!!resource}
+                            disabled={isEditing}
                             {...field}
                           />
                         </div>
@@ -440,8 +440,10 @@ export default function ResourceEditForm({
                               instanceId="relatedResources"
                               isLoading={isLoadingResources}
                               loadingMessage={() => "Loading resources..."}
-                              options={(resource
-                                ? resources?.filter((r) => r.id !== resource.id)
+                              options={(isEditing
+                                ? resources?.filter(
+                                    (r) => r.id !== resource?.id,
+                                  )
                                 : resources
                               )?.map(({ id, title }) => ({
                                 label: title,

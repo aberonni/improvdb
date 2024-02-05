@@ -104,8 +104,8 @@ export const SplitPageLayout = ({ children }: PropsWithChildren) => {
 
 export const SplitPageLayoutSidebar = ({ children }: PropsWithChildren) => {
   return (
-    <div className="md:h-100vh top-0 col-span-1 flex flex-col space-y-4 self-start  md:sticky md:pt-8">
-      <ScrollArea className="pt-8 md:pb-8 md:pr-16 md:pt-0">
+    <div className="top-0 col-span-1 flex flex-col space-y-4 self-start md:sticky md:h-screen md:pt-8">
+      <ScrollArea className="pt-8 md:min-h-full md:pb-8 md:pr-16 md:pt-0">
         {children}
       </ScrollArea>
     </div>
