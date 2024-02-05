@@ -543,7 +543,7 @@ export const resourceRouter = createTRPCRouter({
       if (input.published && updatedResource.createdBy.email) {
         void sendMail({
           subject: `Your proposed resource, "${resource.title}", has been published`,
-          html: `<p>Your proposed resource has been published: <a href="https://improvdb.com/resource/${resource.id}">View resource "${resource.title}}</a></p>`,
+          html: `<p>Your proposed resource has been published: <a href="https://improvdb.com/resource/${resource.id}">View resource "${resource.title}"</a></p>`,
           to: updatedResource.createdBy.email,
         });
       }
