@@ -185,6 +185,28 @@ export const resourceRouter = createTRPCRouter({
               editProposalAuthor: ctx.session.user,
             },
           ],
+          draft: false
+        },
+        take: 1000,
+        orderBy: {
+          title: "asc",
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      })
+      .then(cleanCategories);
+  }),
+  getMyDraftResources: privateProcedure.query(({ ctx }) => {
+    return ctx.db.resource
+      .findMany({
+        where: {
+          createdBy: ctx.session.user,
+          draft: true
         },
         take: 1000,
         orderBy: {
@@ -329,8 +351,8 @@ export const resourceRouter = createTRPCRouter({
             .join(";"),
         },
       });
-
-      if (ctx.session.user.role !== UserRole.ADMIN) {
+      
+      if (ctx.session.user.role !== UserRole.ADMIN && !input.draft) {
         void sendMailToAdmins(
           {
             subject: "New resource created",
@@ -344,7 +366,7 @@ export const resourceRouter = createTRPCRouter({
         resource,
       };
     }),
-  update: adminProcedure.input(resourceCreateSchema).mutation(updateResource),
+  update: privateProcedure.input(resourceCreateSchema).mutation(updateResource),
   proposeUpdate: privateProcedure
     .input(resourceCreateSchema)
     .mutation(async ({ ctx, input }) => {
@@ -492,7 +514,7 @@ export const resourceRouter = createTRPCRouter({
           message: `Resource ${input.id} not found`,
         });
       }
-
+      
       resource = await ctx.db.resource.delete({
         where: {
           id: input.id,
@@ -557,6 +579,7 @@ export const resourceRouter = createTRPCRouter({
       .findMany({
         where: {
           published: false,
+          draft: false
         },
         take: 1000,
         orderBy: {

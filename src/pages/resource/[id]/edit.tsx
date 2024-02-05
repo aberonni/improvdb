@@ -19,6 +19,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
 
   const { data: session, status } = useSession();
   const isAdmin = session?.user?.role === UserRole.ADMIN;
+  const isEditingOwnDraft = session?.user?.id === resource?.createdById;
 
   const router = useRouter();
   const { toast } = useToast();
@@ -31,8 +32,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const { mutate: updateResource, isLoading: isSubmitting } = (
     reviewingProposal
       ? api.resource.acceptProposedUpdate
-      : isAdmin
-        ? api.resource.update
+      : isAdmin || isEditingOwnDraft ? api.resource.update
         : api.resource.proposeUpdate
   ).useMutation({
     onSuccess: ({ resource: res }) => {
@@ -66,7 +66,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   }
 
   const title = `${
-    reviewingProposal ? "Review Proposal" : isAdmin ? "Edit" : "Propose Changes"
+    reviewingProposal ? "Review Proposal" : isAdmin || isEditingOwnDraft ? "Edit" : "Propose Changes"
   }: "${resource.title}"`;
 
   return (
