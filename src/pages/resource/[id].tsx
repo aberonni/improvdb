@@ -121,13 +121,11 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
   const { data: session } = useSession();
   const { user } = session ?? {};
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
+  if (isLoading) return <LoadingPage />;
 
-  if (!resource) {
-    return <div>404</div>;
-  }
+  if (!resource) return <div>404</div>;
+
+  if (resource.draft && resource.createdById !== user?.id) return <div>403 - Forbidden</div>
 
   return (
     <>

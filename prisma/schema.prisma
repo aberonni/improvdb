@@ -41,6 +41,7 @@ model Resource {
   type          ResourceType
   categories    CategoriesOnResources[]
   configuration ResourceConfiguration
+  draft         Boolean                 @default(false)
 
   showIntroduction String? @db.Text
   video            String?
@@ -164,17 +165,17 @@ enum UserRole {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String?      @unique
-  emailVerified DateTime?
-  image         String?
-  role          UserRole?    @default(USER)
-  accounts      Account[]
-  sessions      Session[]
-  resources     Resource[]  @relation("Resources")
+  id              String       @id @default(cuid())
+  name            String?
+  email           String?      @unique
+  emailVerified   DateTime?
+  image           String?
+  role            UserRole?    @default(USER)
+  accounts        Account[]
+  sessions        Session[]
+  resources       Resource[]  @relation("Resources")
   proposals     Resource[]  @relation("Proposals")
-  lessonPlans   LessonPlan[]
+  lessonPlans     LessonPlan[]
 }
 
 model VerificationToken {

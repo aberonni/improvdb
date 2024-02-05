@@ -14,6 +14,7 @@ import {
   SingleResourceComponent,
 } from "@/components/resource";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Collapsible,
@@ -26,6 +27,7 @@ import {
   FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -49,6 +51,7 @@ type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 const editFormDefaults: Partial<CreateSchemaType> = {
   alternativeNames: [],
   categories: [],
+  draft: false,
   relatedResources: [],
   type: ResourceType.EXERCISE,
   configuration: ResourceConfiguration.SCENE,
@@ -241,8 +244,13 @@ export default function ResourceEditForm({
                           />
                         </div>
                       </FormControl>
-                      {errors.id?.message && (
+                      {errors.id?.message ? (
                         <FormMessage>{errors.id?.message}</FormMessage>
+                      ) : (
+                        <FormDescription>
+                          This cannot be changed once submitted or saved as a
+                          draft
+                        </FormDescription>
                       )}
                     </FormItem>
                   )}
@@ -481,6 +489,31 @@ export default function ResourceEditForm({
                         </FormItem>
                       )}
                     />
+                    {resource?.published !== true && (
+                      <FormField
+                        control={form.control}
+                        name="draft"
+                        render={({ field }) => (
+                          <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0 rounded-md border border-input p-4">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Save as Draft</FormLabel>
+                              <FormDescription className="pl-0">
+                                Draft Resources are not submitted to Admins for
+                                approval, and do not appear in the Resources
+                                Browser. Drafts can be found in the "Drafts" tab
+                                under "My Proposed Resources"
+                              </FormDescription>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </CollapsibleContent>
                 </Collapsible>
               </div>
@@ -528,13 +561,23 @@ export default function ResourceEditForm({
               >
                 Preview
               </Button>
-              <AreYouSureDialog
-                isFormValid={form.formState.isValid}
-                dialog="ResourceSave"
-                description={`You are about to propose a new resource. This action cannot be undone. Your new resource will be pending publication after you submit it. You can monitor the status in your "My Proposed Resources\" page.`}
-                onSave={handleSubmit(onSubmit)}
-                isSaving={isSubmitting}
-              />
+              {getValues("draft") ? (
+                <Button
+                  onClick={handleSubmit(onSubmit)}
+                  type="button"
+                  variant="default"
+                >
+                  Save Draft
+                </Button>
+              ) : (
+                <AreYouSureDialog
+                  isFormValid={form.formState.isValid}
+                  dialog="ResourceSave"
+                  description={`You are about to propose a new resource. This action cannot be undone. Your new resource will be pending publication after you submit it. You can monitor the status in your "My Proposed Resources\" page.`}
+                  onSave={handleSubmit(onSubmit)}
+                  isSaving={isSubmitting}
+                />
+              )}
             </div>
           </>
         )}

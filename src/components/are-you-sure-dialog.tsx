@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   AlertDialog,
@@ -19,58 +19,56 @@ import { useToast } from "@/components/ui/use-toast";
 export const AreYouSureDialogs = {
   ResourceSave: "ResourceSave",
   LessonPlanSave: "LessonPlanSave",
+  AdminResourceDelete: "AdminResourceDelete"
 } as const;
 
-const CommonButton = ({
-  isSaving,
-  onClick,
-}: {
-  isSaving?: boolean;
+
+interface DefaultButtonProps {
+  isLoading?: boolean;
   onClick?: () => void;
-}) => (
-  <Button disabled={isSaving} type="button" onClick={onClick}>
-    {isSaving ? (
-      <>
-        <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Saving...
-      </>
-    ) : (
-      "Save"
-    )}
+}
+
+const DefaultButton:React.FC<DefaultButtonProps> = ({ isLoading, onClick }) => (
+  <Button disabled={isLoading} type="button" onClick={onClick}>
+    {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+    <span>{isLoading ? "Saving..." : "Save"}</span>
   </Button>
 );
 
-export const AreYouSureDialog = ({
-  dialog,
-  description,
-  isFormValid,
-  isSaving,
-  onSave,
-}: {
+interface Props {
+  customButton?: typeof DefaultButton;
   dialog: keyof typeof AreYouSureDialogs;
   description: string;
   isFormValid?: boolean;
   isSaving?: boolean;
   onSave: () => void;
+}
+
+export const AreYouSureDialog: React.FC<Props> = ({
+  dialog,
+  description,
+  isFormValid,
+  isSaving,
+  customButton,
+  onSave,
 }) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [dontAskAgain, setDontAskAgain] = useState(false);
 
-  const localStorageId = useMemo(() => {
-    return `dontAskAgainFor${dialog}`;
-  }, [dialog]);
+  const CustomButton = customButton || DefaultButton
+
+  const localStorageId = `dontAskAgainFor${dialog}`
 
   useEffect(() => {
     // Perform localStorage action after page has been mounted on client side
-    setDontAskAgain(
-      localStorage.getItem(localStorageId) === JSON.stringify(true),
-    );
+    setDontAskAgain(localStorage.getItem(localStorageId) === JSON.stringify(true));
   }, [localStorageId]);
 
   if (!isFormValid) {
     return (
-      <CommonButton
-        isSaving={isSaving}
+      <CustomButton
+      isLoading={isSaving}
         onClick={() => {
           onSave();
           toast({
@@ -83,14 +81,12 @@ export const AreYouSureDialog = ({
     );
   }
 
-  if (!open && dontAskAgain) {
-    return <CommonButton isSaving={isSaving} onClick={onSave} />;
-  }
+  if (!open && dontAskAgain) return <CustomButton isLoading={isSaving} onClick={onSave} />;
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <CommonButton isSaving={isSaving} />
+        <CustomButton isLoading={isSaving} />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
