@@ -17,7 +17,7 @@ import {
   privateProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { sendMailToAdmins } from "@/server/nodemailer";
+import { sendMail, sendMailToAdmins } from "@/server/nodemailer";
 import { resourceCreateSchema } from "@/utils/zod";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
@@ -437,7 +437,7 @@ export const resourceRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      let resource = await ctx.db.resource.findUnique({
+      const resource = await ctx.db.resource.findUnique({
         where: {
           id: input.id,
         },
@@ -450,17 +450,32 @@ export const resourceRouter = createTRPCRouter({
         });
       }
 
-      resource = await ctx.db.resource.update({
+      const updatedResource = await ctx.db.resource.update({
         where: {
           id: input.id,
         },
         data: {
           published: input.published,
         },
+        select: {
+          createdBy: {
+            select: {
+              email: true,
+            },
+          },
+        },
       });
 
+      if (input.published && updatedResource.createdBy.email) {
+        void sendMail({
+          subject: "Your proposed resource has been published",
+          html: `<p>Your proposed resource has been published: <a href="https://improvdb.com/resource/${resource.id}">View resource</a></p>`,
+          to: updatedResource.createdBy.email,
+        });
+      }
+
       return {
-        resource,
+        resource: updatedResource,
       };
     }),
   getPendingPublication: adminProcedure.query(({ ctx }) => {
