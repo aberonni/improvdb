@@ -12,22 +12,15 @@ import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
 export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
-  const { data: resource, isLoading: isLoadingResource } =
-    api.resource.getById.useQuery({
-      id,
-    });
-
+  const { data: resource, isLoading: isLoadingResource } = api.resource.getById.useQuery({ id });
   const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
-  const isEditingOwnDraft = session?.user?.id === resource?.createdById;
-
   const router = useRouter();
   const { toast } = useToast();
 
-  const reviewingProposal =
-    isAdmin &&
-    resource?.editProposalOriginalResourceId !== undefined &&
-    resource?.editProposalOriginalResourceId !== null;
+  const isAdmin = session?.user?.role === UserRole.ADMIN;
+  const isEditingOwnDraft = session?.user?.id === resource?.createdById && resource?.draft;
+
+  const reviewingProposal = isAdmin && resource?.editProposalOriginalResourceId != null;
 
   const { mutate: updateResource, isLoading: isSubmitting } = (
     reviewingProposal
@@ -36,7 +29,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
         : api.resource.proposeUpdate
   ).useMutation({
     onSuccess: ({ resource: res }) => {
-      void router.push(
+      router.push(
         isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
       );
       toast({
