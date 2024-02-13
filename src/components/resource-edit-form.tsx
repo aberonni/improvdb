@@ -1,11 +1,12 @@
+import React, { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
 import { kebabCase, pickBy } from "lodash";
-import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
+import { ResourcePublicationStatus } from "@prisma/client";
 import { AreYouSureDialog } from "@/components/are-you-sure-dialog";
 import { MultiSelectDropown } from "@/components/multi-select-dropdown";
 import {
@@ -14,7 +15,6 @@ import {
   SingleResourceComponent,
 } from "@/components/resource";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Collapsible,
@@ -27,7 +27,6 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -42,59 +41,27 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { SaveAsDraftButton } from "@/components/ui/save-as-draft-button"; 
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
-import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
+import { resourceUpdateSchema, resourceProposalSchema } from "@/utils/zod";
+import { CreateSchemaType, createFormDefaults } from "@/lib/defaults"; 
 
-type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
-
-const editFormDefaults: Partial<CreateSchemaType> = {
-  alternativeNames: [],
-  categories: [],
-  draft: false,
-  relatedResources: [],
-  type: ResourceType.EXERCISE,
-  configuration: ResourceConfiguration.SCENE,
-  description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
-
-You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button to see what your text will look like.
-
-Here are some sections that you might want to include in your description:
-
-## Setup
-
-How do you set up the activity? What are the rules? How do you explain them to the participants? How do you get the participants to start?
-
-## Learning Objectives
-
-What are the learning objectives of the activity? What skills does it help the participants develop?
-
-## Examples
-
-You could consider writing a sample dialogue between you and the participants, a sample playthrough of the activity, or anything else that you think is relevant.
-
-## Tips
-
-Any tips that you have for the participants? Any common mistakes that you want to warn them about? Any advice that you want to give them?
-
-## Variations
-
-Are there any variations of this activity that you want to share? For example, you could change the rules, add/remove some constraints, change the goal of the activity, or anything else that you think is relevant.`,
-};
-
-export default function ResourceEditForm({
-  resource,
-  onSubmit,
-  isSubmitting,
-  isEditing = false,
-  isEditingProposal = false,
-}: {
+interface Props {
   resource?: Readonly<RouterOutputs["resource"]["getById"]>;
-  onSubmit: (values: z.infer<typeof resourceCreateSchema>) => void;
   isSubmitting: boolean;
   isEditing?: boolean;
   isEditingProposal?: boolean;
-}) {
+  onSubmit: (values: z.infer<typeof resourceUpdateSchema>) => void;
+}
+
+const ResourceEditForm: React.FC<Props> = ({
+  resource,
+  isSubmitting,
+  isEditing = false,
+  isEditingProposal = false,
+  onSubmit
+}) => {
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
   const [optionalFieldsOpen, setOptionalFieldsOpen] = useState(true);
 
@@ -103,12 +70,11 @@ export default function ResourceEditForm({
   const { data: resources, isLoading: isLoadingResources } =
     api.resource.getAllOnlyIdAndTitle.useQuery();
 
-  let defaultValues = editFormDefaults;
+  const defaultValues = (() => {
+    if (!resource) return createFormDefaults;
 
-  if (resource) {
     const resourceWithoutNulls = pickBy(resource, (v) => v !== null);
-
-    defaultValues = {
+    return {
       ...resourceWithoutNulls,
       categories: resource.categories.map(({ category }) => ({
         label: category.name,
@@ -126,11 +92,11 @@ export default function ResourceEditForm({
           value: name,
         })),
     };
-  }
+  })()
 
   const resolverSchema = isEditingProposal
     ? resourceProposalSchema
-    : resourceCreateSchema;
+    : resourceUpdateSchema;
 
   const form = useForm<CreateSchemaType>({
     resolver: zodResolver(resolverSchema),
@@ -148,17 +114,16 @@ export default function ResourceEditForm({
   } = form;
 
   const watchTitle = watch("title");
+  const watchType = watch("type");
 
   useEffect(() => {
-    if (isEditing) {
-      return;
-    }
+    if (isEditing) return;
+
     const title = getValues("title");
     setValue("id", kebabCase(title));
     clearErrors("id");
   }, [clearErrors, getValues, isEditing, setValue, watchTitle]);
 
-  const watchType = watch("type");
   const configurationDisabled = useMemo(
     () => watchType === ResourceType.LONG_FORM,
     [watchType],
@@ -179,7 +144,7 @@ export default function ResourceEditForm({
             <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
               {previewData.title}
             </h1>
-            <SingleResourceComponent resource={previewData} />
+            <SingleResourceComponent isDraft={false} resource={previewData} />
             <Separator className="my-6" />
             <div className="flex w-full justify-end space-x-2">
               <Button
@@ -201,6 +166,9 @@ export default function ResourceEditForm({
                 approve them, and subsequently edit or delete them. You will not
                 be able to use them in your lesson plans until they have been
                 approved by an admin.
+                <br />
+                <br />
+                Want to come back later? Click "Save as Draft". Drafts are visible by only you (you cannot use them in lesson plans) 
                 <br />
                 <br />
                 This website is a work in progress, and these limitations on new
@@ -244,13 +212,8 @@ export default function ResourceEditForm({
                           />
                         </div>
                       </FormControl>
-                      {errors.id?.message ? (
+                      {errors.id?.message && (
                         <FormMessage>{errors.id?.message}</FormMessage>
-                      ) : (
-                        <FormDescription>
-                          This cannot be changed once submitted or saved as a
-                          draft
-                        </FormDescription>
                       )}
                     </FormItem>
                   )}
@@ -489,31 +452,6 @@ export default function ResourceEditForm({
                         </FormItem>
                       )}
                     />
-                    {resource?.published !== true && (
-                      <FormField
-                        control={form.control}
-                        name="draft"
-                        render={({ field }) => (
-                          <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0 rounded-md border border-input p-4">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>Save as Draft</FormLabel>
-                              <FormDescription className="pl-0">
-                                Draft Resources are not submitted to Admins for
-                                approval, and do not appear in the Resources
-                                Browser. Drafts can be found in the "Drafts" tab
-                                under "My Proposed Resources"
-                              </FormDescription>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                    )}
                   </CollapsibleContent>
                 </Collapsible>
               </div>
@@ -561,23 +499,16 @@ export default function ResourceEditForm({
               >
                 Preview
               </Button>
-              {getValues("draft") ? (
-                <Button
-                  onClick={handleSubmit(onSubmit)}
-                  type="button"
-                  variant="default"
-                >
-                  Save Draft
-                </Button>
-              ) : (
-                <AreYouSureDialog
-                  isFormValid={form.formState.isValid}
-                  dialog="ResourceSave"
-                  description={`You are about to propose a new resource. This action cannot be undone. Your new resource will be pending publication after you submit it. You can monitor the status in your "My Proposed Resources\" page.`}
-                  onSave={handleSubmit(onSubmit)}
-                  isSaving={isSubmitting}
-                />
+              {resource?.publicationStatus === ResourcePublicationStatus.DRAFT && (
+                <SaveAsDraftButton isLoading={isSubmitting} onClick={handleSubmit(onSubmit)} />
               )}
+              <AreYouSureDialog
+                isFormValid={form.formState.isValid}
+                dialog="ResourceSave"
+                description={`You are about to propose a new resource. This action cannot be undone. Your new resource will be pending publication after you submit it. You can monitor the status in your "My Proposed Resources\" page.`}
+                onSave={handleSubmit((values) => onSubmit({...values, publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW}))}
+                isSaving={isSubmitting}
+              />
             </div>
           </>
         )}
@@ -585,3 +516,5 @@ export default function ResourceEditForm({
     </Form>
   );
 }
+
+export default ResourceEditForm;

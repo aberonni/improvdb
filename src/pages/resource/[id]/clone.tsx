@@ -67,9 +67,7 @@ export const ResourceClonePage: NextPage<{ id: string }> = ({ id }) => {
           resource={resource}
           isSubmitting={isSubmitting}
           onSubmit={(values) => {
-            if (isSubmitting) {
-              return;
-            }
+            if (isSubmitting) return;
             createResource(values);
           }}
         />

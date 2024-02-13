@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import { PageLayout } from "@/components/page-layout";
-import ResourceEditForm from "@/components/resource-edit-form";
+import ResourceCreateForm from "@/components/resource-create-form";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/utils/api";
 
@@ -14,9 +14,7 @@ export default function Create() {
   const { mutate: createResource, isLoading: isSubmitting } =
     api.resource.create.useMutation({
       onSuccess: ({ resource: res }) => {
-        void router.push("/resource/" + res.id);
-        // incredible magic that makes the "getAll" automatically re-trigger
-        // XXX: do I need to invalidate all the getAlls?
+        void router.push("/resource/" + res.id + '/edit');
         void utils.resource.getAll.invalidate();
       },
       onError: (e) => {
@@ -49,15 +47,7 @@ export default function Create() {
         <title>Propose Resource - ImprovDB</title>
       </Head>
       <PageLayout title="Propose Resource" authenticatedOnly>
-        <ResourceEditForm
-          onSubmit={(values) => {
-            if (isSubmitting) {
-              return;
-            }
-            createResource(values);
-          }}
-          isSubmitting={isSubmitting}
-        />
+        <ResourceCreateForm isSubmitting={isSubmitting} onSubmit={createResource} />
       </PageLayout>
     </>
   );

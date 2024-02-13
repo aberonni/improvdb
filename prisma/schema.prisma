@@ -34,6 +34,12 @@ enum ResourceConfiguration {
   SCENE
 }
 
+enum ResourcePublicationStatus {
+  DRAFT
+  READY_FOR_REVIEW
+  PUBLISHED
+}
+
 model Resource {
   id            String                  @id @unique
   title         String
@@ -41,7 +47,6 @@ model Resource {
   type          ResourceType
   categories    CategoriesOnResources[]
   configuration ResourceConfiguration
-  draft         Boolean                 @default(false)
 
   showIntroduction String? @db.Text
   video            String?
@@ -50,11 +55,11 @@ model Resource {
   relatedResources      Resource[] @relation("RelatedResources") // child Resource (Resource that are suggested)
   relatedResourceParent Resource[] @relation("RelatedResources") // parent Resource (parent Resource of a suggested Resource)
 
-  published   Boolean  @default(false)
-  createdBy   User     @relation(fields: [createdById], references: [id], name: "Resources", onUpdate: Cascade, onDelete: Cascade)
-  createdById String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  publicationStatus     ResourcePublicationStatus @default(DRAFT)
+  createdBy             User                       @relation(fields: [createdById], references: [id], name: "Resources", onUpdate: Cascade, onDelete: Cascade)
+  createdById           String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   editProposalOriginalResourceId String?
   editProposalAuthor             User?   @relation(fields: [editProposalAuthorId], references: [id], name: "Proposals", onUpdate: Cascade, onDelete: Cascade)

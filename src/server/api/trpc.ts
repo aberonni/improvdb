@@ -15,6 +15,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { resourceUpdateSchema } from "@/utils/zod";
 
 /**
  * 1. CONTEXT
@@ -117,6 +118,26 @@ export const publicProcedure = t.procedure;
  */
 export const privateProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+
+/**
+ * Owner Procedure
+ * A step up from a private Procedure
+ * Allows mutations on a Resource if it belongs to the (authenticated) user or if the user is an admin
+ */
+export const resourceOwnerProcedure = privateProcedure.input(resourceUpdateSchema).use(({ ctx, input, next }) => {
+  // authorId !== originalResource.createdById && ctx.session?.user.role !== UserRole.ADMIN
+  const authorId = ctx.session?.user.id;
+  if (authorId !== input.createdById && ctx.session?.user.role !== UserRole.ADMIN) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
