@@ -11,10 +11,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Icons } from "@/components/ui/icons";
 import { useToast } from "@/components/ui/use-toast";
+import { SaveButton } from "@/components/ui/save-button"; 
 
 export const AreYouSureDialogs = {
   ResourceSave: "ResourceSave",
@@ -22,21 +21,8 @@ export const AreYouSureDialogs = {
   AdminResourceDelete: "AdminResourceDelete"
 } as const;
 
-
-interface DefaultButtonProps {
-  isLoading?: boolean;
-  onClick?: () => void;
-}
-
-const DefaultButton:React.FC<DefaultButtonProps> = ({ isLoading, onClick }) => (
-  <Button disabled={isLoading} type="button" onClick={onClick}>
-    {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-    <span>{isLoading ? "Saving..." : "Save"}</span>
-  </Button>
-);
-
 interface Props {
-  customButton?: typeof DefaultButton;
+  customButton?: typeof SaveButton;
   dialog: keyof typeof AreYouSureDialogs;
   description: string;
   isFormValid?: boolean;
@@ -56,9 +42,9 @@ export const AreYouSureDialog: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const [dontAskAgain, setDontAskAgain] = useState(false);
 
-  const CustomButton = customButton || DefaultButton
+  const CustomButton = customButton || SaveButton;
 
-  const localStorageId = `dontAskAgainFor${dialog}`
+  const localStorageId = `dontAskAgainFor${dialog}`;
 
   useEffect(() => {
     // Perform localStorage action after page has been mounted on client side
@@ -68,7 +54,7 @@ export const AreYouSureDialog: React.FC<Props> = ({
   if (!isFormValid) {
     return (
       <CustomButton
-      isLoading={isSaving}
+        isLoading={isSaving}
         onClick={() => {
           onSave();
           toast({

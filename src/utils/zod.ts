@@ -1,7 +1,8 @@
 import {
   ResourceType,
   ResourceConfiguration,
-  LessonPlanVisibility
+  LessonPlanVisibility,
+  ResourcePublicationStatus
 } from "@prisma/client";
 import * as z from "zod";
 
@@ -23,7 +24,6 @@ export const resourceCreateSchema = z.object({
   title: z.string().min(2).max(50),
   description: z.string().min(20),
   type: z.nativeEnum(ResourceType),
-  draft: z.boolean(),
   configuration: z.nativeEnum(ResourceConfiguration),
 
   categories: z.array(z.object({ label: z.string(), value: z.string() })),
@@ -38,6 +38,7 @@ export const resourceCreateSchema = z.object({
   alternativeNames: z.array(
     z.object({ label: z.string(), value: z.string().regex(/([^;])/) }),
   ),
+  publicationStatus: z.nativeEnum(ResourcePublicationStatus),
 
   relatedResources: z.array(z.object({ label: z.string(), value: z.string() })),
 });
@@ -45,6 +46,12 @@ export const resourceCreateSchema = z.object({
 export const resourceProposalSchema = z.object({
   ...resourceCreateSchema.shape,
   id: z.string(),
+  createdById: z.string()
+});
+
+export const resourceUpdateSchema = z.object({
+  ...resourceCreateSchema.shape,
+  createdById: z.string()
 });
 
 export const resourceDeleteSchema = z.object({

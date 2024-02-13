@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { ResourcePublicationStatus, UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -18,16 +18,15 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const { toast } = useToast();
 
   const isAdmin = session?.user?.role === UserRole.ADMIN;
-  const isEditingOwnDraft = session?.user?.id === resource?.createdById && resource?.draft;
+  const isEditingOwnDraft = session?.user?.id === resource?.createdById && resource?.publicationStatus === ResourcePublicationStatus.DRAFT;
 
   const reviewingProposal = isAdmin && resource?.editProposalOriginalResourceId != null;
+  const apiCommand = (() => {
+    if (reviewingProposal) return api.resource.acceptProposedUpdate
+    return isAdmin || isEditingOwnDraft ? api.resource.update : api.resource.proposeUpdate
+  })()
 
-  const { mutate: updateResource, isLoading: isSubmitting } = (
-    reviewingProposal
-      ? api.resource.acceptProposedUpdate
-      : isAdmin || isEditingOwnDraft ? api.resource.update
-        : api.resource.proposeUpdate
-  ).useMutation({
+  const { mutate: updateResource, isLoading: isSubmitting } = (apiCommand).useMutation({
     onSuccess: ({ resource: res }) => {
       router.push(
         isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
@@ -50,13 +49,9 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     },
   });
 
-  if (isLoadingResource || status === "loading") {
-    return <LoadingPage />;
-  }
+  if (isLoadingResource || status === "loading") return <LoadingPage />;
 
-  if (!resource) {
-    return <div>404</div>;
-  }
+  if (!resource) return <div>404</div>;
 
   const title = `${
     reviewingProposal ? "Review Proposal" : isAdmin || isEditingOwnDraft ? "Edit" : "Propose Changes"
@@ -74,9 +69,8 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           isEditing
           isEditingProposal={reviewingProposal}
           onSubmit={(values) => {
-            if (isSubmitting) {
-              return;
-            }
+            if (isSubmitting) return;
+            //@ts-ignore
             updateResource(values);
           }}
         />

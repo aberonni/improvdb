@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { ResourcePublicationStatus, UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -77,7 +77,7 @@ const AdminToolbar = ({
       >
         Edit
       </Link>
-      {resource.published ? (
+      {resource.publicationStatus === ResourcePublicationStatus.PUBLISHED ? (
         <Button
           onClick={() =>
             setPublished({
@@ -125,7 +125,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
 
   if (!resource) return <div>404</div>;
 
-  if (resource.draft && resource.createdById !== user?.id) return <div>403 - Forbidden</div>
+  const isDraft = resource.publicationStatus === ResourcePublicationStatus.DRAFT;
 
   return (
     <>
@@ -134,7 +134,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
       </Head>
       <PageLayout title={resource.title} className="py-0" showBackButton>
         {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}
-        <SingleResourceComponent resource={resource} showProposeChanges />
+        <SingleResourceComponent isDraft={isDraft} resource={resource} showProposeChanges />
       </PageLayout>
     </>
   );

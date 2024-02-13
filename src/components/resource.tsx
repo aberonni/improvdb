@@ -1,4 +1,4 @@
-import { type ResourceConfiguration, ResourceType } from "@prisma/client";
+import { type ResourceConfiguration, ResourceType, ResourcePublicationStatus } from "@prisma/client";
 import Link from "next/link";
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
@@ -39,11 +39,13 @@ type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
 type CreationResource = z.infer<typeof resourceCreateSchema>;
 
 interface Props {
+  isDraft: boolean;
   resource: ApiResource | CreationResource;
   showProposeChanges?: boolean;
 }
 
 export const SingleResourceComponent: React.FC<Props> = ({
+  isDraft,
   resource,
   showProposeChanges = false,
 }) => {
@@ -58,7 +60,7 @@ export const SingleResourceComponent: React.FC<Props> = ({
 
   return (
     <div>
-      {resource.draft && (
+      {isDraft && (
         <Alert className="mb-4 mt-4" variant="warning">
           <AlertTitle>This Resource is a Draft</AlertTitle>
           <AlertDescription>
@@ -183,7 +185,7 @@ export const SingleResourceComponent: React.FC<Props> = ({
                     "grow text-center",
                   )}
                 >
-                  {resource.draft ? "Edit Draft" : "Propose Changes"}
+                  {isDraft ? "Edit Draft" : "Propose Changes"}
                 </Link>
                 <Link
                   href={`/resource/${resource.id}/clone`}
