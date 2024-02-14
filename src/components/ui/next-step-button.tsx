@@ -8,9 +8,9 @@ interface Props {
     onClick?: () => void;
 }
 
-export const SaveAsDraftButton:React.FC<Props> = ({ isLoading, onClick }) => (
-    <Button disabled={isLoading} type="button" variant={"secondary"} onClick={onClick}>
+export const NextStepButton:React.FC<Props> = ({ isLoading, onClick }) => (
+    <Button disabled={isLoading} type="button" variant={"default"} onClick={onClick}>
       {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-      <span>{isLoading ? "Creating Draft..." : "Next Step"}</span>
+      <span>{isLoading ? " Draft..." : "Save as Draft"}</span>
     </Button>
   );

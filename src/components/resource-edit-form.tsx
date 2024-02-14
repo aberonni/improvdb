@@ -1,12 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ResourceConfiguration, ResourceType } from "@prisma/client";
+import { ResourceConfiguration, ResourceType , ResourcePublicationStatus } from "@prisma/client";
 import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
 import { kebabCase, pickBy } from "lodash";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
-import { ResourcePublicationStatus } from "@prisma/client";
 import { AreYouSureDialog } from "@/components/are-you-sure-dialog";
 import { MultiSelectDropown } from "@/components/multi-select-dropdown";
 import {
@@ -30,6 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { SaveAsDraftButton } from "@/components/ui/save-as-draft-button"; 
 import {
   Select,
   SelectContent,
@@ -41,11 +41,10 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { SaveAsDraftButton } from "@/components/ui/save-as-draft-button"; 
+import { type CreateSchemaType, createFormDefaults } from "@/lib/defaults"; 
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
 import { resourceUpdateSchema, resourceProposalSchema } from "@/utils/zod";
-import { CreateSchemaType, createFormDefaults } from "@/lib/defaults"; 
 
 interface Props {
   resource?: Readonly<RouterOutputs["resource"]["getById"]>;

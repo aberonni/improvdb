@@ -1,10 +1,10 @@
 import Head from "next/head";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 
 import { PageLayout } from "@/components/page-layout";
 import { ResourceList } from "@/components/resource-list";
-import { api } from "@/utils/api";
 import { Button } from "@/components/ui/button";
+import { api } from "@/utils/api";
 
 enum TABS {
   SUBMITTED,

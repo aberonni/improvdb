@@ -1,7 +1,10 @@
-import React, { useEffect } from "react";
-import { infer as zodInfer } from "zod";
-import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { kebabCase } from "lodash";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { type infer as zodInfer } from "zod";
+
+import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
@@ -11,11 +14,10 @@ import {
     FormMessage,
   } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { SaveAsDraftButton } from "@/components/ui/save-as-draft-button";
 import { Separator } from "@/components/ui/separator";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { type CreateSchemaType, createFormDefaults } from "@/lib/defaults";
 import { resourceCreateSchema } from "@/utils/zod";
-import { CreateSchemaType, createFormDefaults } from "@/lib/defaults";
 
 interface Props {
     isSubmitting: boolean;
@@ -40,13 +42,13 @@ const ResourceCreateForm: React.FC<Props> =({ isSubmitting, onSubmit }) => {
       }, [clearErrors, setValue, titleFieldState]);
 
     // clear fields when submitted
-    useEffect(() => void formState.isSubmitSuccessful && reset(), [formState.isSubmitSuccessful])
+    useEffect(() => void formState.isSubmitSuccessful && reset(), [reset, formState.isSubmitSuccessful])
 
     // clear errors when submitting
-    useEffect(() => void formState.isSubmitting && clearErrors(), [formState.isSubmitting])
+    useEffect(() => void formState.isSubmitting && clearErrors(), [clearErrors, formState.isSubmitting])
 
     // clear errors when field is changed
-    useEffect(() => form.clearErrors(), [idFieldState,titleFieldState])
+    useEffect(() => form.clearErrors(), [form, idFieldState,titleFieldState])
 
     return (
         <Form {...form}>
@@ -105,6 +107,7 @@ const ResourceCreateForm: React.FC<Props> =({ isSubmitting, onSubmit }) => {
                     <Separator orientation={'vertical'} className="mx-6 y-full" />
                     <div className="my-6">
                         <FormDescription className="my-4 w-max-prose">In the next step, you can fill out details (e.g. description, alternative names, etc.)</FormDescription>
+                        <SaveAsDraftButton isLoading={isSubmitting} onClick={handleSubmit(onSubmit)} />
                         <Button
                             onClick={handleSubmit(onSubmit)}
                             type="button"
