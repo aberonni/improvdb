@@ -1,7 +1,7 @@
-import { infer as zodInfer } from 'zod';
 import { ResourceConfiguration, ResourceType,ResourcePublicationStatus } from "@prisma/client";
+import { type infer as zodInfer } from 'zod';
 
-import { resourceUpdateSchema } from "@/utils/zod";
+import { type resourceUpdateSchema } from "@/utils/zod";
 
 export type CreateSchemaType = zodInfer<typeof resourceUpdateSchema>;
 

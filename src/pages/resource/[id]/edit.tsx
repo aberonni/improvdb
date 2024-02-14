@@ -28,7 +28,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
 
   const { mutate: updateResource, isLoading: isSubmitting } = (apiCommand).useMutation({
     onSuccess: ({ resource: res }) => {
-      router.push(
+      void router.push(
         isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
       );
       toast({
@@ -70,7 +70,6 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           isEditingProposal={reviewingProposal}
           onSubmit={(values) => {
             if (isSubmitting) return;
-            //@ts-ignore
             updateResource(values);
           }}
         />

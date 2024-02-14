@@ -1,4 +1,4 @@
-import { type ResourceConfiguration, ResourceType, ResourcePublicationStatus } from "@prisma/client";
+import { type ResourceConfiguration, ResourceType } from "@prisma/client";
 import Link from "next/link";
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
@@ -9,8 +9,8 @@ import {
   SplitPageLayoutContent,
   SplitPageLayoutSidebar,
 } from "@/components/page-layout";
-import { buttonVariants } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";

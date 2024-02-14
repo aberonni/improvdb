@@ -12,8 +12,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/components/ui/use-toast";
 import { SaveButton } from "@/components/ui/save-button"; 
+import { useToast } from "@/components/ui/use-toast";
 
 export const AreYouSureDialogs = {
   ResourceSave: "ResourceSave",
@@ -42,7 +42,7 @@ export const AreYouSureDialog: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const [dontAskAgain, setDontAskAgain] = useState(false);
 
-  const CustomButton = customButton || SaveButton;
+  const CustomButton = customButton ?? SaveButton;
 
   const localStorageId = `dontAskAgainFor${dialog}`;
 

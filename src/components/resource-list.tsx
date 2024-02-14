@@ -118,7 +118,7 @@ function getColumns({
             </Badge>
           );
         },
-      }) as ColumnDef<SingleResourceType, unknown>,
+      }) ,
     );
   }
 
