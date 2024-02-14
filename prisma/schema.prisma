@@ -55,11 +55,11 @@ model Resource {
   relatedResources      Resource[] @relation("RelatedResources") // child Resource (Resource that are suggested)
   relatedResourceParent Resource[] @relation("RelatedResources") // parent Resource (parent Resource of a suggested Resource)
 
-  publicationStatus     ResourcePublicationStatus @default(DRAFT)
-  createdBy             User                       @relation(fields: [createdById], references: [id], name: "Resources", onUpdate: Cascade, onDelete: Cascade)
-  createdById           String
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  publicationStatus ResourcePublicationStatus @default(DRAFT)
+  createdBy         User                      @relation(fields: [createdById], references: [id], name: "Resources", onUpdate: Cascade, onDelete: Cascade)
+  createdById       String
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
 
   editProposalOriginalResourceId String?
   editProposalAuthor             User?   @relation(fields: [editProposalAuthorId], references: [id], name: "Proposals", onUpdate: Cascade, onDelete: Cascade)
@@ -170,17 +170,17 @@ enum UserRole {
 }
 
 model User {
-  id              String       @id @default(cuid())
-  name            String?
-  email           String?      @unique
-  emailVerified   DateTime?
-  image           String?
-  role            UserRole?    @default(USER)
-  accounts        Account[]
-  sessions        Session[]
-  resources       Resource[]  @relation("Resources")
-  proposals     Resource[]  @relation("Proposals")
-  lessonPlans     LessonPlan[]
+  id            String       @id @default(cuid())
+  name          String?
+  email         String?      @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole?    @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  resources     Resource[]   @relation("Resources")
+  proposals     Resource[]   @relation("Proposals")
+  lessonPlans   LessonPlan[]
 }
 
 model VerificationToken {
