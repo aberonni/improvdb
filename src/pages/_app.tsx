@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type AppType } from "next/app";
 import { Inter as FontSans } from "next/font/google";
 import Head from "next/head";
@@ -44,6 +45,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           <NextNProgress />
           <Toaster />
           <Component {...pageProps} />
+          <SpeedInsights />
         </div>
       </ThemeProvider>
     </SessionProvider>
