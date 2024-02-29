@@ -30,20 +30,32 @@ npm install
 
 ### Local MySQL database
 
-You can use a local MySQL database with the following commands
+You must have docker installed for this to work. You can use a local MySQL database with the following commands
 
 ```bash
-docker-compose up
+docker-compose -f docker-compose.mysql.yml up
+# Wait for mysql server to be ready, then run
 npx prisma db push
 npx prisma db seed
 ```
 
 Then you can just update your `.env` file with `DATABASE_URL=mysql://root:secret@127.0.0.1:3306/testdb`.
 
-If you ever need to reset the database, you can run the following command to destroy the volumes associated with the mysql database.
+If you ever need to reset the database, you have two options:
+
+#### 1. Soft reset
 
 ```bash
-docker-compose down -v
+npx prisma db push --force-reset
+npx prisma db seed
+```
+
+#### 2. Hard reset
+
+Run the following command to destroy the volumes associated with the mysql database, and then start again from scratch.
+
+```bash
+docker-compose -f docker-compose.mysql.yml down -v
 ```
 
 ### Running the project
@@ -60,11 +72,52 @@ You can also run prisma studio with the following command:
 npx prisma studio
 ```
 
+## Running E2E tests locally
+
+You must have docker installed for this to work. That's because, when running tests locally, we use the same docker container that is used in CI. This ensures that there aren't differences when doing screenshot / visual regression testing.
+
+You must also make sure that you are using a freshly seeded [local MySQL database](#local-mysql-database).
+
+### Build the image
+
+```bash
+docker build -t playwright-docker -f tests/Dockerfile-playwright .
+docker image ls # Should output "playwright-docker"
+```
+
+### Run the tests
+
+```bash
+docker run -p 9323:9323 --rm --name playwright-runner -it playwright-docker:latest /bin/bash
+# From inside the container now you can run
+npx playwright test
+```
+
+More detailed instructions on the [Docker | Playwright](https://playwright.dev/docs/docker) documentation. Loosely based on [this guide](https://www.digitalocean.com/community/tutorials/how-to-run-end-to-end-tests-using-playwright-and-docker#step-3-mdash-executing-the-tests).
+
+#### Updating screenshots
+
+If you need to update the screenshots, then you can run this command instead:
+
+```bash
+npx playwright test --update-snapshots
+```
+
+And then, once you've run tests, you can update the snapshots in the git repository by running the following (while the docker container is still running, in a separate terminal):
+
+```bash
+docker cp playwright-runner:/app/tests .
+```
+
 ## Updating seed data
+
+While connected to a production/staging database, run the following:
 
 ```bash
 npx tsx prisma/updateSeedData.ts
 ```
+
+This will pull all resources and all public lesson plans into the `seedData.json` file in the git repository.
 
 ## Learn More about T3
 

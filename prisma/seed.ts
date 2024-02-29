@@ -81,21 +81,24 @@ async function createUsers() {
 
 async function main() {
   const DATABASE_URL = process.env.DATABASE_URL;
-  if (!DATABASE_URL?.includes("127.0.0.1")) {
+  if (
+    // DATABASE_URL used in CI
+    DATABASE_URL !== "mysql://root:secret@mysql:3306/testdb" &&
+    // DATABASE_URL used when running locally
+    !DATABASE_URL?.includes("127.0.0.1")
+  ) {
     throw new Error(
-      "DATABASE_URL is not pointing to the local database. Aborting seeding.",
+      "DATABASE_URL is not pointing to a local database. Aborting.",
     );
   }
 
   console.log("Start seeding...");
 
-  const { user, admin } = await createUsers();
+  const { admin } = await createUsers();
 
   const { resources, lessonPlans } = JSON.parse(
     fs.readFileSync(seedDataFileName, "utf8"),
   ) as Prisma.PromiseReturnType<typeof getSeedData>;
-
-  console.log(resources, lessonPlans);
 
   const relatedResourcesToProcess: { parentId: string; relatedId: string }[] =
     [];
@@ -145,6 +148,8 @@ async function main() {
     });
   }
 
+  // We need to update the relatedResources after all resources have been created
+  // because we need the resource ids to exist before we can connect them
   for (let i = 0; i < relatedResourcesToProcess.length; i++) {
     console.log("Seeding relatedResources: ", i);
 
