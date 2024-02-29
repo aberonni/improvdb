@@ -24,6 +24,3 @@ jobs:
 
       - name: Lint
         run: npm run lint
-
-      - name: Print Environment Variable
-        run: echo $MY_ENV_VAR

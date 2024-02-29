@@ -1,0 +1,36 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  DATABASE_URL: "mysql://root:secret@127.0.0.1:3306/testdb"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build and run MySQL server
+        run: |
+          docker-compose build
+          docker-compose up -d
+
+      - name: Create dummy env file
+        run: cp .env.example .env
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Wait for MySQL server to be ready
+        run: timeout 60s sh -c 'until docker ps | grep improvdb | grep -q healthy; do echo "Waiting for container to be healthy..."; sleep 2; done'
+
+      - name: Seed Database
+        run: |
+          npx prisma db push
+          npx prisma db seed
+
+      - name: Random test
+        run: npx tsx prisma/seedTest.ts

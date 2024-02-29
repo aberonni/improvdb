@@ -16,16 +16,34 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 ### Prerequisites
 
-- A MySQL database URL (you can get one for free at [Planet Scale](https://planetscale.com/))
+- A MySQL database URL (you can get one for free at [Planet Scale](https://planetscale.com/) or use the docker compose file to run MySQL locally)
 - Google authentication credentials - [Read more](https://next-auth.js.org/providers/google)
 - (Optional) A free [Upstash](https://upstash.com/) redis URL
 
-Once you have these three things, you can run
+### Setup
 
 ```bash
 cp .env.example .env
 # edit the `.env` file with your configuration details, and then
 npm install
+```
+
+### Local MySQL database
+
+You can use a local MySQL database with the following commands
+
+```bash
+docker-compose up
+npx prisma db push
+npx prisma db seed
+```
+
+Then you can just update your `.env` file with `DATABASE_URL=mysql://root:secret@127.0.0.1:3306/testdb`.
+
+If you ever need to reset the database, you can run the following command to destroy the volumes associated with the mysql database.
+
+```bash
+docker-compose down -v
 ```
 
 ### Running the project
@@ -40,6 +58,12 @@ You can also run prisma studio with the following command:
 
 ```bash
 npx prisma studio
+```
+
+## Updating seed data
+
+```bash
+npx tsx prisma/updateSeedData.ts
 ```
 
 ## Learn More about T3
