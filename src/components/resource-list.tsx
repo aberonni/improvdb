@@ -8,6 +8,9 @@ import {
 } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import Link from "next/link";
+import {
+  ResourcePublicationStatus,
+} from "@prisma/client";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
@@ -100,21 +103,25 @@ function getColumns({
 
   if (showPublishedStatus) {
     columns.push(
-      columnHelper.accessor("published", {
+      columnHelper.accessor("publicationStatus", {
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={column.id} />
+          <DataTableColumnHeader column={column} title={"Publication Status"} />
         ),
         cell: (props) => {
-          const published = props.getValue();
+          const publicationStatus = props.getValue();
+          const text = publicationStatus === ResourcePublicationStatus.PUBLISHED ? "Published" : 
+          publicationStatus === ResourcePublicationStatus.READY_FOR_REVIEW ? "Pending" : "Draft";
+          // const text = "hi"
           return (
             <Badge
               className={cn(
                 "self-start text-white",
-                published && "bg-green-700",
-                !published && "bg-orange-600",
+                publicationStatus === ResourcePublicationStatus.PUBLISHED && "bg-green-700",
+                publicationStatus === ResourcePublicationStatus.READY_FOR_REVIEW && "bg-orange-600",
+                publicationStatus === ResourcePublicationStatus.DRAFT && "bg-blue-600",
               )}
             >
-              {published ? "Published" : "Pending"}
+              {text}
             </Badge>
           );
         },

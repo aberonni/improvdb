@@ -179,15 +179,21 @@ export const resourceRouter = createTRPCRouter({
     return ctx.db.resource
       .findMany({
         where: {
-          OR: [
-            {
-              createdBy: ctx.session.user,
-            },
-            {
-              editProposalAuthor: ctx.session.user,
-            },
-          ],
-          publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW
+          AND: [
+            {OR: [
+              { publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW },
+              { publicationStatus: ResourcePublicationStatus.DRAFT }
+            ]},
+            {OR: [
+              {
+                createdBy: ctx.session.user,
+              },
+              {
+                editProposalAuthor: ctx.session.user,
+              },
+            ]}
+          ]
+          // publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW || ResourcePublicationStatus.DRAFT
         },
         take: 1000,
         orderBy: {
