@@ -193,7 +193,6 @@ export const resourceRouter = createTRPCRouter({
               },
             ]}
           ]
-          // publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW || ResourcePublicationStatus.DRAFT
         },
         take: 1000,
         orderBy: {
