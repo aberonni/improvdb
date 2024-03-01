@@ -14,7 +14,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
-import { type resourceCreateSchema } from "@/utils/zod";
+import { type resourceUpdateSchema } from "@/utils/zod";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "🚀 Warm-up / Exercise",
@@ -36,7 +36,7 @@ export const ResourceConfigurationLabels: Record<
 };
 
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
-type CreationResource = z.infer<typeof resourceCreateSchema>;
+type CreationResource = z.infer<typeof resourceUpdateSchema>;
 
 interface Props {
   isDraft: boolean;

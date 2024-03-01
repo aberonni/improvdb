@@ -1,5 +1,8 @@
 "use client";
 
+import {
+  ResourcePublicationStatus,
+} from "@prisma/client";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import {
   type ColumnDef,
@@ -8,9 +11,6 @@ import {
 } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import Link from "next/link";
-import {
-  ResourcePublicationStatus,
-} from "@prisma/client";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";

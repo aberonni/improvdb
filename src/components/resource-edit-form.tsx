@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { type CreateSchemaType, createFormDefaults } from "@/lib/defaults"; 
+import { type UpdateSchemaType, updateFormDefaults } from "@/lib/defaults"; 
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
 import { resourceUpdateSchema, resourceProposalSchema } from "@/utils/zod";
@@ -61,7 +61,7 @@ const ResourceEditForm: React.FC<Props> = ({
   isEditingProposal = false,
   onSubmit
 }) => {
-  const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
+  const [previewData, setPreviewData] = useState<UpdateSchemaType | null>(null);
   const [optionalFieldsOpen, setOptionalFieldsOpen] = useState(true);
 
   const { data: categories, isLoading: isLoadingCategories } =
@@ -70,7 +70,7 @@ const ResourceEditForm: React.FC<Props> = ({
     api.resource.getAllOnlyIdAndTitle.useQuery();
 
   const defaultValues = (() => {
-    if (!resource) return createFormDefaults;
+    if (!resource) return updateFormDefaults;
 
     const resourceWithoutNulls = pickBy(resource, (v) => v !== null);
     return {
@@ -97,7 +97,7 @@ const ResourceEditForm: React.FC<Props> = ({
     ? resourceProposalSchema
     : resourceUpdateSchema;
 
-  const form = useForm<CreateSchemaType>({
+  const form = useForm<UpdateSchemaType>({
     resolver: zodResolver(resolverSchema),
     defaultValues,
   });

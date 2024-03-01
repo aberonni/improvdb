@@ -12,6 +12,7 @@ import { Redis } from "@upstash/redis";
 import { uniqBy } from "lodash";
 import { z } from "zod";
 
+import { type UpdateSchemaType, updateFormDefaults } from "@/lib/defaults";
 import {
   createTRPCRouter,
   adminProcedure,
@@ -335,27 +336,22 @@ export const resourceRouter = createTRPCRouter({
 
       const resource = await ctx.db.resource.create({
         data: {
+          ...updateFormDefaults as UpdateSchemaType,
           ...input,
           createdById: ctx.session.user.id,
           categories: {
             createMany: {
-              data: input.categories.map(({ value }) => ({
-                categoryId: value,
-              })),
+              data: []
             },
           },
           relatedResources: {
-            connect: input.relatedResources.map(({ value }) => ({
-              id: value,
-            })),
+            connect: []
           },
-          alternativeNames: input.alternativeNames
-            .map(({ value }) => value)
-            .join(";"),
+          alternativeNames: "",
         },
       });
       
-      if (ctx.session.user.role !== UserRole.ADMIN && input.publicationStatus === ResourcePublicationStatus.READY_FOR_REVIEW) {
+      if (ctx.session.user.role !== UserRole.ADMIN) {
         void sendMailToAdmins(
           {
             subject: "New resource created",

@@ -1,11 +1,17 @@
 import { ResourceConfiguration, ResourceType,ResourcePublicationStatus } from "@prisma/client";
 import { type infer as zodInfer } from 'zod';
 
-import { type resourceUpdateSchema } from "@/utils/zod";
+import { type resourceUpdateSchema, type resourceCreateSchema } from "@/utils/zod";
 
-export type CreateSchemaType = zodInfer<typeof resourceUpdateSchema>;
+export type CreateSchemaType = zodInfer<typeof resourceCreateSchema>;
+export type UpdateSchemaType = zodInfer<typeof resourceUpdateSchema>;
 
 export const createFormDefaults: Partial<CreateSchemaType> = {
+  id: "",
+  title: ""
+}
+
+export const updateFormDefaults: Partial<UpdateSchemaType> = {
   id: "",
   title: "",
   alternativeNames: [],

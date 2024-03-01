@@ -13,10 +13,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { NextStepButton } from "@/components/ui/next-step-button";
 import { Separator } from "@/components/ui/separator";
 import { type CreateSchemaType, createFormDefaults } from "@/lib/defaults";
 import { resourceCreateSchema } from "@/utils/zod";
-import { NextStepButton } from "./ui/next-step-button";
 
 interface Props {
   isSubmitting: boolean;
