@@ -74,7 +74,7 @@ npx prisma studio
 
 ## Running E2E tests locally
 
-You must have docker installed for this to work. That's because, when running tests locally, we use the same docker container that is used in CI. This ensures that there aren't differences when doing screenshot / visual regression testing.
+To be able to run all tests properly, you must have docker installed. That's because we want to use the same docker container that is used in CI, ensuring that there aren't differences when doing screenshot / visual regression testing.
 
 You must also make sure that you are using a freshly seeded [local MySQL database](#local-mysql-database).
 
@@ -107,6 +107,16 @@ And then, once you've run tests, you can update the snapshots in the git reposit
 
 ```bash
 docker cp playwright-runner:/app/tests .
+```
+
+## Run E2E tests without docker
+
+You can alternatively run a test directly without docker, skipping the screenshot comparison functionality altogether.
+
+You can do this with the command:
+
+```bash
+SKIP_SCREENSHOT_COMPARISON=1 npx playwright test
 ```
 
 ## Updating seed data
