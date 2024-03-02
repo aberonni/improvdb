@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-import { expectToMatchLightAndDarkThemesScreenshot } from "@/../tests/fixtures";
+import { expectToMatchLightAndDarkThemesScreenshot } from "@/../tests/utils";
 
 test("looks good", async ({ page }) => {
   await page.goto("/resource/blue-ball");
