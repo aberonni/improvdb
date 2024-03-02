@@ -1,4 +1,4 @@
-name: CI
+name: Lint & Type Check
 
 on:
   push:
@@ -10,7 +10,7 @@ env:
   DATABASE_URL: "https://fake.com"
 
 jobs:
-  build:
+  lint-and-typecheck:
     runs-on: ubuntu-latest
 
     steps:
