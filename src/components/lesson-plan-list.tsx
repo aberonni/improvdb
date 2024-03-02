@@ -104,6 +104,7 @@ export const LessonPlanList = ({
       isLoading={isLoading}
       filters={useFilters ? ["title"] : undefined}
       usePagination={usePagination}
+      data-testid="lesson-plan-list"
     />
   );
 };

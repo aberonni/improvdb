@@ -265,6 +265,7 @@ export const ResourceList = ({
       hiddenColumnsByDefault={["alternativeNames"]}
       hiddenColumnsOnMobile={["categories", "configuration"]}
       onSelectionChange={onSelectionChange}
+      data-testid="resource-list"
     />
   );
 };

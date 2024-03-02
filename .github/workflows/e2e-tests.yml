@@ -1,0 +1,56 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.42.0-jammy
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Create dummy env file
+        run: cp .env.example .env
+      - name: Install Dependencies
+        run: npm ci
+      - name: Seed Database
+        run: |
+          npx prisma db push
+          npx prisma db seed
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Start dev server
+        run: npm run dev > /dev/null 2>&1 &
+      - name: Wait for dev server to be ready
+        run: timeout 60s sh -c 'until curl http://localhost:3000 -I; do echo "Waiting for dev server to be running..."; sleep 2; done'
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          HOME: /root
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+    env:
+      DATABASE_URL: "mysql://root:secret@mysql:3306/testdb"
