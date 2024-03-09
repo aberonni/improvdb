@@ -133,6 +133,11 @@ export const resourceRouter = createTRPCRouter({
             include: {
               category: true,
             },
+            orderBy: {
+              category: {
+                name: "asc",
+              },
+            },
           },
         },
       })
@@ -152,6 +157,11 @@ export const resourceRouter = createTRPCRouter({
           categories: {
             include: {
               category: true,
+            },
+            orderBy: {
+              category: {
+                name: "asc",
+              },
             },
           },
         },
@@ -195,6 +205,11 @@ export const resourceRouter = createTRPCRouter({
             include: {
               category: true,
             },
+            orderBy: {
+              category: {
+                name: "asc",
+              },
+            },
           },
         },
       })
@@ -215,6 +230,11 @@ export const resourceRouter = createTRPCRouter({
                   id: true,
                   name: true,
                 },
+              },
+            },
+            orderBy: {
+              category: {
+                name: "asc",
               },
             },
           },
@@ -566,6 +586,11 @@ export const resourceRouter = createTRPCRouter({
           categories: {
             include: {
               category: true,
+            },
+            orderBy: {
+              category: {
+                name: "asc",
+              },
             },
           },
         },
