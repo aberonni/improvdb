@@ -16,7 +16,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 ### Prerequisites
 
-- A MySQL database URL (you can get one for free at [Planet Scale](https://planetscale.com/) or use the docker compose file to run MySQL locally)
+- A Postgres database URL (you can get one for free at [Planet Scale](https://planetscale.com/) or use the docker compose file to run Postgres locally)
 - Google authentication credentials - [Read more](https://next-auth.js.org/providers/google)
 - (Optional) A free [Upstash](https://upstash.com/) redis URL
 
@@ -28,18 +28,18 @@ cp .env.example .env
 npm install
 ```
 
-### Local MySQL database
+### Local Postgres database
 
-You must have docker installed for this to work. You can use a local MySQL database with the following commands
+You must have docker installed for this to work. You can use a local Postgres database with the following commands
 
 ```bash
-docker-compose -f docker-compose.mysql.yml up
-# Wait for mysql server to be ready, then run
+docker-compose -f docker-compose.postgres.yml up
+# Wait for postgres server to be ready, then run
 npx prisma db push
 npx prisma db seed
 ```
 
-Then you can just update your `.env` file with `DATABASE_URL=mysql://root:secret@127.0.0.1:3306/testdb`.
+Then you can just update your `.env` file with `DATABASE_URL=postgres://improvdb_user:secret@127.0.0.1:5432/improvdb_db`.
 
 If you ever need to reset the database, you have two options:
 
@@ -52,10 +52,10 @@ npx prisma db seed
 
 #### 2. Hard reset
 
-Run the following command to destroy the volumes associated with the mysql database, and then start again from scratch.
+Run the following command to destroy the volumes associated with the postgres database, and then start again from scratch.
 
 ```bash
-docker-compose -f docker-compose.mysql.yml down -v
+docker-compose -f docker-compose.postgres.yml down -v
 ```
 
 ### Running the project
@@ -76,7 +76,7 @@ npx prisma studio
 
 To be able to run all tests properly, you must have docker installed. That's because we want to use the same docker container that is used in CI, ensuring that there aren't differences when doing screenshot / visual regression testing.
 
-You must also make sure that you are using a freshly seeded [local MySQL database](#local-mysql-database).
+You must also make sure that you are using a freshly seeded [local Postgres database](#local-postgres-database).
 
 ### Build the image
 

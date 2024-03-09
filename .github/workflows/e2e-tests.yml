@@ -14,14 +14,18 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.42.0-jammy
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres
         env:
-          MYSQL_ROOT_PASSWORD: secret
-          MYSQL_DATABASE: testdb
+          POSTGRES_PASSWORD: secret
         ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
@@ -53,4 +57,4 @@ jobs:
           path: playwright-report/
           retention-days: 30
     env:
-      DATABASE_URL: "mysql://root:secret@mysql:3306/testdb"
+      DATABASE_URL: "postgres://postgres:secret@postgres:5432/postgres"

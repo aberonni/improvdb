@@ -83,7 +83,7 @@ async function main() {
   const DATABASE_URL = process.env.DATABASE_URL;
   if (
     // DATABASE_URL used in CI
-    DATABASE_URL !== "mysql://root:secret@mysql:3306/testdb" &&
+    DATABASE_URL !== "postgres://postgres:secret@postgres:5432/postgres" &&
     // DATABASE_URL used when running locally
     !DATABASE_URL?.includes("127.0.0.1")
   ) {
