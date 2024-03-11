@@ -12,6 +12,7 @@ import { Redis } from "@upstash/redis";
 import { uniqBy } from "lodash";
 import { z } from "zod";
 
+import { type UpdateSchemaType, updateFormDefaults } from "@/lib/defaults";
 import {
   createTRPCRouter,
   adminProcedure,
@@ -179,15 +180,20 @@ export const resourceRouter = createTRPCRouter({
     return ctx.db.resource
       .findMany({
         where: {
-          OR: [
-            {
-              createdBy: ctx.session.user,
-            },
-            {
-              editProposalAuthor: ctx.session.user,
-            },
-          ],
-          publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW
+          AND: [
+            {OR: [
+              { publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW },
+              { publicationStatus: ResourcePublicationStatus.DRAFT }
+            ]},
+            {OR: [
+              {
+                createdBy: ctx.session.user,
+              },
+              {
+                editProposalAuthor: ctx.session.user,
+              },
+            ]}
+          ]
         },
         take: 1000,
         orderBy: {
@@ -330,27 +336,22 @@ export const resourceRouter = createTRPCRouter({
 
       const resource = await ctx.db.resource.create({
         data: {
+          ...updateFormDefaults as UpdateSchemaType,
           ...input,
           createdById: ctx.session.user.id,
           categories: {
             createMany: {
-              data: input.categories.map(({ value }) => ({
-                categoryId: value,
-              })),
+              data: []
             },
           },
           relatedResources: {
-            connect: input.relatedResources.map(({ value }) => ({
-              id: value,
-            })),
+            connect: []
           },
-          alternativeNames: input.alternativeNames
-            .map(({ value }) => value)
-            .join(";"),
+          alternativeNames: "",
         },
       });
       
-      if (ctx.session.user.role !== UserRole.ADMIN && input.publicationStatus === ResourcePublicationStatus.READY_FOR_REVIEW) {
+      if (ctx.session.user.role !== UserRole.ADMIN) {
         void sendMailToAdmins(
           {
             subject: "New resource created",

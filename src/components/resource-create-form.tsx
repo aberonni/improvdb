@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { type infer as zodInfer } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SaveAsDraftButton } from "@/components/ui/save-as-draft-button";
+import { NextStepButton } from "@/components/ui/next-step-button";
 import { Separator } from "@/components/ui/separator";
 import { type CreateSchemaType, createFormDefaults } from "@/lib/defaults";
 import { resourceCreateSchema } from "@/utils/zod";
@@ -121,17 +120,10 @@ const ResourceCreateForm: React.FC<Props> = ({ isSubmitting, onSubmit }) => {
               In the next step, you can fill out details (e.g. description,
               alternative names, etc.)
             </FormDescription>
-            <SaveAsDraftButton
+            <NextStepButton
               isLoading={isSubmitting}
               onClick={handleSubmit(onSubmit)}
             />
-            <Button
-              onClick={handleSubmit(onSubmit)}
-              type="button"
-              variant="default"
-            >
-              Next step
-            </Button>
           </div>
         </div>
       </form>
