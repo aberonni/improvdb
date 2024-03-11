@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { ResourcePublicationStatus, UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -12,29 +12,21 @@ import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
 export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
-  const { data: resource, isLoading: isLoadingResource } =
-    api.resource.getById.useQuery({
-      id,
-    });
-
+  const { data: resource, isLoading: isLoadingResource } = api.resource.getById.useQuery({ id });
   const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
-
   const router = useRouter();
   const { toast } = useToast();
 
-  const reviewingProposal =
-    isAdmin &&
-    resource?.editProposalOriginalResourceId !== undefined &&
-    resource?.editProposalOriginalResourceId !== null;
+  const isAdmin = session?.user?.role === UserRole.ADMIN;
+  const isEditingOwnDraft = session?.user?.id === resource?.createdById && resource?.publicationStatus === ResourcePublicationStatus.DRAFT;
 
-  const { mutate: updateResource, isLoading: isSubmitting } = (
-    reviewingProposal
-      ? api.resource.acceptProposedUpdate
-      : isAdmin
-        ? api.resource.update
-        : api.resource.proposeUpdate
-  ).useMutation({
+  const reviewingProposal = isAdmin && resource?.editProposalOriginalResourceId != null;
+  const apiCommand = (() => {
+    if (reviewingProposal) return api.resource.acceptProposedUpdate
+    return isAdmin || isEditingOwnDraft ? api.resource.update : api.resource.proposeUpdate
+  })()
+
+  const { mutate: updateResource, isLoading: isSubmitting } = (apiCommand).useMutation({
     onSuccess: ({ resource: res }) => {
       void router.push(
         isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
@@ -57,16 +49,12 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     },
   });
 
-  if (isLoadingResource || status === "loading") {
-    return <LoadingPage />;
-  }
+  if (isLoadingResource || status === "loading") return <LoadingPage />;
 
-  if (!resource) {
-    return <div>404</div>;
-  }
+  if (!resource) return <div>404</div>;
 
   const title = `${
-    reviewingProposal ? "Review Proposal" : isAdmin ? "Edit" : "Propose Changes"
+    reviewingProposal ? "Review Proposal" : isAdmin || isEditingOwnDraft ? "Edit" : "Propose Changes"
   }: "${resource.title}"`;
 
   return (
@@ -81,9 +69,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           isEditing
           isEditingProposal={reviewingProposal}
           onSubmit={(values) => {
-            if (isSubmitting) {
-              return;
-            }
+            if (isSubmitting) return;
             updateResource(values);
           }}
         />

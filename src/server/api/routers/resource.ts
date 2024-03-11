@@ -4,6 +4,7 @@ import {
   type Resource,
   UserRole,
   LessonPlanVisibility,
+  ResourcePublicationStatus,
 } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -11,15 +12,17 @@ import { Redis } from "@upstash/redis";
 import { uniqBy } from "lodash";
 import { z } from "zod";
 
+import { type UpdateSchemaType, updateFormDefaults } from "@/lib/defaults";
 import {
   createTRPCRouter,
   adminProcedure,
   privateProcedure,
   publicProcedure,
   type createTRPCContext,
+  resourceOwnerProcedure,
 } from "@/server/api/trpc";
 import { sendMail, sendMailToAdmins } from "@/server/nodemailer";
-import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
+import { resourceCreateSchema, resourceUpdateSchema, resourceProposalSchema } from "@/utils/zod";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -44,7 +47,7 @@ const updateResource = async ({
   input: updatedResource,
 }: {
   ctx: Awaited<ReturnType<typeof createTRPCContext>>;
-  input: z.infer<typeof resourceCreateSchema>;
+  input: z.infer<typeof resourceUpdateSchema>;
 }) => {
   const originalResource = await ctx.db.resource.findUnique({
     where: {
@@ -126,7 +129,7 @@ export const resourceRouter = createTRPCRouter({
           title: "asc",
         },
         where: {
-          published: true,
+          publicationStatus: ResourcePublicationStatus.PUBLISHED,
         },
         include: {
           categories: {
@@ -151,7 +154,7 @@ export const resourceRouter = createTRPCRouter({
           updatedAt: "desc",
         },
         where: {
-          published: true,
+          publicationStatus: ResourcePublicationStatus.PUBLISHED,
         },
         include: {
           categories: {
@@ -175,7 +178,7 @@ export const resourceRouter = createTRPCRouter({
         title: "asc",
       },
       where: {
-        published: true,
+        publicationStatus: ResourcePublicationStatus.PUBLISHED,
       },
       select: {
         id: true,
@@ -187,14 +190,41 @@ export const resourceRouter = createTRPCRouter({
     return ctx.db.resource
       .findMany({
         where: {
-          OR: [
-            {
-              createdBy: ctx.session.user,
+          AND: [
+            {OR: [
+              { publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW },
+              { publicationStatus: ResourcePublicationStatus.DRAFT }
+            ]},
+            {OR: [
+              {
+                createdBy: ctx.session.user,
+              },
+              {
+                editProposalAuthor: ctx.session.user,
+              },
+            ]}
+          ]
+        },
+        take: 1000,
+        orderBy: {
+          title: "asc",
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
             },
-            {
-              editProposalAuthor: ctx.session.user,
-            },
-          ],
+          },
+        },
+      })
+      .then(cleanCategories);
+  }),
+  getMyDraftResources: privateProcedure.query(({ ctx }) => {
+    return ctx.db.resource
+      .findMany({
+        where: {
+          createdBy: ctx.session.user,
+          publicationStatus: ResourcePublicationStatus.DRAFT
         },
         take: 1000,
         orderBy: {
@@ -276,7 +306,7 @@ export const resourceRouter = createTRPCRouter({
       }
 
       const userCanSeeResource =
-        resource?.published ||
+        resource?.publicationStatus === ResourcePublicationStatus.PUBLISHED ||
         ctx.session?.user.role === UserRole.ADMIN ||
         resource?.createdById === ctx.session?.user.id;
 
@@ -289,11 +319,7 @@ export const resourceRouter = createTRPCRouter({
 
       const { lessonPlanItems, ...resourceWithoutLessonPlanItems } = resource;
 
-      const lessonPlans: { id: string; title: string }[] = [];
-
-      lessonPlanItems.forEach(({ section: { lessonPlan } }) => {
-        lessonPlans.push(lessonPlan);
-      });
+      const lessonPlans: { id: string; title: string }[] = lessonPlanItems.map(({ section }) => section.lessonPlan);
 
       return {
         ...resourceWithoutLessonPlanItems,
@@ -330,26 +356,21 @@ export const resourceRouter = createTRPCRouter({
 
       const resource = await ctx.db.resource.create({
         data: {
+          ...updateFormDefaults as UpdateSchemaType,
           ...input,
           createdById: ctx.session.user.id,
           categories: {
             createMany: {
-              data: input.categories.map(({ value }) => ({
-                categoryId: value,
-              })),
+              data: []
             },
           },
           relatedResources: {
-            connect: input.relatedResources.map(({ value }) => ({
-              id: value,
-            })),
+            connect: []
           },
-          alternativeNames: input.alternativeNames
-            .map(({ value }) => value)
-            .join(";"),
+          alternativeNames: "",
         },
       });
-
+      
       if (ctx.session.user.role !== UserRole.ADMIN) {
         void sendMailToAdmins(
           {
@@ -364,9 +385,9 @@ export const resourceRouter = createTRPCRouter({
         resource,
       };
     }),
-  update: adminProcedure.input(resourceCreateSchema).mutation(updateResource),
+  update: resourceOwnerProcedure.input(resourceUpdateSchema).mutation(updateResource),
   proposeUpdate: privateProcedure
-    .input(resourceCreateSchema)
+    .input(resourceUpdateSchema)
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.session.user.id;
 
@@ -404,7 +425,7 @@ export const resourceRouter = createTRPCRouter({
         data: {
           ...input,
           id: input.id + "_proposal_" + Date.now(),
-          published: false,
+          publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW,
           editProposalOriginalResourceId: input.id,
           editProposalAuthorId: ctx.session.user.id,
           createdById: originalResource.createdById,
@@ -512,7 +533,7 @@ export const resourceRouter = createTRPCRouter({
           message: `Resource ${input.id} not found`,
         });
       }
-
+      
       resource = await ctx.db.resource.delete({
         where: {
           id: input.id,
@@ -549,7 +570,7 @@ export const resourceRouter = createTRPCRouter({
           id: input.id,
         },
         data: {
-          published: input.published,
+          publicationStatus: ResourcePublicationStatus.PUBLISHED,
         },
         select: {
           createdBy: {
@@ -576,7 +597,7 @@ export const resourceRouter = createTRPCRouter({
     return ctx.db.resource
       .findMany({
         where: {
-          published: false,
+          publicationStatus: ResourcePublicationStatus.READY_FOR_REVIEW
         },
         take: 1000,
         orderBy: {

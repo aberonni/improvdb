@@ -1,5 +1,8 @@
 "use client";
 
+import {
+  ResourcePublicationStatus,
+} from "@prisma/client";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import {
   type ColumnDef,
@@ -100,25 +103,29 @@ function getColumns({
 
   if (showPublishedStatus) {
     columns.push(
-      columnHelper.accessor("published", {
+      columnHelper.accessor("publicationStatus", {
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={column.id} />
+          <DataTableColumnHeader column={column} title={"Publication Status"} />
         ),
         cell: (props) => {
-          const published = props.getValue();
+          const publicationStatus = props.getValue();
+          const text = publicationStatus === ResourcePublicationStatus.PUBLISHED ? "Published" : 
+          publicationStatus === ResourcePublicationStatus.READY_FOR_REVIEW ? "Pending" : "Draft";
+          // const text = "hi"
           return (
             <Badge
               className={cn(
                 "self-start text-white",
-                published && "bg-green-700",
-                !published && "bg-orange-600",
+                publicationStatus === ResourcePublicationStatus.PUBLISHED && "bg-green-700",
+                publicationStatus === ResourcePublicationStatus.READY_FOR_REVIEW && "bg-orange-600",
+                publicationStatus === ResourcePublicationStatus.DRAFT && "bg-blue-600",
               )}
             >
-              {published ? "Published" : "Pending"}
+              {text}
             </Badge>
           );
         },
-      }) as ColumnDef<SingleResourceType, unknown>,
+      }) ,
     );
   }
 
