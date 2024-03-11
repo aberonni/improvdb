@@ -136,7 +136,7 @@ export default function MyProfile() {
       <Head>
         <title>My Profile - ImprovDB</title>
       </Head>
-      <PageLayout title="My Profile">
+      <PageLayout title="My Profile" authenticatedOnly>
         <MyProfileForm user={data} />
       </PageLayout>
     </>

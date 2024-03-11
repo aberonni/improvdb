@@ -51,6 +51,7 @@ export function DataTableFacetedFilter<TData, TValue>({
           size="sm"
           className="h-8 border-dashed"
           disabled={disabled}
+          data-testid={`filter-${title?.toLowerCase()}`}
         >
           <PlusCircledIcon className="mr-2 h-4 w-4" />
           {title}

@@ -32,14 +32,15 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
-interface DataTableProps<TData, TValue = unknown> {
+interface DataTableProps<TData, TValue = unknown>
+  extends React.HTMLAttributes<HTMLDivElement> {
   columns: (ColumnDef<TData, TValue> & {
     accessorKey?: string;
   })[];
   data?: TData[];
   usePagination?: boolean;
   filters?: string[];
-  isLoading?: boolean;
+  isLoading: boolean;
   hiddenColumnsByDefault?: (keyof VisibilityState)[];
   hiddenColumnsOnMobile?: (keyof VisibilityState)[];
   onSelectionChange?: (selectedRows: Row<TData>[]) => void;
@@ -50,10 +51,11 @@ export function DataTable<TData, TValue = unknown>({
   data,
   usePagination = false,
   filters,
-  isLoading = false,
+  isLoading,
   hiddenColumnsByDefault = [],
   hiddenColumnsOnMobile = [],
   onSelectionChange,
+  ...props
 }: DataTableProps<TData, TValue>) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -118,7 +120,7 @@ export function DataTable<TData, TValue = unknown>({
   }, [onSelectionChange, rowSelection, table]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-loaded={!isLoading} {...props}>
       {filters && <DataTableToolbar table={table} filters={filters} />}
       <div className="rounded-md border">
         <Table>

@@ -1,29 +1,30 @@
-name: CI
+name: Lint & Type Check
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
 
 env:
   DATABASE_URL: "https://fake.com"
 
 jobs:
-  build:
+  lint-and-typecheck:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Create dummy env file
         run: cp .env.example .env
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Lint
         run: npm run lint
-
-      - name: Print Environment Variable
-        run: echo $MY_ENV_VAR

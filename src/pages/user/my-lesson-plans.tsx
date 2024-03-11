@@ -12,7 +12,7 @@ export default function MyLessonPlansPage() {
       <Head>
         <title>My Lesson Plans - ImprovDB</title>
       </Head>
-      <PageLayout title="My Lesson Plans">
+      <PageLayout title="My Lesson Plans" authenticatedOnly>
         <LessonPlanList queryResult={queryResult} showVisibility />
       </PageLayout>
     </>

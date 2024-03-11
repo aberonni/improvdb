@@ -1,0 +1,27 @@
+# Get the base image of Node version 16
+FROM node:16
+
+# Get the latest version of Playwright
+FROM mcr.microsoft.com/playwright:v1.42.0-jammy
+ 
+# Set the work directory for the application
+WORKDIR /app
+ 
+# Set the environment path to node_modules/.bin
+ENV PATH /app/node_modules/.bin:$PATH
+ENV TEST_ENV=docker
+
+# COPY the needed files to the app folder in Docker image
+COPY package.json /app/
+COPY package-lock.json /app/
+COPY tsconfig.json /app/
+
+# Install the dependencies in Node environment
+RUN npm ci
+
+# Install the Playwright dependencies
+COPY playwright.config.ts /app/
+RUN npx playwright install --with-deps
+
+# Do this last because they are the most likely to change before rebuild
+COPY tests/ /app/tests/
