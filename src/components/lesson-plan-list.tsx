@@ -92,7 +92,6 @@ export const LessonPlanList = ({
 
   if (!showVisibility) {
     dataTableColumns = dataTableColumns.filter(
-      // @ts-expect-error some bug in tanstack type defs here
       (column) => column.accessorKey !== "visibility",
     );
   }
