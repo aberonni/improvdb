@@ -223,10 +223,7 @@ export function SingleLessonPlanComponent({
                                   h1: ({ ...props }) => <h3 {...props} />,
                                   h2: ({ ...props }) => <h3 {...props} />,
                                   a: ({ href, ref, ...props }) => {
-                                    if (
-                                      !href ||
-                                      !href.startsWith("resource/")
-                                    ) {
+                                    if (!href?.startsWith("resource/")) {
                                       return (
                                         <a
                                           href={href}
