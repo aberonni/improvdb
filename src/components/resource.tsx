@@ -191,11 +191,11 @@ export function SingleResourceComponent({
         <ReactMarkdown
           // eslint-disable-next-line react/no-children-prop
           children={resource.description}
-          className="prose prose-zinc max-w-full rounded-md lg:prose-lg dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
+          className="prose prose-zinc max-w-full rounded-md dark:prose-invert lg:prose-lg prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
           components={{
             h1: ({ ...props }) => <h2 {...props} />,
             a: ({ href, ref, ...props }) => {
-              if (!href || !href.startsWith("resource/")) {
+              if (!href?.startsWith("resource/")) {
                 return (
                   <a
                     href={href}
