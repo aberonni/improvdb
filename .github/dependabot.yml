@@ -13,3 +13,8 @@ updates:
       dependencies:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "eslint"
+        versions: ["9.x"]
+      - dependency-name: "@tanstack/react-query"
+        versions: ["5.x"]
