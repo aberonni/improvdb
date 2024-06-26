@@ -18,5 +18,6 @@ updates:
         versions: ["9.x"]
       - dependency-name: "@tanstack/react-query"
         versions: ["5.x"]
-      - dependency-name: "zod"
-        versions: ["3.23.0"]
+      # Updating this causes a breaking change when hitting "esc" with the filter drawer + filter open on mobile resolutions
+      - dependency-name: "@radix-ui/react-dialog"
+        versions: ["1.1.0", "1.1.1"]
