@@ -1,16 +1,16 @@
 import Head from "next/head";
 import Link from "next/link";
 
-import { LessonPlanList } from "@/components/lesson-plan-list";
 import { PageLayout } from "@/components/page-layout";
 import { ResourceList } from "@/components/resource-list";
 import { buttonVariants } from "@/components/ui/button";
+import { UserList } from "@/components/user-list";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
 
 export default function Home() {
   const resourcesQueryResult = api.resource.getLatest.useQuery();
-  const lessonPlansQueryResult = api.lessonPlan.getPublic.useQuery({ take: 5 });
+  const topContributorsQueryResult = api.user.getTopContributors.useQuery();
 
   return (
     <>
@@ -33,20 +33,14 @@ export default function Home() {
         <ResourceList queryResult={resourcesQueryResult} />
         <Link
           href="/resource/browse"
-          className={cn(buttonVariants({ variant: "link" }), " mt-2")}
+          className={cn(buttonVariants({ variant: "link" }), "mt-2")}
         >
           Browse all resources
         </Link>
         <h2 className="mb-6 mt-16 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight">
-          Recently Published Lesson Plans
+          Top Contributors
         </h2>
-        <LessonPlanList queryResult={lessonPlansQueryResult} />
-        <Link
-          href="/lesson-plan/browse"
-          className={cn(buttonVariants({ variant: "link" }), " mt-2")}
-        >
-          Browse all public lesson plans
-        </Link>
+        <UserList queryResult={topContributorsQueryResult} />
       </PageLayout>
     </>
   );
