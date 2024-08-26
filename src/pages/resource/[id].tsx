@@ -67,7 +67,7 @@ const AdminToolbar = ({
     });
 
   return (
-    <div className="mt-4 flex w-full items-center gap-2 rounded-md bg-accent p-2 ">
+    <div className="mt-4 flex w-full items-center gap-2 rounded-md bg-accent p-2">
       <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
         Admin Features
       </span>
@@ -136,7 +136,10 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
       </Head>
       <PageLayout title={resource.title} className="py-0" showBackButton>
         {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}
-        <SingleResourceComponent resource={resource} showProposeChanges />
+        <SingleResourceComponent
+          resource={resource}
+          showProposeChanges={!resource.editProposalOriginalResourceId}
+        />
       </PageLayout>
     </>
   );

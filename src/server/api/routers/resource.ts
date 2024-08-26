@@ -278,7 +278,8 @@ export const resourceRouter = createTRPCRouter({
       const userCanSeeResource =
         resource?.published ||
         ctx.session?.user.role === UserRole.ADMIN ||
-        resource?.createdById === ctx.session?.user.id;
+        resource?.createdById === ctx.session?.user.id ||
+        resource?.editProposalAuthorId === ctx.session?.user.id;
 
       if (!userCanSeeResource) {
         throw new TRPCError({
