@@ -71,6 +71,15 @@ const AdminToolbar = ({
       <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
         Admin Features
       </span>
+      {resource.editProposalOriginalResourceId && (
+        <Link
+          href={`/resource/${resource.editProposalOriginalResourceId}/`}
+          className={buttonVariants({ variant: "outline" })}
+          target="_blank"
+        >
+          View original resource
+        </Link>
+      )}
       <Link
         href={`/resource/${resource.id}/edit`}
         className={buttonVariants({ variant: "default" })}
