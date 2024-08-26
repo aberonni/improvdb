@@ -125,10 +125,16 @@ function getColumns({
   if (showEditProposals) {
     columns.push(
       columnHelper.accessor("editProposalOriginalResourceId", {
-        header: () => null,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Contribution type" />
+        ),
         cell: (props) => {
           const originalResourceId = props.getValue();
-          return originalResourceId && <Badge>Proposal</Badge>;
+          return (
+            <Badge variant={"secondary"}>
+              {originalResourceId ? "Edit proposal" : "New"}
+            </Badge>
+          );
         },
       }) as ColumnDef<SingleResourceType, unknown>,
     );
