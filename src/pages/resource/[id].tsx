@@ -71,46 +71,58 @@ const AdminToolbar = ({
       <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
         Admin Features
       </span>
-      {resource.editProposalOriginalResourceId && (
-        <Link
-          href={`/resource/${resource.editProposalOriginalResourceId}/`}
-          className={buttonVariants({ variant: "outline" })}
-          target="_blank"
-        >
-          View original resource
-        </Link>
-      )}
-      <Link
-        href={`/resource/${resource.id}/edit`}
-        className={buttonVariants({ variant: "default" })}
-      >
-        Edit
-      </Link>
-      {resource.published ? (
-        <Button
-          onClick={() =>
-            setPublished({
-              id: resource.id,
-              published: false,
-            })
-          }
-          disabled={isSettingPublishedStatus}
-        >
-          Un-publish
-        </Button>
+      {resource.editProposalOriginalResourceId ? (
+        <>
+          <Link
+            href={`/resource/${resource.editProposalOriginalResourceId}/`}
+            className={buttonVariants({ variant: "outline" })}
+            target="_blank"
+          >
+            View original resource
+          </Link>
+          <Link
+            href={`/resource/${resource.id}/edit`}
+            className={buttonVariants({ variant: "default" })}
+          >
+            Review Proposal
+          </Link>
+        </>
       ) : (
-        <Button
-          onClick={() =>
-            setPublished({
-              id: resource.id,
-              published: true,
-            })
-          }
-          disabled={isSettingPublishedStatus}
-        >
-          Publish
-        </Button>
+        <>
+          <Link
+            href={`/resource/${resource.id}/edit`}
+            className={buttonVariants({ variant: "default" })}
+          >
+            Edit
+          </Link>
+          {resource.published ? (
+            <Button
+              onClick={() =>
+                setPublished({
+                  id: resource.id,
+                  published: false,
+                })
+              }
+              disabled={isSettingPublishedStatus}
+            >
+              Un-publish
+            </Button>
+          ) : (
+            <Button
+              onClick={() =>
+                setPublished({
+                  id: resource.id,
+                  published: true,
+                })
+              }
+              disabled={isSettingPublishedStatus}
+            >
+              Publish
+            </Button>
+          )}
+        </>
       )}
+
       <Button
         onClick={() => deleteResource({ id: resource.id })}
         disabled={isDeletingResource}
