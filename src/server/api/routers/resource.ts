@@ -244,6 +244,12 @@ export const resourceRouter = createTRPCRouter({
               title: true,
             },
           },
+          relatedResourceParent: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
           lessonPlanItems: {
             where: {
               section: {
