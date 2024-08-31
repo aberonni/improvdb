@@ -1,0 +1,46 @@
+enum ResourceType {
+  EXERCISE
+  SHORT_FORM
+  LONG_FORM
+}
+
+enum ResourceConfiguration {
+  SOLO
+  PAIRS
+  GROUPS
+  WHOLE_CLASS
+  CIRCLE
+  BACKLINE
+  SCENE
+}
+
+model Resource {
+  id            String                  @id @unique
+  title         String
+  description   String                  @db.Text
+  type          ResourceType
+  categories    CategoriesOnResources[]
+  configuration ResourceConfiguration
+
+  showIntroduction String? @db.Text
+  video            String?
+  alternativeNames String?
+
+  relatedResources      Resource[] @relation("RelatedResources") // child Resource (Resource that are suggested)
+  relatedResourceParent Resource[] @relation("RelatedResources") // parent Resource (parent Resource of a suggested Resource)
+
+  published   Boolean  @default(false)
+  createdBy   User     @relation(fields: [createdById], references: [id], name: "Resources", onUpdate: Cascade, onDelete: Cascade)
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  editProposalOriginalResourceId String?
+  editProposalAuthor             User?   @relation(fields: [editProposalAuthorId], references: [id], name: "Proposals", onUpdate: Cascade, onDelete: Cascade)
+  editProposalAuthorId           String?
+
+  lessonPlanItems LessonPlanItem[]
+
+  @@index([createdById])
+  @@index([editProposalAuthorId])
+}

@@ -1,0 +1,51 @@
+model LessonPlanItem {
+  id String @id @default(cuid())
+
+  text String? @db.Text
+
+  resource   Resource? @relation(fields: [resourceId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  resourceId String? // relation scalar field (used in the `@relation` attribute above)
+  duration   Int?
+
+  order Int
+
+  section   LessonPlanSection @relation(fields: [sectionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  sectionId String
+
+  @@index([sectionId])
+  @@index([resourceId])
+}
+
+model LessonPlanSection {
+  id           String           @id @default(cuid())
+  title        String?
+  items        LessonPlanItem[]
+  lessonPlan   LessonPlan       @relation(fields: [lessonPlanId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  lessonPlanId String
+  order        Int
+
+  @@index([lessonPlanId])
+}
+
+enum LessonPlanVisibility {
+  PRIVATE
+  UNLISTED
+  PUBLIC
+}
+
+model LessonPlan {
+  id          String               @id @default(cuid())
+  title       String
+  theme       String?              @db.Text
+  description String?              @db.Text
+  visibility  LessonPlanVisibility @default(PRIVATE)
+  useDuration Boolean              @default(true)
+  createdBy   User                 @relation(fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  sections LessonPlanSection[]
+
+  @@index([createdById])
+}

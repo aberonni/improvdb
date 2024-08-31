@@ -1,0 +1,17 @@
+model Category {
+  id   String @id
+  name String
+
+  resources CategoriesOnResources[]
+}
+
+model CategoriesOnResources {
+  resource   Resource @relation(fields: [resourceId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  resourceId String // relation scalar field (used in the `@relation` attribute above)
+  category   Category @relation(fields: [categoryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  categoryId String // relation scalar field (used in the `@relation` attribute above)
+
+  @@id([resourceId, categoryId])
+  @@index([categoryId])
+  @@index([resourceId])
+}
