@@ -40,6 +40,7 @@ model Resource {
   editProposalAuthorId           String?
 
   lessonPlanItems LessonPlanItem[]
+  favouritedBy UserFavourites[]
 
   @@index([createdById])
   @@index([editProposalAuthorId])

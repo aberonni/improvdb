@@ -15,7 +15,7 @@ ENV TEST_ENV=docker
 COPY package.json /app/
 COPY package-lock.json /app/
 COPY tsconfig.json /app/
-COPY prisma/schema.prisma /app/prisma/schema.prisma
+COPY prisma/ /app/prisma/
 
 # Install the dependencies in Node environment
 RUN npm ci

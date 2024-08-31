@@ -15,7 +15,9 @@ const columns = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" className="ml-2" />
     ),
-    cell: ({ getValue }) => getValue() ?? "Anonymous User",
+    cell: ({ getValue }) => (
+      <span className="ml-2">{getValue() ?? "Anonymous User"}</span>
+    ),
   }),
   columnHelper.accessor("_count.resources", {
     header: ({ column }) => (
@@ -65,7 +67,7 @@ export const UserList = ({
       isLoading={isLoading}
       filters={useFilters ? ["title"] : undefined}
       usePagination={usePagination}
-      data-testid="lesson-plan-list"
+      data-testid="user-list"
     />
   );
 };

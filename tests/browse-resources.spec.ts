@@ -11,6 +11,14 @@ test("looks good", async ({ page, isMobile }) => {
     "true",
   );
 
+  for (const favouriteButton of await page
+    .getByTestId("resource-favourite-button")
+    .all()) {
+    await expect(favouriteButton).toBeEnabled({
+      timeout: 15000,
+    });
+  }
+
   await expectToMatchLightAndDarkThemesScreenshot(page, "browse-resources");
 
   // apply filters

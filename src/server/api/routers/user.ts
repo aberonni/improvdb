@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
 import {
   createTRPCRouter,
@@ -11,6 +12,9 @@ export const userRouter = createTRPCRouter({
   getUser: privateProcedure.query(({ ctx }) => {
     return ctx.db.user.findUniqueOrThrow({
       where: { id: ctx.session.user.id },
+      include: {
+        favourites: true,
+      },
     });
   }),
   updateUser: privateProcedure
@@ -37,6 +41,31 @@ export const userRouter = createTRPCRouter({
       return {
         user,
       };
+    }),
+  setFavourite: privateProcedure
+    .input(
+      z.object({
+        resourceId: z.string(),
+        favourite: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { resourceId, favourite } = input;
+
+      return await ctx.db.user.update({
+        where: { id: ctx.session.user.id },
+        data: {
+          favourites: favourite
+            ? {
+                create: {
+                  resourceId,
+                },
+              }
+            : {
+                deleteMany: [{ resourceId }],
+              },
+        },
+      });
     }),
   getTopContributors: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.user.findMany({

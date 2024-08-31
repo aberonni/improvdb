@@ -31,6 +31,7 @@ const ratelimit = new Ratelimit({
 function cleanCategories(
   resources: (Resource & {
     categories: (CategoriesOnResources & { category: Category })[];
+    _count?: { favouritedBy: number };
   })[],
 ) {
   return resources.map((resource) => ({
@@ -139,6 +140,11 @@ export const resourceRouter = createTRPCRouter({
               },
             },
           },
+          _count: {
+            select: {
+              favouritedBy: true,
+            },
+          },
         },
       })
       .then(cleanCategories);
@@ -215,6 +221,35 @@ export const resourceRouter = createTRPCRouter({
       })
       .then(cleanCategories);
   }),
+  getMyFavouriteResources: privateProcedure.query(({ ctx }) => {
+    return ctx.db.resource
+      .findMany({
+        where: {
+          favouritedBy: {
+            some: {
+              userId: ctx.session.user.id,
+            },
+          },
+        },
+        take: 1000,
+        orderBy: {
+          title: "asc",
+        },
+        include: {
+          categories: {
+            include: {
+              category: true,
+            },
+            orderBy: {
+              category: {
+                name: "asc",
+              },
+            },
+          },
+        },
+      })
+      .then(cleanCategories);
+  }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -269,6 +304,11 @@ export const resourceRouter = createTRPCRouter({
                   },
                 },
               },
+            },
+          },
+          _count: {
+            select: {
+              favouritedBy: true,
             },
           },
         },

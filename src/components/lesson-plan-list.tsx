@@ -26,7 +26,7 @@ const columns = [
     cell: ({ getValue, row, column: { getFilterValue } }) => (
       <Link
         href={`/lesson-plan/${row.original.id}`}
-        className="hover:underline"
+        className="ml-2 hover:underline"
       >
         <TitleCellContent
           title={getValue()}

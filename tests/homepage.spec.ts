@@ -10,7 +10,7 @@ test("looks good", async ({ page }) => {
     "data-loaded",
     "true",
   );
-  await expect(page.getByTestId("lesson-plan-list")).toHaveAttribute(
+  await expect(page.getByTestId("user-list")).toHaveAttribute(
     "data-loaded",
     "true",
   );

@@ -14,7 +14,7 @@ export default function BrowseResources() {
         <title>Browse Resources - ImprovDB</title>
       </Head>
       <PageLayout title="Browse Resources">
-        <ResourceList queryResult={queryResult} useFilters />
+        <ResourceList queryResult={queryResult} useFilters showFavourites />
         <p className="mt-6 text-center text-sm text-muted-foreground">
           See something missing? You can{" "}
           <Link href="/resource/create" className="underline">
