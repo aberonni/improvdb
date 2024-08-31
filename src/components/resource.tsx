@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
+import { uniqBy } from "lodash";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "🚀 Warm-up / Exercise",
@@ -37,6 +38,12 @@ export const ResourceConfigurationLabels: Record<
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
 type CreationResource = z.infer<typeof resourceCreateSchema>;
 
+function isApiResource(
+  resource: ApiResource | CreationResource,
+): resource is ApiResource {
+  return "relatedResourceParent" in resource;
+}
+
 type Props = {
   resource: ApiResource | CreationResource;
   showProposeChanges?: boolean;
@@ -53,6 +60,20 @@ export function SingleResourceComponent({
     return typeof resource.alternativeNames === "string"
       ? resource.alternativeNames.split(";")
       : resource.alternativeNames.map((name) => name.value);
+  }, [resource]);
+
+  const relatedResources = useMemo<{ id: string; title: string }[]>(() => {
+    if (!isApiResource(resource)) {
+      return resource.relatedResources.map(({ value, label }) => ({
+        id: value,
+        title: label,
+      }));
+    }
+
+    return uniqBy(
+      [...resource.relatedResources, ...resource.relatedResourceParent],
+      (resource) => resource.id,
+    );
   }, [resource]);
 
   return (
@@ -98,40 +119,28 @@ export function SingleResourceComponent({
             </>
           )}
 
-          {resource.relatedResources &&
-            resource.relatedResources.length > 0 && (
-              <>
-                <Separator />
-                <div>
-                  Related Resources:
-                  <ul className="ml-6 list-disc [&>li]:mt-0">
-                    {resource.relatedResources.map((resource) => {
-                      let id;
-                      let label;
-
-                      if ("id" in resource) {
-                        id = resource.id;
-                        label = resource.title;
-                      } else {
-                        id = resource.value;
-                        label = resource.label;
-                      }
-
-                      return (
-                        <li key={id}>
-                          <Link
-                            href={`/resource/${id}`}
-                            className="underline hover:opacity-80"
-                          >
-                            {label}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </>
-            )}
+          {relatedResources.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                Related Resources:
+                <ul className="ml-6 list-disc [&>li]:mt-0">
+                  {relatedResources.map(({ id, title }) => {
+                    return (
+                      <li key={id}>
+                        <Link
+                          href={`/resource/${id}`}
+                          className="underline hover:opacity-80"
+                        >
+                          {title}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </>
+          )}
           {"lessonPlans" in resource && resource.lessonPlans.length > 0 && (
             <>
               <Separator />
