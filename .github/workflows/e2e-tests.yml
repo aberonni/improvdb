@@ -39,6 +39,8 @@ jobs:
       - name: Seed Database
         run: |
           npx prisma db push
+          # Make sure there are no pending migrations
+          npx prisma migrate diff --from-migrations ./prisma/migrations --to-schema-datamodel ./prisma/schema --exit-code --shadow-database-url=${{ env.DATABASE_URL }}
           npx prisma db seed
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
