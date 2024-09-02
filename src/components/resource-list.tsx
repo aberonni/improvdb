@@ -16,6 +16,7 @@ import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
 } from "@/components/resource";
+import { ResourceFavouriteButton } from "@/components/resource-favourite-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,17 +34,23 @@ function getColumns({
   showPublishedStatus,
   showEditProposals,
   showSelection,
+  showFavourites,
   useFilters,
 }: {
   showPublishedStatus: boolean;
   showEditProposals: boolean;
   showSelection: boolean;
+  showFavourites: boolean;
   useFilters: boolean;
 }) {
   const columns = [
     columnHelper.accessor("type", {
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={column.id} />
+        <DataTableColumnHeader
+          column={column}
+          title={column.id}
+          className="w-40"
+        />
       ),
       cell: (props) => ResourceTypeLabels[props.getValue()],
       filterFn: "arrIncludesSome",
@@ -198,7 +205,7 @@ function getColumns({
         cell: ({ getValue, row, column: { getFilterValue } }) => (
           <Link
             href={`/resource/${row.original.id}`}
-            className="hover:underline"
+            className="ml-2 inline-block hover:underline"
           >
             <TitleCellContent
               title={getValue()}
@@ -208,6 +215,27 @@ function getColumns({
         ),
       }) as ColumnDef<SingleResourceType, unknown>,
     );
+
+    if (showFavourites) {
+      columns.unshift(
+        columnHelper.display({
+          id: "select",
+          header: () => <></>,
+          cell: ({ row }) => (
+            <div className="flex items-center">
+              <ResourceFavouriteButton
+                resourceId={row.original.id}
+                className="-mr-4 h-full px-2 py-0"
+                variant="link"
+                // favouriteCount={row.original._count?.favouritedBy}
+              />
+            </div>
+          ),
+          enableSorting: false,
+          enableHiding: false,
+        }),
+      );
+    }
   }
 
   return useFilters
@@ -225,6 +253,7 @@ export const ResourceList = ({
   queryResult,
   showPublishedStatus = false,
   showEditProposals = false,
+  showFavourites = false,
   onSelectionChange,
 }: {
   useFilters?: boolean;
@@ -232,6 +261,7 @@ export const ResourceList = ({
   queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
   showPublishedStatus?: boolean;
   showEditProposals?: boolean;
+  showFavourites?: boolean;
   onSelectionChange?: (
     selectedRows: Row<RouterOutputs["resource"]["getAll"][0]>[],
   ) => void;
@@ -253,6 +283,7 @@ export const ResourceList = ({
   const columns = getColumns({
     showPublishedStatus,
     showEditProposals,
+    showFavourites,
     showSelection: !!onSelectionChange,
     useFilters,
   });

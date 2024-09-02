@@ -33,6 +33,17 @@ enum UserRole {
   USER
 }
 
+model UserFavourites {
+  id         String @id @default(cuid())
+  userId     String
+  resourceId String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resourceId])
+}
+
 model User {
   id            String       @id @default(cuid())
   name          String?
@@ -45,6 +56,8 @@ model User {
   resources     Resource[]  @relation("Resources")
   proposals     Resource[]  @relation("Proposals")
   lessonPlans   LessonPlan[]
+
+  favourites UserFavourites[]
 }
 
 model VerificationToken {

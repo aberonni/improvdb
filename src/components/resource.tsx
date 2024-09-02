@@ -1,4 +1,5 @@
 import { type ResourceConfiguration, ResourceType } from "@prisma/client";
+import { uniqBy } from "lodash";
 import Link from "next/link";
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
@@ -9,12 +10,12 @@ import {
   SplitPageLayoutContent,
   SplitPageLayoutSidebar,
 } from "@/components/page-layout";
+import { ResourceFavouriteButton } from "@/components/resource-favourite-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
-import { uniqBy } from "lodash";
 
 export const ResourceTypeLabels: Record<ResourceType, string> = {
   EXERCISE: "🚀 Warm-up / Exercise",
@@ -80,6 +81,12 @@ export function SingleResourceComponent({
     <SplitPageLayout>
       <SplitPageLayoutSidebar>
         <div className="space-y-6 md:flex md:min-h-full md:flex-col">
+          <ResourceFavouriteButton
+            resourceId={resource.id}
+            showLabel
+            className="w-full"
+          />
+
           <h4 className="tracking-tight text-muted-foreground">
             {ResourceTypeLabels[resource.type]}
             <br />
