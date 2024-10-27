@@ -34,7 +34,7 @@ export const PageLayout = ({
       <header className="bg-accent-foreground shadow print:bg-background">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-background print:text-foreground lg:text-5xl">
+            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-background lg:text-5xl print:text-foreground">
               {title}
             </h1>
             {showBackButton && (
@@ -70,15 +70,15 @@ export const PageLayout = ({
                 <div className="flex w-full flex-col items-center justify-center space-y-4 rounded-md border p-4">
                   {authenticatedOnly === true ? (
                     <>
-                      <h1 className="text-muted-foreground">
+                      <h2 className="text-muted-foreground">
                         You must be signed in to view this page
-                      </h1>
+                      </h2>
                       <Button onClick={() => signIn()}>Sign in</Button>
                     </>
                   ) : (
-                    <h1 className="text-muted-foreground">
+                    <h2 className="text-muted-foreground">
                       Only administrators can access this page.
-                    </h1>
+                    </h2>
                   )}
                 </div>
               )}

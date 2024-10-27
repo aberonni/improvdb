@@ -228,7 +228,7 @@ export default function ResourceEditForm({
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <div className="absolute left-0 top-0 flex h-full select-none items-center ">
+                          <div className="absolute left-0 top-0 flex h-full select-none items-center">
                             <span className="pl-3 text-sm leading-none">
                               /resource/
                             </span>
@@ -348,7 +348,7 @@ export default function ResourceEditForm({
                       <PlusIcon className="ml-2 h-4 w-4" />
                     )}
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="flex flex-col space-y-4 ">
+                  <CollapsibleContent className="flex flex-col space-y-4">
                     <FormField
                       control={control}
                       name="categories"

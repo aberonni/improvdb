@@ -7,7 +7,10 @@ import { useSession } from "next-auth/react";
 
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
-import { SingleResourceComponent } from "@/components/resource";
+import {
+  ResourceTypeLabels,
+  SingleResourceComponent,
+} from "@/components/resource";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
@@ -154,6 +157,17 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
     <>
       <Head>
         <title>{`${resource.title} - ImprovDB`}</title>
+      </Head>
+      <Head>
+        <title>{`${resource.title} - ${ResourceTypeLabels[resource.type]} on ImprovDB - Find improv games, exercises, and formats on ImprovDB - Improv games and lesson plans for teachers and students`}</title>
+        <meta
+          name="description"
+          content={
+            resource.description ??
+            `ImprovDB is the open-source database for improv games and lesson plans. Whether you're a teacher or a student, you'll find everything you need here: from warm-up exercises to short form games to long form formats, we've got you covered.`
+          }
+          key="desc"
+        />
       </Head>
       <PageLayout title={resource.title} className="py-0" showBackButton>
         {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}

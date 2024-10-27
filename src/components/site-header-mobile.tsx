@@ -110,7 +110,7 @@ export function SiteHeaderMobile({
                             callbackUrl: "/",
                           });
                         }}
-                        className=" mt-0 inline h-auto w-full pl-0 pt-0 text-left text-base font-normal text-foreground/60"
+                        className="mt-0 inline h-auto w-full pl-0 pt-0 text-left text-base font-normal text-foreground/60"
                       >
                         Sign Out
                       </button>

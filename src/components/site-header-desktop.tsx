@@ -73,7 +73,7 @@ export const SiteHeaderDesktop = ({
         <div className="flex items-center space-x-4">
           {status === "authenticated" && (
             <DropdownMenu>
-              <DropdownMenuTrigger className="rounded-full hover:ring-2 hover:ring-accent-foreground hover:ring-offset-2 hover:ring-offset-accent ">
+              <DropdownMenuTrigger className="rounded-full hover:ring-2 hover:ring-accent-foreground hover:ring-offset-2 hover:ring-offset-accent">
                 <Avatar>
                   <AvatarImage src={session.user.image ?? undefined} />
                   <AvatarFallback>

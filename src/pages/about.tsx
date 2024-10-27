@@ -8,25 +8,39 @@ export default function About() {
   return (
     <>
       <Head>
-        <title>About - ImprovDB</title>
+        <title>
+          About ImprovDB - Find improv games, exercises, and formats on ImprovDB
+          - Improv games and lesson plans for teachers and students
+        </title>
       </Head>
       <PageLayout
-        title="About"
         className="space-y-6 [&>p>a]:underline [&>p]:leading-7"
+        title={
+          <>
+            About ImprovDB
+            <span className="mt-1 block text-sm font-normal tracking-normal">
+              The open-source database for improv games and lesson plans
+            </span>
+          </>
+        }
       >
+        <p>
+          ImprovDB is the open-source database for improv games and lesson
+          plans. Whether you're a teacher or a student, you'll find everything
+          you need here: from warm-up exercises to short form games to long form
+          formats, we've got you covered.
+        </p>
+
         <p>
           ImprovDB was developed by{" "}
           <a href="https://domenicogemoli.com" target="_blank" rel="noreferrer">
             Dom Gemoli
           </a>
-          , an improv teacher and web developer.
-        </p>
-
-        <p>
-          The main purpose of ImprovDB is to solve the problem of sharing
-          knowledge amongst improv teachers, especially with regards to lesson
-          planning. The desire to solve this problem was born as a reaction to
-          encountering this problem as a novice teacher.
+          , an improv teacher and web developer, and its main purpose is to
+          solve the problem of sharing knowledge amongst improv teachers,
+          especially with regards to lesson planning. The desire to solve this
+          problem was born as a reaction to encountering this problem as a
+          novice teacher.
         </p>
 
         <p className="text-xl text-muted-foreground">

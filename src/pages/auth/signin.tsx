@@ -90,7 +90,7 @@ function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 export default function SignIn() {
   return (
     <div className="relative flex h-screen flex-col lg:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative flex h-16 shrink-0 flex-col px-6 text-white lg:h-full lg:p-10 dark:border-r dark:bg-muted">
+      <div className="relative flex h-16 shrink-0 flex-col px-6 text-white dark:border-r dark:bg-muted lg:h-full lg:p-10">
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex h-full items-center justify-start lg:h-auto lg:justify-start">
           <Logo className="dark" />

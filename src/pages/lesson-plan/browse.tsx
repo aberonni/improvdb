@@ -10,9 +10,22 @@ export default function BrowseLessonPlans() {
   return (
     <>
       <Head>
-        <title>Browse Lesson Plans - ImprovDB</title>
+        <title>
+          Browse Lesson Plans - Find improv games, exercises, and formats on
+          ImprovDB - Improv games and lesson plans for teachers and students
+        </title>
       </Head>
-      <PageLayout title="Browse Lesson Plans">
+      <PageLayout
+        title={
+          <>
+            Browse Lesson Plans
+            <span className="mt-1 block text-sm font-normal tracking-normal">
+              Find improv exercises and warm-ups, short form games, and long
+              form formats
+            </span>
+          </>
+        }
+      >
         <LessonPlanList queryResult={queryResult} useFilters />
       </PageLayout>
     </>

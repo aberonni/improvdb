@@ -57,7 +57,7 @@ const AdminToolbar = ({
     });
 
   return (
-    <div className="mt-4 flex w-full flex-col items-stretch gap-2 py-2 print:hidden md:flex-row md:items-center md:rounded-md md:bg-accent md:px-4">
+    <div className="mt-4 flex w-full flex-col items-stretch gap-2 py-2 md:flex-row md:items-center md:rounded-md md:bg-accent md:px-4 print:hidden">
       <div className="shrink-0 space-y-2 md:order-1 md:space-x-2 md:space-y-0 [&>*]:w-full [&>*]:md:w-auto">
         <Button onClick={() => window.print()}>
           <DownloadIcon className="mr-2 h-4 w-4" />
@@ -140,7 +140,15 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
   return (
     <>
       <Head>
-        <title>{`${lessonPlan.title} - ImprovDB`}</title>
+        <title>{`${lessonPlan.title} Lesson Plan - ImprovDB - Find improv games, exercises, and formats on ImprovDB - Improv games and lesson plans for teachers and students`}</title>
+        <meta
+          name="description"
+          content={
+            lessonPlan.description ??
+            `ImprovDB is the open-source database for improv games and lesson plans. Whether you're a teacher or a student, you'll find everything you need here: from warm-up exercises to short form games to long form formats, we've got you covered.`
+          }
+          key="desc"
+        />
       </Head>
       <PageLayout
         title={
@@ -149,7 +157,7 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
               {LessonPlanVisibilityLabels[lessonPlan.visibility].label}
             </Badge>
             <span>{lessonPlan.title}</span>
-            <span className="block text-sm font-normal tracking-normal">
+            <span className="mt-1 block text-sm font-normal tracking-normal">
               Created by: {creator}
             </span>
           </div>
