@@ -140,7 +140,7 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
   return (
     <>
       <Head>
-        <title>{`${lessonPlan.title} Lesson Plan - ImprovDB - Find improv games, exercises, and formats on ImprovDB - Improv games and lesson plans for teachers and students`}</title>
+        <title>{`${lessonPlan.title} - Lesson Plan on ImprovDB - Find improv games, exercises, and formats on ImprovDB - Improv games and lesson plans for teachers and students`}</title>
         <meta
           name="description"
           content={

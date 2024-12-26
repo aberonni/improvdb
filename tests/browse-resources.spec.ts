@@ -4,7 +4,7 @@ import { expectToMatchLightAndDarkThemesScreenshot } from "@/../tests/utils";
 
 test("looks good", async ({ page, isMobile }) => {
   await page.goto("/resource/browse");
-  await expect(page).toHaveTitle(/Browse Resources - ImprovDB/);
+  await expect(page).toHaveTitle("Browse Resources - Find improv games, exercises, and formats on ImprovDB - Improv games and lesson plans for teachers and students");
 
   await expect(page.getByTestId("resource-list")).toHaveAttribute(
     "data-loaded",
