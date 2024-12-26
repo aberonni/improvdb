@@ -5,10 +5,15 @@ const config = {
     project: true,
   },
   plugins: [
+    // @ts-expect-error
     "react",
+    // @ts-expect-error
     "@typescript-eslint",
+    // @ts-expect-error
     "import",
+    // @ts-expect-error
     "no-relative-import-paths",
+    // @ts-expect-error
     "react-hooks",
   ],
   extends: [

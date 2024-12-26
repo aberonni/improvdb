@@ -5,7 +5,7 @@ import {
   PlusIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { type AnchorHTMLAttributes, type RefAttributes, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import type * as z from "zod";
 
@@ -222,7 +222,9 @@ export function SingleLessonPlanComponent({
                                 components={{
                                   h1: ({ ...props }) => <h3 {...props} />,
                                   h2: ({ ...props }) => <h3 {...props} />,
-                                  a: ({ href, ref, ...props }) => {
+                                  a: (props: AnchorHTMLAttributes<HTMLAnchorElement> & RefAttributes<HTMLAnchorElement>) => {
+                                    const { href, ref } = props;
+
                                     if (!href?.startsWith("resource/")) {
                                       return (
                                         <a
