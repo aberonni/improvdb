@@ -1,7 +1,5 @@
 # https://github.com/kuroski/github-issue-viewer/blob/main/docker-compose.yml
 
-version: "3.9"
-
 services:
   postgres:
     image: postgres
