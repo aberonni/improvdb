@@ -1,7 +1,7 @@
 import { type ResourceConfiguration, ResourceType } from "@prisma/client";
 import { uniqBy } from "lodash";
 import Link from "next/link";
-import { useMemo } from "react";
+import { type AnchorHTMLAttributes, type RefAttributes, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import type * as z from "zod";
 
@@ -210,7 +210,8 @@ export function SingleResourceComponent({
           className="prose prose-zinc max-w-full rounded-md dark:prose-invert lg:prose-lg prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
           components={{
             h1: ({ ...props }) => <h2 {...props} />,
-            a: ({ href, ref, ...props }) => {
+            a: (props: AnchorHTMLAttributes<HTMLAnchorElement> & RefAttributes<HTMLAnchorElement>) => {
+              const { href, ref } = props;
               if (!href?.startsWith("resource/")) {
                 return (
                   <a

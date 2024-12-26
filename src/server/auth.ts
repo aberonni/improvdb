@@ -51,12 +51,12 @@ export const authOptions: NextAuthOptions = {
         try {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           if (session.name) token.name = session.name;
-        } catch (error) {}
+        } catch {}
 
         try {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           if (session.image) token.image = session.image;
-        } catch (error) {}
+        } catch {}
       }
 
       return token;
