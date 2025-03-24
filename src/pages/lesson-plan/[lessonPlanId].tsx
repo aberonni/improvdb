@@ -34,7 +34,7 @@ const AdminToolbar = ({
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: deleteLessonPlan, isLoading: isDeletingLessonPlan } =
+  const { mutate: deleteLessonPlan, isPending: isDeletingLessonPlan } =
     api.lessonPlan.delete.useMutation({
       onSuccess: () => {
         void router.back();

@@ -10,7 +10,7 @@ export default function Create() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: createLessonPlan, isLoading: isSubmitting } =
+  const { mutate: createLessonPlan, isPending: isSubmitting } =
     api.lessonPlan.create.useMutation({
       onSuccess: ({ lessonPlan: lp }) => {
         void router.push("/lesson-plan/" + lp.id);

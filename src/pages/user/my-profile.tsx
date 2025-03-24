@@ -30,7 +30,7 @@ const MyProfileForm = ({
   const { update } = useSession();
   const { toast } = useToast();
 
-  const { mutate: updateUser, isLoading: isSaving } =
+  const { mutate: updateUser, isPending: isSaving } =
     api.user.updateUser.useMutation({
       onSuccess: ({ user: updatedUser }) => {
         toast({

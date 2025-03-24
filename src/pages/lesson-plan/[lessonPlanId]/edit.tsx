@@ -22,7 +22,7 @@ export const LessonPlanEditPage: NextPage<{ lessonPlanId: string }> = ({
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: updateLessonPlan, isLoading: isSubmitting } =
+  const { mutate: updateLessonPlan, isPending: isSubmitting } =
     api.lessonPlan.update.useMutation({
       onSuccess: ({ lessonPlan: res }) => {
         void router.push("/lesson-plan/" + res.id);

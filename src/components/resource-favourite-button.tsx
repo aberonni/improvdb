@@ -26,7 +26,7 @@ export const ResourceFavouriteButton = ({
     );
   }, [user, resourceId]);
 
-  const { mutate: setFavourite, isLoading: isSaving } =
+  const { mutate: setFavourite, isPending: isSaving } =
     api.user.setFavourite.useMutation({
       onSuccess: async () => {
         await utils.user.getUser.invalidate();

@@ -11,7 +11,7 @@ export default function Create() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: createResource, isLoading: isSubmitting } =
+  const { mutate: createResource, isPending: isSubmitting } =
     api.resource.create.useMutation({
       onSuccess: ({ resource: res }) => {
         void router.push("/resource/" + res.id);
