@@ -27,7 +27,7 @@ export const LessonPlanSharePopover = ({
   const { toast } = useToast();
   const utils = api.useUtils();
 
-  const { mutate: setVisibility, isLoading: isUpdatingVisibility } =
+  const { mutate: setVisibility, isPending: isUpdatingVisibility } =
     api.lessonPlan.setVisibility.useMutation({
       onSuccess: () => {
         void utils.lessonPlan.getById.invalidate();

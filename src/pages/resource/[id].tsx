@@ -25,7 +25,7 @@ const AdminToolbar = ({
   const router = useRouter();
   const { toast } = useToast();
 
-  const { mutate: setPublished, isLoading: isSettingPublishedStatus } =
+  const { mutate: setPublished, isPending: isSettingPublishedStatus } =
     api.resource.setPublished.useMutation({
       onSuccess: () => {
         void utils.resource.getById.invalidate();
@@ -47,7 +47,7 @@ const AdminToolbar = ({
       },
     });
 
-  const { mutate: deleteResource, isLoading: isDeletingResource } =
+  const { mutate: deleteResource, isPending: isDeletingResource } =
     api.resource.delete.useMutation({
       onSuccess: () => {
         void router.back();

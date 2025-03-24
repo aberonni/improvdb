@@ -28,7 +28,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     resource?.editProposalOriginalResourceId !== undefined &&
     resource?.editProposalOriginalResourceId !== null;
 
-  const { mutate: updateResource, isLoading: isSubmitting } = (
+  const { mutate: updateResource, isPending: isSubmitting } = (
     reviewingProposal
       ? api.resource.acceptProposedUpdate
       : isAdmin
