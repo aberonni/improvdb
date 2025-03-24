@@ -18,9 +18,6 @@ updates:
         versions: ["9.x"]
       - dependency-name: "tailwindcss"
         versions: ["4.x"]
-      # trpc, react, and react-dom should be upgraded together
-      - dependency-name: "@trpc/*"
-        versions: ["11.x"]
       - dependency-name: "react"
         versions: ["19.x"]
       - dependency-name: "react-dom"
