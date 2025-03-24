@@ -204,30 +204,33 @@ export function SingleResourceComponent({
         </div>
       </SplitPageLayoutSidebar>
       <SplitPageLayoutContent>
-        <ReactMarkdown
-          // eslint-disable-next-line react/no-children-prop
-          children={resource.description}
+        <div
           className="prose prose-zinc max-w-full rounded-md dark:prose-invert lg:prose-lg prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
-          components={{
-            h1: ({ ...props }) => <h2 {...props} />,
-            a: (props: AnchorHTMLAttributes<HTMLAnchorElement> & RefAttributes<HTMLAnchorElement>) => {
-              const { href, ref } = props;
-              if (!href?.startsWith("resource/")) {
-                return (
-                  <a
-                    href={href}
-                    ref={ref}
-                    target="_blank"
-                    rel="noreferrer"
-                    {...props}
-                  />
-                );
-              }
+        >
+          <ReactMarkdown
+            // eslint-disable-next-line react/no-children-prop
+            children={resource.description}
+            components={{
+              h1: ({ ...props }) => <h2 {...props} />,
+              a: (props: AnchorHTMLAttributes<HTMLAnchorElement> & RefAttributes<HTMLAnchorElement>) => {
+                const { href, ref } = props;
+                if (!href?.startsWith("resource/")) {
+                  return (
+                    <a
+                      href={href}
+                      ref={ref}
+                      target="_blank"
+                      rel="noreferrer"
+                      {...props}
+                    />
+                  );
+                }
 
-              return <Link href={"/" + href} {...props} />;
-            },
-          }}
-        />
+                return <Link href={"/" + href} {...props} />;
+              },
+            }}
+            />
+          </div>
         {resource.video && (
           <iframe
             className="video mt-6 aspect-video w-full lg:mt-8"

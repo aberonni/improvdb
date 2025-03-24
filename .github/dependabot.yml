@@ -16,8 +16,12 @@ updates:
     ignore:
       - dependency-name: "eslint"
         versions: ["9.x"]
-      - dependency-name: "@tanstack/react-query"
-        versions: ["5.x"]
-      # Updating this causes a breaking change when hitting "esc" with the filter drawer + filter open on mobile resolutions
-      - dependency-name: "@radix-ui/react-dialog"
-        versions: ["1.1.0", "1.1.1"]
+      - dependency-name: "tailwindcss"
+        versions: ["4.x"]
+      # trpc, react, and react-dom should be upgraded together
+      - dependency-name: "@trpc/*"
+        versions: ["11.x"]
+      - dependency-name: "react"
+        versions: ["19.x"]
+      - dependency-name: "react-dom"
+        versions: ["19.x"]
