@@ -33,7 +33,7 @@ npm install
 You must have docker installed for this to work. You can use a local Postgres database with the following commands
 
 ```bash
-docker-compose -f docker-compose.postgres.yml up
+docker compose -f docker-compose.postgres.yml up
 # Wait for postgres server to be ready, then run
 npx prisma db push
 npx prisma db seed

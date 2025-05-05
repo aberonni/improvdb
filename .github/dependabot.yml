@@ -22,3 +22,5 @@ updates:
         versions: ["19.x"]
       - dependency-name: "react-dom"
         versions: ["19.x"]
+      - dependency-name: "nodemailer"
+        versions: ["7.x"]
