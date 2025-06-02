@@ -1,9 +1,8 @@
 import { LessonPlanVisibility, UserRole } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 import { z } from "zod";
 
+import { getRateLimiter } from "@/server/helpers/getRateLimiter";
 import {
   createTRPCRouter,
   privateProcedure,
@@ -11,12 +10,7 @@ import {
 } from "@/server/api/trpc";
 import { lessonPlanCreateSchema } from "@/utils/zod";
 
-// Create a new ratelimiter, that allows 3 requests per 1 minute
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(3, "1 m"),
-  analytics: true,
-});
+const ratelimit = getRateLimiter();
 
 type LessonPlanCreateType = z.infer<typeof lessonPlanCreateSchema>;
 
@@ -134,7 +128,7 @@ export const lessonPlanRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const authorId = ctx.session.user.id;
 
-      if (ctx.session.user.role !== UserRole.ADMIN) {
+      if (ctx.session.user.role !== UserRole.ADMIN && ratelimit) {
         const { success } = await ratelimit.limit(authorId);
 
         if (!success) {
@@ -163,7 +157,7 @@ export const lessonPlanRouter = createTRPCRouter({
     .mutation(async ({ ctx, input: { id, ...input } }) => {
       const authorId = ctx.session.user.id;
 
-      if (ctx.session.user.role !== UserRole.ADMIN) {
+      if (ctx.session.user.role !== UserRole.ADMIN && ratelimit) {
         const { success } = await ratelimit.limit(authorId);
 
         if (!success) {
