@@ -36,7 +36,7 @@ export const ResourceClonePage: NextPage<{ id: string }> = ({ id }) => {
 
         const errorMessage =
           e.message ??
-          e.data?.zodError?.fieldErrors.content?.[0] ??
+          e.data?.zodError?.errors?.[0] ??
           "Failed to create resource! Please try again later.";
 
         toast({

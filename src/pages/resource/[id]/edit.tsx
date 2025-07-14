@@ -46,7 +46,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     },
     onError: (e) => {
       const errorMessage =
-        e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
+        e.message ?? e.data?.zodError?.errors?.[0];
 
       toast({
         title: "Uh oh! Something went wrong.",
