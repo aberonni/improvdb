@@ -7,8 +7,8 @@ import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 
 import {
-  LessonPlanVisibilityLabels,
-  SingleLessonPlanComponent,
+    LessonPlanVisibilityLabels,
+    SingleLessonPlanComponent,
 } from "@/components/lesson-plan";
 import { LessonPlanSharePopover } from "@/components/lesson-plan-share-popover";
 import { LoadingPage } from "@/components/loading";
@@ -46,7 +46,7 @@ const AdminToolbar = ({
       onError: (e) => {
         const errorMessage =
           e.message ??
-          e.data?.zodError?.fieldErrors.content?.[0] ??
+          e.data?.zodError?.errors?.[0] ??
           "Failed to delete lessonPlan! Please try again later.";
         toast({
           title: "Uh oh! Something went wrong.",
