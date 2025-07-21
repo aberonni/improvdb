@@ -9,12 +9,12 @@ import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,7 @@ const MyProfileForm = ({
       },
       onError: (e) => {
         const errorMessage =
-          e.message ?? e.data?.zodError?.fieldErrors.content?.[0];
+          e.message ?? e.data?.zodError?.errors?.[0];
 
         toast({
           title: "Uh oh! Something went wrong.",

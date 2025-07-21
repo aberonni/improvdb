@@ -32,7 +32,7 @@ export default function Create() {
 
         const errorMessage =
           e.message ??
-          e.data?.zodError?.fieldErrors.content?.[0] ??
+          e.data?.zodError?.errors?.[0] ??
           "Failed to create resource! Please try again later.";
 
         toast({

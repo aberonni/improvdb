@@ -18,7 +18,7 @@ export default function Create() {
       onError: (e) => {
         const errorMessage =
           e.message ??
-          e.data?.zodError?.fieldErrors.content?.[0] ??
+          e.data?.zodError?.errors?.[0] ??
           "Failed to create lesson plan! Please try again later.";
 
         toast({

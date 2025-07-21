@@ -5,16 +5,17 @@ import {
 } from "@prisma/client";
 import * as z from "zod";
 
-const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
-  if (issue.code === z.ZodIssueCode.invalid_type) {
-    if (issue.expected === "object" && issue.received === "null") {
-      return { message: "Required" };
+z.config({
+  customError: (issue) => {
+    if (issue.code === "invalid_type") {
+      if (issue.expected === "object" && issue.received === "null") {
+        return { message: "Required" };
+      }
     }
-  }
-  return { message: ctx.defaultError };
-};
 
-z.setErrorMap(customErrorMap);
+    return undefined;
+  },
+});
 
 export const resourceCreateSchema = z.object({
   id: z

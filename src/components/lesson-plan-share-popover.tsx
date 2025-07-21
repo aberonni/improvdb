@@ -39,7 +39,7 @@ export const LessonPlanSharePopover = ({
       onError: (e) => {
         const errorMessage =
           e.message ??
-          e.data?.zodError?.fieldErrors.content?.[0] ??
+          e.data?.zodError?.errors?.[0] ??
           "Failed to update lesson plan! Please try again later.";
         toast({
           title: "Uh oh! Something went wrong.",

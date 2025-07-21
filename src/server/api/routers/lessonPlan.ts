@@ -239,7 +239,7 @@ export const lessonPlanRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        visibility: z.nativeEnum(LessonPlanVisibility),
+        visibility: z.enum(LessonPlanVisibility),
       }),
     )
     .mutation(async ({ ctx, input }) => {
