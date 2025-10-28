@@ -49,12 +49,10 @@ export const authOptions: NextAuthOptions = {
 
       if (trigger === "update") {
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           if (session.name) token.name = session.name;
         } catch {}
 
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           if (session.image) token.image = session.image;
         } catch {}
       }

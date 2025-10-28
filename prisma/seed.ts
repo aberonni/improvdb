@@ -166,7 +166,7 @@ async function main() {
           },
         },
       });
-    } catch (e) {
+    } catch {
       console.log(
         "Skipping related resource connection because the resource does not exist:",
         relatedId,
