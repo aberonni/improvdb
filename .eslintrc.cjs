@@ -5,15 +5,10 @@ const config = {
     project: true,
   },
   plugins: [
-    // @ts-expect-error
     "react",
-    // @ts-expect-error
     "@typescript-eslint",
-    // @ts-expect-error
     "import",
-    // @ts-expect-error
     "no-relative-import-paths",
-    // @ts-expect-error
     "react-hooks",
   ],
   extends: [
@@ -41,7 +36,6 @@ const config = {
       },
     ],
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-    // "@typescript-eslint/require-await": "off",
     "@typescript-eslint/no-misused-promises": [
       "error",
       {
@@ -71,8 +65,8 @@ const config = {
       },
     ],
 
-    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
-    "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
   },
   settings: {
     react: {
