@@ -51,16 +51,16 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "lodash": "^4.17.21",
-    "next": "^15.5.6",
+    "next": "16.0.0",
     "next-auth": "^4.24.11",
     "next-axiom": "^1.9.3",
     "next-themes": "^0.4.6",
     "nextjs-progressbar": "^0.0.16",
     "nodemailer": "^6.10.1",
     "nodemailer-sendgrid": "^1.0.3",
-    "react": "^18.3.1",
+    "react": "19.2.0",
     "react-autowidth-input": "^1.0.10",
-    "react-dom": "^18.3.1",
+    "react-dom": "19.2.0",
     "react-highlight-words": "^0.21.0",
     "react-hook-form": "^7.65.0",
     "react-markdown": "^10.1.0",
@@ -72,7 +72,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^15.5.6",
+    "@next/eslint-plugin-next": "16.0.0",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.19",
@@ -81,8 +81,8 @@
     "@types/node": "^24.8.1",
     "@types/nodemailer": "^6.4.17",
     "@types/nodemailer-sendgrid": "^1.0.3",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
     "@types/react-highlight-words": "^0.20.0",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.31.1",
@@ -104,5 +104,12 @@
   },
   "ct3aMetadata": {
     "initVersion": "7.25.0"
+  },
+  "overrides": {
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "next-auth": {
+      "next": "16.0.0"
+    }
   }
 }
