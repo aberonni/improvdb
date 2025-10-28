@@ -2,12 +2,12 @@ import { LessonPlanVisibility, UserRole } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { getRateLimiter } from "@/server/helpers/getRateLimiter";
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
+import { getRateLimiter } from "@/server/helpers/getRateLimiter";
 import { lessonPlanCreateSchema } from "@/utils/zod";
 
 const ratelimit = getRateLimiter();

@@ -29,10 +29,7 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  devIndicators: false
+  devIndicators: false,
 };
 
 export default withAxiom(config);
