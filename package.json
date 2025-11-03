@@ -107,11 +107,9 @@
     "initVersion": "7.25.0"
   },
   "overrides": {
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
     "next-auth": {
-      "next": "16.0.0",
-      "nodemailer": "7.0.10"
+      "next": "16",
+      "nodemailer": "7"
     }
   }
 }
