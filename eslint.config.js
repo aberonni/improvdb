@@ -1,5 +1,4 @@
 import eslintNextPlugin from "@next/eslint-plugin-next";
-import tseslint from "@typescript-eslint/eslint-plugin";
 import tseslintParser from "@typescript-eslint/parser";
 // @ts-expect-error -- ts can't find types for eslint-config-next
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
@@ -29,7 +28,6 @@ export default [
       },
     },
     plugins: {
-      "@typescript-eslint": tseslint,
       react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       import: importPlugin,
