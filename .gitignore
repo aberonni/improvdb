@@ -10,6 +10,7 @@
 
 # database
 /prisma/seed.json
+/src/prisma-generated/
 
 # next.js
 /.next/
