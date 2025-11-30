@@ -1,8 +1,6 @@
 import eslintNextPlugin from "@next/eslint-plugin-next";
 import tseslintParser from "@typescript-eslint/parser";
-// @ts-expect-error -- ts can't find types for eslint-config-next
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
-// @ts-expect-error -- ts can't find types for eslint-config-next
 import nextTypescript from "eslint-config-next/typescript";
 import importPlugin from "eslint-plugin-import";
 import noRelativeImportPaths from "eslint-plugin-no-relative-import-paths";
