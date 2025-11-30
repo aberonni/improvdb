@@ -16,3 +16,7 @@ updates:
     ignore:
       - dependency-name: "tailwindcss"
         versions: ["4.x"]
+      - dependency-name: "prisma"
+        versions: ["7.x"]
+      - dependency-name: "@prisma/client"
+        versions: ["7.x"]
