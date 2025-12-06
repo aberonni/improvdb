@@ -1,9 +1,9 @@
 import type { GetStaticProps } from "next";
-import Head from "next/head";
 import Link from "next/link";
 
 import { PageLayout } from "@/components/page-layout";
 import { ResourceList } from "@/components/resource-list";
+import { SEO } from "@/components/seo";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -12,12 +12,11 @@ export default function BrowseResources() {
 
   return (
     <>
-      <Head>
-        <title>
-          Browse Resources - Find improv games, exercises, and formats on
-          ImprovDB - Improv games and lesson plans for teachers and students
-        </title>
-      </Head>
+      <SEO
+        title="Browse Improv Resources"
+        description="Browse our collection of improv warm-ups, exercises, short form games, and long form formats. Find the perfect activity for your next improv class or rehearsal."
+        canonical="/resource/browse"
+      />
       <PageLayout
         title={
           <>

@@ -1,6 +1,5 @@
 import { DownloadIcon, Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import type { GetStaticProps, NextPage } from "next";
-import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
@@ -13,6 +12,7 @@ import {
 import { LessonPlanSharePopover } from "@/components/lesson-plan-share-popover";
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
+import { LessonPlanSEO } from "@/components/seo";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -139,17 +139,12 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
 
   return (
     <>
-      <Head>
-        <title>{`${lessonPlan.title} - Lesson Plan on ImprovDB - Find improv games, exercises, and formats on ImprovDB - Improv games and lesson plans for teachers and students`}</title>
-        <meta
-          name="description"
-          content={
-            lessonPlan.description ??
-            `ImprovDB is the open-source database for improv games and lesson plans. Whether you're a teacher or a student, you'll find everything you need here: from warm-up exercises to short form games to long form formats, we've got you covered.`
-          }
-          key="desc"
-        />
-      </Head>
+      <LessonPlanSEO
+        title={lessonPlan.title}
+        description={lessonPlan.description}
+        id={lessonPlan.id}
+        creatorName={lessonPlan.createdBy.name}
+      />
       <PageLayout
         title={
           <div className="flex flex-col items-start space-y-2">
@@ -195,6 +190,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       trpcState: ssg.dehydrate(),
       lessonPlanId,
     },
+    revalidate: 3600, // Revalidate every hour
   };
 };
 

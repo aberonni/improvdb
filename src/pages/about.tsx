@@ -1,18 +1,17 @@
-import Head from "next/head";
 import Image from "next/image";
 
 import { PageLayout } from "@/components/page-layout";
+import { SEO } from "@/components/seo";
 import { Separator } from "@/components/ui/separator";
 
 export default function About() {
   return (
     <>
-      <Head>
-        <title>
-          About ImprovDB - Find improv games, exercises, and formats on ImprovDB
-          - Improv games and lesson plans for teachers and students
-        </title>
-      </Head>
+      <SEO
+        title="About"
+        description="ImprovDB is the open-source database for improv games and lesson plans, created by Dom Gemoli to help improv teachers share knowledge and collaborate."
+        canonical="/about"
+      />
       <PageLayout
         className="space-y-6 [&>p>a]:underline [&>p]:leading-7"
         title={

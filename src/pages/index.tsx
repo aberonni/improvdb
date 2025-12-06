@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { PageLayout } from "@/components/page-layout";
 import { ResourceList } from "@/components/resource-list";
+import { SEO } from "@/components/seo";
 import { buttonVariants } from "@/components/ui/button";
 import { UserList } from "@/components/user-list";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,11 @@ export default function Home() {
 
   return (
     <>
+      <SEO
+        title="Improv Games, Exercises & Lesson Plans"
+        description="ImprovDB is the open-source database for improv games and lesson plans. Find warm-up exercises, short form games, long form formats, and share lesson plans with other improv teachers."
+        canonical="/"
+      />
       <PageLayout
         title={
           <>
