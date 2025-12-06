@@ -1,3 +1,4 @@
+import type { GetStaticProps } from "next";
 import Link from "next/link";
 
 import { PageLayout } from "@/components/page-layout";
@@ -5,6 +6,7 @@ import { ResourceList } from "@/components/resource-list";
 import { buttonVariants } from "@/components/ui/button";
 import { UserList } from "@/components/user-list";
 import { cn } from "@/lib/utils";
+import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
 export default function Home() {
@@ -44,3 +46,19 @@ export default function Home() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const ssg = generateSSGHelper();
+
+  await Promise.all([
+    ssg.resource.getLatest.prefetch(),
+    ssg.user.getTopContributors.prefetch(),
+  ]);
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+    revalidate: 60, // Revalidate every 60 seconds
+  };
+};
