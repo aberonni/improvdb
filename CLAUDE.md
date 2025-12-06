@@ -168,3 +168,16 @@ The project uses `@/` as a path alias pointing to `src/` (configured in tsconfig
 
 ### Component Library
 UI components are from shadcn/ui and located in `src/components/ui/`. These are copied into the project (not installed as dependencies) and can be customized.
+
+## Coding Preferences
+
+### Styling
+- **Always use Tailwind CSS classes** instead of inline styles
+- **Exception**: `@vercel/og` image generation requires inline styles (the `tw` prop doesn't reliably support all properties like `font-weight` and `line-height`)
+- Follow the existing light theme pattern (white background, dark text) for generated images
+
+### Testing
+- **Always add E2E tests** for new features where applicable
+- Tests go in the `tests/` directory using Playwright
+- Include tests for SEO metadata when adding new pages
+- Test API endpoints return expected responses

@@ -1,8 +1,8 @@
 import type { GetStaticProps } from "next";
-import Head from "next/head";
 
 import { LessonPlanList } from "@/components/lesson-plan-list";
 import { PageLayout } from "@/components/page-layout";
+import { SEO } from "@/components/seo";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -11,12 +11,11 @@ export default function BrowseLessonPlans() {
 
   return (
     <>
-      <Head>
-        <title>
-          Browse Lesson Plans - Find improv games, exercises, and formats on
-          ImprovDB - Improv games and lesson plans for teachers and students
-        </title>
-      </Head>
+      <SEO
+        title="Browse Improv Lesson Plans"
+        description="Discover improv lesson plans created by teachers and performers. Find structured lesson plans for teaching improvisation, from beginner to advanced levels."
+        canonical="/lesson-plan/browse"
+      />
       <PageLayout
         title={
           <>

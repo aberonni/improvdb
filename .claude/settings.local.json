@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm run typecheck:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(npm install:*)",
+      "Bash(docker compose:*)"
     ],
     "deny": [],
     "ask": []

@@ -27,15 +27,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <Head>
-        <title>
-          ImprovDB - Find improv games, exercises, and formats on ImprovDB -
-          Improv games and lesson plans for teachers and students
-        </title>
-        <meta
-          name="description"
-          content="ImprovDB is the open-source database for improv games and lesson plans. Whether you're a teacher or a student, you'll find everything you need here: from warm-up exercises to short form games to long form formats, we've got you covered."
-          key="desc"
-        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <style jsx global>{`

@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/playwright:v1.42.0-jammy
 WORKDIR /app
  
 # Set the environment path to node_modules/.bin
-ENV PATH /app/node_modules/.bin:$PATH
+ENV PATH=/app/node_modules/.bin:$PATH
 ENV TEST_ENV=docker
 
 # COPY the needed files to the app folder in Docker image

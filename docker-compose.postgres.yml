@@ -6,7 +6,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ~/apps/postgres:/var/lib/postgresql/data
+      - ~/apps/postgres:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=secret
       - POSTGRES_USER=improvdb_user

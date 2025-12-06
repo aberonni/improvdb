@@ -1,16 +1,13 @@
 import { UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
-import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
-import {
-    ResourceTypeLabels,
-    SingleResourceComponent,
-} from "@/components/resource";
+import { SingleResourceComponent } from "@/components/resource";
+import { ResourceSEO } from "@/components/seo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
@@ -155,20 +152,13 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
 
   return (
     <>
-      <Head>
-        <title>{`${resource.title} - ImprovDB`}</title>
-      </Head>
-      <Head>
-        <title>{`${resource.title} - ${ResourceTypeLabels[resource.type]} on ImprovDB - Find improv games, exercises, and formats on ImprovDB - Improv games and lesson plans for teachers and students`}</title>
-        <meta
-          name="description"
-          content={
-            resource.description ??
-            `ImprovDB is the open-source database for improv games and lesson plans. Whether you're a teacher or a student, you'll find everything you need here: from warm-up exercises to short form games to long form formats, we've got you covered.`
-          }
-          key="desc"
-        />
-      </Head>
+      <ResourceSEO
+        title={resource.title}
+        description={resource.description}
+        type={resource.type}
+        id={resource.id}
+        categories={resource.categories.map((c) => c.category.name)}
+      />
       <PageLayout title={resource.title} className="py-0" showBackButton>
         {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}
         <SingleResourceComponent
@@ -194,6 +184,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       trpcState: ssg.dehydrate(),
       id,
     },
+    revalidate: 3600, // Revalidate every hour
   };
 };
 
