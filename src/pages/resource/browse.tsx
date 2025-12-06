@@ -1,8 +1,10 @@
+import type { GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
 import { PageLayout } from "@/components/page-layout";
 import { ResourceList } from "@/components/resource-list";
+import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
 export default function BrowseResources() {
@@ -38,3 +40,16 @@ export default function BrowseResources() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const ssg = generateSSGHelper();
+
+  await ssg.resource.getAll.prefetch();
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+    revalidate: 60, // Revalidate every 60 seconds
+  };
+};

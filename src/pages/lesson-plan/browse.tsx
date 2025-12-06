@@ -1,7 +1,9 @@
+import type { GetStaticProps } from "next";
 import Head from "next/head";
 
 import { LessonPlanList } from "@/components/lesson-plan-list";
 import { PageLayout } from "@/components/page-layout";
+import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
 export default function BrowseLessonPlans() {
@@ -31,3 +33,16 @@ export default function BrowseLessonPlans() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const ssg = generateSSGHelper();
+
+  await ssg.lessonPlan.getPublic.prefetch();
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+    revalidate: 60,
+  };
+};
