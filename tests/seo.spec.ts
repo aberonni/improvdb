@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
+import { XMLParser } from "fast-xml-parser";
 
 const verifyOgImage = async ({ url, request, name }: { url: string; request: APIRequestContext; name: string }) => {
   const shouldSkipScreenshots = !!process.env.SKIP_SCREENSHOT_COMPARISON;
@@ -166,6 +167,73 @@ test.describe("SEO metadata", () => {
       request,
       name: "og-browse-lesson-plans.png",
     });
+  });
+});
+
+test.describe("Sitemap", () => {
+  test("sitemap.xml returns valid XML with expected URLs", async ({ request }) => {
+    const response = await request.get("/api/sitemap.xml");
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toBe("application/xml");
+
+    const xmlContent = await response.text();
+
+    // Parse XML to validate structure
+    const parser = new XMLParser();
+    const parsed = parser.parse(xmlContent);
+
+    expect(parsed.urlset).toBeDefined();
+    expect(parsed.urlset.url).toBeDefined();
+    expect(Array.isArray(parsed.urlset.url)).toBe(true);
+
+    // Check that required static pages are present
+    const urls = parsed.urlset.url.map((u: { loc: string }) => u.loc);
+    expect(urls).toContain("https://improvdb.com/");
+    expect(urls).toContain("https://improvdb.com/about");
+    expect(urls).toContain("https://improvdb.com/resource/browse");
+    expect(urls).toContain("https://improvdb.com/lesson-plan/browse");
+    expect(urls).toContain("https://improvdb.com/privacy");
+    expect(urls).toContain("https://improvdb.com/terms");
+
+    // Check that a known published resource is included (blue-ball from seed data)
+    expect(urls).toContain("https://improvdb.com/resource/blue-ball");
+
+    // Check that each URL entry has required fields
+    for (const urlEntry of parsed.urlset.url) {
+      expect(urlEntry.loc).toBeDefined();
+      expect(urlEntry.lastmod).toBeDefined();
+      expect(urlEntry.changefreq).toBeDefined();
+      expect(urlEntry.priority).toBeDefined();
+    }
+  });
+
+  test("sitemap.xml has correct caching headers", async ({ request }) => {
+    const response = await request.get("/api/sitemap.xml");
+
+    expect(response.status()).toBe(200);
+    const cacheControl = response.headers()["cache-control"];
+    expect(cacheControl).toContain("public");
+    expect(cacheControl).toContain("s-maxage=3600");
+  });
+});
+
+test.describe("Robots.txt", () => {
+  test("robots.txt is accessible and has correct content", async ({ request }) => {
+    const response = await request.get("/robots.txt");
+
+    expect(response.status()).toBe(200);
+
+    const content = await response.text();
+
+    // Check for required directives
+    expect(content).toContain("User-agent: *");
+    expect(content).toContain("Allow: /");
+    expect(content).toContain("Disallow: /admin/");
+    expect(content).toContain("Disallow: /api/");
+    expect(content).toContain("Disallow: /auth/");
+    expect(content).toContain("Disallow: /user/");
+    expect(content).toContain("Sitemap: https://improvdb.com/api/sitemap.xml");
   });
 });
 
