@@ -81,32 +81,19 @@ You must also make sure that you are using a freshly seeded [local Postgres data
 ### Build the image
 
 ```bash
-docker build -t playwright-docker -f tests/Dockerfile-playwright .
-docker image ls # Should output "playwright-docker"
+docker compose -f docker-compose.playwright.yml build
 ```
 
 ### Run the tests
 
 ```bash
-docker run -p 9323:9323 --rm --name playwright-runner -it playwright-docker:latest /bin/bash
-# From inside the container now you can run
-npx playwright test
+docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test
 ```
 
-More detailed instructions on the [Docker | Playwright](https://playwright.dev/docs/docker) documentation. Loosely based on [this guide](https://www.digitalocean.com/community/tutorials/how-to-run-end-to-end-tests-using-playwright-and-docker#step-3-mdash-executing-the-tests).
-
-#### Updating screenshots
-
-If you need to update the screenshots, then you can run this command instead:
+### Update screenshots
 
 ```bash
-npx playwright test --update-snapshots
-```
-
-And then, once you've run tests, you can update the snapshots in the git repository by running the following (while the docker container is still running, in a separate terminal):
-
-```bash
-docker cp playwright-runner:/app/tests .
+docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test --update-snapshots
 ```
 
 ## Run E2E tests without docker

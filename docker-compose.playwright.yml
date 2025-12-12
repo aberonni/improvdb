@@ -1,0 +1,13 @@
+services:
+  playwright:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile-playwright
+    volumes:
+      - ./tests:/app/tests
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "9323:9323"
+    stdin_open: true
+    tty: true

@@ -32,19 +32,21 @@ npx tsx prisma/updateSeedData.ts  # Pull production data to seedData.json
 ```
 
 ### Testing
+
+> Requires Docker and freshly seeded local DB
+
 ```bash
-# Run E2E tests (requires Docker and freshly seeded local DB)
-docker build -t playwright-docker -f tests/Dockerfile-playwright .
-docker run -p 9323:9323 --rm --name playwright-runner -it playwright-docker:latest /bin/bash
-# Inside container:
-npx playwright test
-npx playwright test --update-snapshots  # Update visual regression snapshots
+# Build Playwright Docker image
+docker compose -f docker-compose.playwright.yml build
+
+# Run tests
+docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test
+
+# Update snapshots
+docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test --update-snapshots
 
 # Run tests without Docker (skips screenshot comparison)
 SKIP_SCREENSHOT_COMPARISON=1 npx playwright test
-
-# Copy updated snapshots from container to local
-docker cp playwright-runner:/app/tests .
 ```
 
 ### Local Postgres Setup

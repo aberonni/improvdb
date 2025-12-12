@@ -17,9 +17,5 @@ COPY prisma/ /app/prisma/
 # Install the dependencies in Node environment
 RUN npm ci
 
-# Install the Playwright dependencies
+# Copy playwright config
 COPY playwright.config.ts /app/
-RUN npx playwright install --with-deps
-
-# Do this last because they are the most likely to change before rebuild
-COPY tests/ /app/tests/
