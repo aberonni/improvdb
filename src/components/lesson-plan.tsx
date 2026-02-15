@@ -279,7 +279,7 @@ export function SingleLessonPlanComponent({
                         {item.duration ?? 0} <small>mins</small>
                       </TableCell>
                     )}
-                    <TableCell className="w-[calc(100%-70px)]" colSpan={2}>
+                    <TableCell className="w-[calc(100%-70px)] whitespace-pre-wrap" colSpan={2}>
                       {item.text}
                     </TableCell>
                   </>
