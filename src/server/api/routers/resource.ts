@@ -272,6 +272,9 @@ export const resourceRouter = createTRPCRouter({
               id: true,
               title: true,
             },
+            where: {
+              published: true,
+            },
           },
           relatedResourceParent: {
             select: {
