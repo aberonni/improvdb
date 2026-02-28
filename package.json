@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "prisma generate && prisma migrate deploy && next build --webpack",
     "db:push": "prisma db push",
