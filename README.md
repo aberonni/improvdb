@@ -33,7 +33,7 @@ npm install
 You must have docker installed for this to work. You can use a local Postgres database with the following commands
 
 ```bash
-docker compose -f docker-compose.postgres.yml up
+docker-compose -f docker-compose.postgres.yml up
 # Wait for postgres server to be ready, then run
 npx prisma db push
 npx prisma db seed
@@ -81,19 +81,19 @@ You must also make sure that you are using a freshly seeded [local Postgres data
 ### Build the image
 
 ```bash
-docker compose -f docker-compose.playwright.yml build
+docker-compose -f docker-compose.playwright.yml build
 ```
 
 ### Run the tests
 
 ```bash
-docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test
+docker-compose -f docker-compose.playwright.yml run --rm playwright npx playwright test
 ```
 
 ### Update screenshots
 
 ```bash
-docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test --update-snapshots
+docker-compose -f docker-compose.playwright.yml run --rm playwright npx playwright test --update-snapshots
 ```
 
 ## Run E2E tests without docker
