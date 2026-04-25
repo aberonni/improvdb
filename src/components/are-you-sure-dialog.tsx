@@ -62,6 +62,7 @@ export const AreYouSureDialog = ({
 
   useEffect(() => {
     // Perform localStorage action after page has been mounted on client side
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDontAskAgain(
       localStorage.getItem(localStorageId) === JSON.stringify(true),
     );
