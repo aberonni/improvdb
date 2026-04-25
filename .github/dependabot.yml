@@ -24,3 +24,5 @@ updates:
         versions: ["10.x"]
       - dependency-name: "nodemailer"
         versions: ["8.x"]
+      - dependency-name: "@playwright/test"
+        versions: ["*"]
