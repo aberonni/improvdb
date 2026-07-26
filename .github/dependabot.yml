@@ -23,6 +23,8 @@ updates:
       - dependency-name: "eslint"
         versions: ["10.x"]
       - dependency-name: "nodemailer"
-        versions: ["8.x"]
+        versions: ["8.x", "9.x"]
+      - dependency-name: "typescript"
+        versions: ["7.x"]
       - dependency-name: "@playwright/test"
         versions: ["*"]
