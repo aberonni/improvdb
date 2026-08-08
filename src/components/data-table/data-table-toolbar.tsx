@@ -1,16 +1,20 @@
 "use client";
 
-import { type Table } from "@tanstack/react-table";
+import {
+    type ReactTable,
+    type RowData,
+    type TableFeatures,
+} from "@tanstack/react-table";
 
 import { DataTableFilters } from "@/components/data-table/data-table-filters";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
+interface DataTableToolbarProps<TData extends RowData> {
+  table: ReactTable<TableFeatures, TData>;
   filters: string[];
 }
 
-export function DataTableToolbar<TData>({
+export function DataTableToolbar<TData extends RowData>({
   table,
   filters,
 }: DataTableToolbarProps<TData>) {

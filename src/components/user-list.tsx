@@ -1,5 +1,5 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type TableFeatures } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 
 import { DataTable } from "@/components/data-table";
@@ -7,8 +7,9 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { RouterOutputs } from "@/utils/api";
 
-const columnHelper =
-  createColumnHelper<RouterOutputs["user"]["getTopContributors"][0]>();
+type UserListRow = RouterOutputs["user"]["getTopContributors"][0];
+
+const columnHelper = createColumnHelper<TableFeatures, UserListRow>();
 
 const columns = [
   columnHelper.accessor("name", {

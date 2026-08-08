@@ -4,7 +4,9 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import {
   type ColumnDef,
   createColumnHelper,
+  filterFn_arrIncludesSome,
   type Row,
+  type TableFeatures,
 } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import Link from "next/link";
@@ -28,7 +30,7 @@ type CategoriesInResource =
 
 type SingleResourceType = RouterOutputs["resource"]["getAll"][0];
 
-const columnHelper = createColumnHelper<SingleResourceType>();
+const columnHelper = createColumnHelper<TableFeatures, SingleResourceType>();
 
 function getColumns({
   showPublishedStatus,
@@ -53,14 +55,14 @@ function getColumns({
         />
       ),
       cell: (props) => ResourceTypeLabels[props.getValue()],
-      filterFn: "arrIncludesSome",
+      filterFn: filterFn_arrIncludesSome,
     }),
     columnHelper.accessor("configuration", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={column.id} />
       ),
       cell: (props) => ResourceConfigurationLabels[props.getValue()],
-      filterFn: "arrIncludesSome",
+      filterFn: filterFn_arrIncludesSome,
     }),
     columnHelper.accessor("categories", {
       header: ({ column }) => (
@@ -103,7 +105,7 @@ function getColumns({
         );
       },
     }),
-  ] as Array<ColumnDef<SingleResourceType, unknown>>;
+  ] as Array<ColumnDef<TableFeatures, SingleResourceType, unknown>>;
 
   if (showPublishedStatus) {
     columns.push(
@@ -125,7 +127,7 @@ function getColumns({
             </Badge>
           );
         },
-      }) as ColumnDef<SingleResourceType, unknown>,
+      }) as ColumnDef<TableFeatures, SingleResourceType, unknown>,
     );
   }
 
@@ -143,7 +145,7 @@ function getColumns({
             </Badge>
           );
         },
-      }) as ColumnDef<SingleResourceType, unknown>,
+      }) as ColumnDef<TableFeatures, SingleResourceType, unknown>,
     );
   }
 
@@ -163,7 +165,7 @@ function getColumns({
             filter={getFilterValue() as string}
           />
         ),
-      }) as ColumnDef<SingleResourceType, unknown>,
+      }) as ColumnDef<TableFeatures, SingleResourceType, unknown>,
     );
 
     columns.unshift(
@@ -213,7 +215,7 @@ function getColumns({
             />
           </Link>
         ),
-      }) as ColumnDef<SingleResourceType, unknown>,
+      }) as ColumnDef<TableFeatures, SingleResourceType, unknown>,
     );
 
     if (showFavourites) {
@@ -263,7 +265,7 @@ export const ResourceList = ({
   showEditProposals?: boolean;
   showFavourites?: boolean;
   onSelectionChange?: (
-    selectedRows: Row<RouterOutputs["resource"]["getAll"][0]>[],
+    selectedRows: Row<TableFeatures, RouterOutputs["resource"]["getAll"][0]>[],
   ) => void;
 }) => {
   const { data, isLoading } = queryResult;

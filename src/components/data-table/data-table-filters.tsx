@@ -1,38 +1,43 @@
 import type { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { Cross2Icon, MixerHorizontalIcon } from "@radix-ui/react-icons";
-import { type Table } from "@tanstack/react-table";
+import {
+    type Column,
+    type ReactTable,
+    type RowData,
+    type TableFeatures,
+} from "@tanstack/react-table";
 
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import {
-  ResourceConfigurationLabels,
-  ResourceTypeLabels,
+    ResourceConfigurationLabels,
+    ResourceTypeLabels,
 } from "@/components/resource";
 import { Button } from "@/components/ui/button";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
 
-interface DataTableFiltersProps<TData> {
-  table: Table<TData>;
+interface DataTableFiltersProps<TData extends RowData> {
+  table: ReactTable<TableFeatures, TData>;
   filters: string[];
 }
 
-function DataTableFiltersContent<TData>({
+function DataTableFiltersContent<TData extends RowData>({
   table,
   className,
   filters,
 }: DataTableFiltersProps<TData> & { className?: string }) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.state.columnFilters.length > 0;
   const { data: categories, isLoading: isLoadingCategories } =
     api.category.getAll.useQuery();
 
@@ -50,7 +55,11 @@ function DataTableFiltersContent<TData>({
       )}
       {filters.includes("type") && (
         <DataTableFacetedFilter
-          column={table.getColumn("type")}
+          column={
+            table.getColumn("type") as
+              | Column<TableFeatures, TData, unknown>
+              | undefined
+          }
           title="Type"
           options={Object.keys(ResourceTypeLabels).map((type) => ({
             label: ResourceTypeLabels[type as ResourceType],
@@ -60,7 +69,11 @@ function DataTableFiltersContent<TData>({
       )}
       {filters.includes("configuration") && (
         <DataTableFacetedFilter
-          column={table.getColumn("configuration")}
+          column={
+            table.getColumn("configuration") as
+              | Column<TableFeatures, TData, unknown>
+              | undefined
+          }
           title="Configuration"
           options={Object.keys(ResourceConfigurationLabels).map(
             (configuration) => ({
@@ -75,7 +88,11 @@ function DataTableFiltersContent<TData>({
       )}
       {filters.includes("categories") && (
         <DataTableFacetedFilter
-          column={table.getColumn("categories")}
+          column={
+            table.getColumn("categories") as
+              | Column<TableFeatures, TData, unknown>
+              | undefined
+          }
           title="Category"
           options={(categories ?? []).map(({ id, name }) => ({
             label: name,
@@ -98,14 +115,19 @@ function DataTableFiltersContent<TData>({
   );
 }
 
-export function DataTableFilters<TData>({
+export function DataTableFilters<TData extends RowData>({
   table,
   filters,
 }: DataTableFiltersProps<TData>) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   if (isDesktop) {
-    return <DataTableFiltersContent table={table} filters={filters} />;
+    return (
+      <DataTableFiltersContent<TData>
+        table={table}
+        filters={filters}
+      />
+    );
   }
 
   return (
@@ -123,7 +145,7 @@ export function DataTableFilters<TData>({
               Filters
             </DrawerTitle>
           </DrawerHeader>
-          <DataTableFiltersContent
+          <DataTableFiltersContent<TData>
             table={table}
             filters={filters}
             className="flex-col items-stretch space-x-0 space-y-2 p-4 [&>*]:w-full"

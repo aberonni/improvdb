@@ -1,5 +1,6 @@
+import { type LessonPlanVisibility } from "@prisma/client";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type TableFeatures } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import Link from "next/link";
 
@@ -11,8 +12,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import type { RouterOutputs } from "@/utils/api";
 
-const columnHelper =
-  createColumnHelper<RouterOutputs["lessonPlan"]["getMyLessonPlans"][0]>();
+type LessonPlanListRow = RouterOutputs["lessonPlan"]["getMyLessonPlans"][0];
+
+const columnHelper = createColumnHelper<TableFeatures, LessonPlanListRow>();
 
 const columns = [
   columnHelper.accessor("title", {
@@ -43,10 +45,12 @@ const columns = [
   columnHelper.accessor("visibility", {
     header: () => null,
     cell: (props) => {
+      const visibility = props.getValue() as LessonPlanVisibility;
+
       return (
         <div className="text-right">
           <Badge variant="outline">
-            {LessonPlanVisibilityLabels[props.getValue()].label}
+            {LessonPlanVisibilityLabels[visibility].label}
           </Badge>
         </div>
       );
@@ -92,7 +96,7 @@ export const LessonPlanList = ({
 
   if (!showVisibility) {
     dataTableColumns = dataTableColumns.filter(
-      (column) => column.accessorKey !== "visibility",
+      (column) => column.id !== "visibility",
     );
   }
 

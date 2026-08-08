@@ -2,23 +2,27 @@
 
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { EyeOpenIcon } from "@radix-ui/react-icons";
-import { type Table } from "@tanstack/react-table";
+import {
+    type ReactTable,
+    type RowData,
+    type TableFeatures,
+} from "@tanstack/react-table";
 import { startCase } from "lodash";
 
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-interface DataTableViewOptionsProps<TData> {
-  table: Table<TData>;
+interface DataTableViewOptionsProps<TData extends RowData> {
+  table: ReactTable<TableFeatures, TData>;
 }
 
-export function DataTableViewOptions<TData>({
+export function DataTableViewOptions<TData extends RowData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
   return (

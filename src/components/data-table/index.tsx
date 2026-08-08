@@ -2,19 +2,32 @@
 
 import {
   type ColumnDef,
+  columnFacetingFeature,
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFacetedRowModel,
+  createFacetedUniqueValues,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  filterFn_arrIncludes,
+  filterFn_arrIncludesAll,
+  filterFn_arrIncludesSome,
+  filterFn_includesString,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
-  type SortingState,
-  getSortedRowModel,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  stockFeatures,
+  tableFeatures,
   type ColumnFiltersState,
-  getFilteredRowModel,
-  type VisibilityState,
-  getPaginationRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  type RowSelectionState,
+  type ColumnVisibilityState,
   type Row,
+  type RowData,
+  type RowSelectionState,
+  type SortingState,
+  type TableFeatures,
+  useTable
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
@@ -32,21 +45,38 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
-interface DataTableProps<TData, TValue = unknown>
+interface DataTableProps<TData extends RowData>
   extends React.HTMLAttributes<HTMLDivElement> {
-  columns: (ColumnDef<TData, TValue> & {
-    accessorKey?: string;
-  })[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  columns: ReadonlyArray<ColumnDef<TableFeatures, TData, any>>;
   data?: TData[];
   usePagination?: boolean;
   filters?: string[];
   isLoading: boolean;
-  hiddenColumnsByDefault?: (keyof VisibilityState)[];
-  hiddenColumnsOnMobile?: (keyof VisibilityState)[];
-  onSelectionChange?: (selectedRows: Row<TData>[]) => void;
+  hiddenColumnsByDefault?: (keyof ColumnVisibilityState)[];
+  hiddenColumnsOnMobile?: (keyof ColumnVisibilityState)[];
+  onSelectionChange?: (selectedRows: Row<TableFeatures, TData>[]) => void;
 }
 
-export function DataTable<TData, TValue = unknown>({
+function buildInitialColumnVisibility(
+  hiddenColumnsByDefault: (keyof ColumnVisibilityState)[],
+  hiddenColumnsOnMobile: (keyof ColumnVisibilityState)[],
+  isDesktop: boolean,
+): ColumnVisibilityState {
+  const visibility: ColumnVisibilityState = {};
+
+  for (const columnKey of hiddenColumnsOnMobile) {
+    visibility[columnKey] = isDesktop;
+  }
+
+  for (const columnKey of hiddenColumnsByDefault) {
+    visibility[columnKey] = false;
+  }
+
+  return visibility;
+}
+
+export function DataTable<TData extends RowData>({
   columns,
   data,
   usePagination = false,
@@ -56,43 +86,44 @@ export function DataTable<TData, TValue = unknown>({
   hiddenColumnsOnMobile = [],
   onSelectionChange,
   ...props
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>(
+    () =>
+      buildInitialColumnVisibility(
+        hiddenColumnsByDefault,
+        hiddenColumnsOnMobile,
+        isDesktop,
+      ),
+  );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  useEffect(() => {
-    if (
-      hiddenColumnsByDefault.length === 0 &&
-      hiddenColumnsOnMobile.length === 0
-    ) {
-      return;
-    }
+  const features = tableFeatures({
+    ...stockFeatures,
+    rowSortingFeature,
+    rowSelectionFeature,
+    rowPaginationFeature,
+    columnVisibilityFeature,
+    columnFilteringFeature,
+    columnFacetingFeature,
+    sortedRowModel: createSortedRowModel(),
+    filteredRowModel: createFilteredRowModel(),
+    paginatedRowModel: createPaginatedRowModel(),
+    facetedRowModel: createFacetedRowModel(),
+    facetedUniqueValues: createFacetedUniqueValues(),
+    filterFns: {
+      arrIncludes: filterFn_arrIncludes,
+      arrIncludesAll: filterFn_arrIncludesAll,
+      arrIncludesSome: filterFn_arrIncludesSome,
+      includesString: filterFn_includesString,
+    },
+  });
 
-    setColumnVisibility((prev) => ({
-      ...prev,
-      ...Object.fromEntries(
-        hiddenColumnsOnMobile
-          .filter((key) => !prev[key])
-          .map((key) => [key, isDesktop]),
-      ),
-      ...Object.fromEntries(
-        hiddenColumnsByDefault
-          .filter((key) => !prev[key])
-          .map((key) => [key, false]),
-      ),
-    }));
-  }, [
-    hiddenColumnsByDefault,
-    hiddenColumnsOnMobile,
-    isDesktop,
-    setColumnVisibility,
-  ]);
-
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data: data ?? [],
     columns,
     state: {
@@ -105,12 +136,6 @@ export function DataTable<TData, TValue = unknown>({
     onColumnVisibilityChange: setColumnVisibility,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: filters ? getFilteredRowModel() : undefined,
-    getPaginationRowModel: usePagination ? getPaginationRowModel() : undefined,
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: filters ? getFacetedRowModel() : undefined,
-    getFacetedUniqueValues: filters ? getFacetedUniqueValues() : undefined,
   });
 
   useEffect(() => {
