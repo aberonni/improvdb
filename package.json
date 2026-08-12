@@ -90,7 +90,7 @@
     "@typescript-eslint/parser": "^8.59.1",
     "autoprefixer": "^10.5.4",
     "cssnano": "^8.0.2",
-    "eslint": "^9.39.5",
+    "eslint": "^10.8.1",
     "eslint-config-next": "^16.2.12",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import": "^2.32.0",
