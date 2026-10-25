@@ -1,0 +1,41 @@
+# Isolated E2E environment: throwaway Postgres + the same Playwright image used in CI.
+# Run with `npm run test:e2e` (or `npm run test:e2e:update` to update snapshots).
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=secret
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.58.0-jammy
+    working_dir: /app
+    command: ./scripts/e2e.sh
+    environment:
+      - DATABASE_URL=postgres://postgres:secret@postgres:5432/postgres
+      - HOME=/root
+      # Match CI behaviour in playwright.config.ts (1 worker, retries)
+      - CI=true
+      # Don't block on serving the HTML report; view it with `npx playwright show-report`
+      - PLAYWRIGHT_HTML_OPEN=never
+    volumes:
+      - .:/app
+      # Keep Linux binaries out of the host's node_modules/.next and cache them between runs
+      - node_modules:/app/node_modules
+      - next:/app/.next
+      - npm-cache:/root/.npm
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  node_modules:
+  next:
+  npm-cache:

@@ -33,35 +33,17 @@ jobs:
         with:
           node-version-file: ".node-version"
           cache: "npm"
-      - name: Create dummy env file
-        run: cp .env.example .env
-      - name: Install Dependencies
-        run: npm ci
-      - name: Seed Database
-        run: |
-          npx prisma db push
-          # Make sure there are no pending migrations
-          echo "Checking for pending migrations..."
-          npx prisma migrate diff --from-migrations ./prisma/migrations --to-schema-datamodel ./prisma/schema --exit-code --shadow-database-url=${{ env.DATABASE_URL }}
-          echo "Seeding database..."
-          npx prisma db seed
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Start dev server
-        run: npm run dev > npm-run-dev-logs.txt 2>&1 &
-      - name: Wait for dev server to be ready
-        run: timeout 60s sh -c 'until curl http://localhost:3000 -I; do echo "Waiting for dev server to be running..."; sleep 2; done'
-      - name: Run Playwright tests
-        run: npx playwright test
+      # Same script used locally by `npm run test:e2e`: installs deps, seeds the
+      # database and runs Playwright (which starts the dev server itself)
+      - name: Run E2E tests
+        run: ./scripts/e2e.sh
         env:
           HOME: /root
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
-          path: |
-            playwright-report/
-            npm-run-dev-logs.txt
+          path: playwright-report/
           retention-days: 30
     env:
       DATABASE_URL: "postgres://postgres:secret@postgres:5432/postgres"
