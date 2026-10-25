@@ -12,6 +12,8 @@
     "postinstall": "prisma generate",
     "lint": "eslint .",
     "start": "next start",
+    "test:e2e": "./scripts/e2e-docker.sh",
+    "test:e2e:update": "npm run test:e2e -- --update-snapshots",
     "typecheck": "tsc --noEmit"
   },
   "prisma": {

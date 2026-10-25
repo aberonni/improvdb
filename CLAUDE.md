@@ -33,19 +33,14 @@ npx tsx prisma/updateSeedData.ts  # Pull production data to seedData.json
 
 ### Testing
 
-> Requires Docker and freshly seeded local DB
+> Requires Docker. Runs in the CI Playwright image against a throwaway, freshly seeded Postgres (does not touch the dev DB); the dev server is started by Playwright.
 
 ```bash
-# Build Playwright Docker image
-docker compose -f docker-compose.playwright.yml build
+npm run test:e2e                          # Run all E2E tests
+npm run test:e2e -- tests/homepage.spec.ts  # Extra args go to `playwright test`
+npm run test:e2e:update                   # Update snapshots
 
-# Run tests
-docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test
-
-# Update snapshots
-docker compose -f docker-compose.playwright.yml run --rm playwright npx playwright test --update-snapshots
-
-# Run tests without Docker (skips screenshot comparison)
+# Run tests without Docker against local DB (skips screenshot comparison)
 SKIP_SCREENSHOT_COMPARISON=1 npx playwright test
 ```
 
@@ -135,10 +130,10 @@ The schema is split across multiple files in `prisma/schema/`. The main `index.p
 - **Multi-file setup**: Schemas organized by domain (user, resource, lesson-plan, category)
 
 ### Testing Strategy
-E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. Tests require:
-1. Local Postgres database running and freshly seeded
-2. Dev server running on port 3000
-3. Docker container built from `tests/Dockerfile-playwright`
+E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps, pushes the schema, checks for pending migrations, seeds, and runs Playwright, whose `webServer` config starts the dev server.
+
+### Dependency updates
+Renovate (`renovate.json`) opens grouped non-major PRs and one PR per major, and auto-merges them when CI is green. Use the `/fix-deps` skill to fix a failing update branch locally.
 
 Tests include visual regression testing with snapshots stored in `tests/` directory.
 
