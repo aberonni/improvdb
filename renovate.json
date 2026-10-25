@@ -44,9 +44,15 @@
       "allowedVersions": "<7"
     },
     {
-      "description": "Version is pinned to the Playwright Docker image tag in CI and docker-compose.e2e.yml",
-      "matchPackageNames": ["@playwright/test"],
-      "enabled": false
+      "description": "Node 24 ships npm 11; don't move the packageManager field past it",
+      "matchPackageNames": ["npm"],
+      "allowedVersions": "<12"
+    },
+    {
+      "description": "@playwright/test must match the browsers in the Playwright Docker image (CI and docker-compose.e2e.yml), so update them together. New browser versions may need `npm run test:e2e:update`.",
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
+      "groupName": "playwright",
+      "rangeStrategy": "pin"
     }
   ]
 }
