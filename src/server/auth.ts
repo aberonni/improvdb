@@ -1,5 +1,6 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type UserRole } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
@@ -90,7 +91,49 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
     verifyRequest: "/auth/verify-request",
   },
+  logger: {
+    // NextAuth catches errors such as a failing email provider and only logs
+    // them, so report them to Sentry to get alerted.
+    error(code, metadata) {
+      const error = getError(metadata);
+      console.error(`[next-auth][error][${code}]`, error);
+      Sentry.withScope((scope) => {
+        scope.setTag("nextauth.code", code);
+        const providerId = getProviderId(metadata);
+        if (providerId) scope.setTag("nextauth.provider", providerId);
+        // Group by NextAuth code so repeated failures raise a single issue.
+        scope.setFingerprint(["next-auth", code]);
+        // Only the error is sent: metadata can contain the user's email and
+        // the sign-in link, which is a working login.
+        Sentry.captureException(error);
+      });
+    },
+  },
 };
+
+function getError(metadata: unknown): Error {
+  if (metadata instanceof Error) return metadata;
+  if (
+    metadata &&
+    typeof metadata === "object" &&
+    "error" in metadata &&
+    metadata.error instanceof Error
+  ) {
+    return metadata.error;
+  }
+  return new Error("Unknown NextAuth error");
+}
+
+function getProviderId(metadata: unknown): string | undefined {
+  if (
+    metadata &&
+    typeof metadata === "object" &&
+    "providerId" in metadata &&
+    typeof metadata.providerId === "string"
+  ) {
+    return metadata.providerId;
+  }
+}
 
 /**
  * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
