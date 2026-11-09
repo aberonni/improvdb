@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "npm@10.9.9",
+  "packageManager": "npm@10.9.10",
   "scripts": {
     "build": "prisma generate && prisma migrate deploy && next build --webpack",
     "db:push": "prisma db push",
@@ -55,7 +55,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "lodash": "^4.18.1",
-    "next": "16.4.3",
+    "next": "16.4.5",
     "next-auth": "^4.24.15",
     "next-axiom": "^1.10.0",
     "next-themes": "^0.4.6",
@@ -76,7 +76,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "16.4.3",
+    "@next/eslint-plugin-next": "16.4.5",
     "@playwright/test": "1.64.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.20",
