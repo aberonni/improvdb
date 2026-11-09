@@ -53,6 +53,12 @@
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
       "groupName": "playwright",
       "rangeStrategy": "pin"
+    },
+    {
+      "description": "The Playwright image lands on MCR after the npm release, and MCR tags have no release timestamp Renovate can rely on, so minimumReleaseAge held it out of the group and the npm bump shipped alone. Skip the age check for the image; the @playwright/test age check still gates the group.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["mcr.microsoft.com/playwright"],
+      "minimumReleaseAge": null
     }
   ]
 }
