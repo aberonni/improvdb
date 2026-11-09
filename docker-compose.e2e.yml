@@ -15,7 +15,7 @@ services:
       retries: 20
 
   e2e:
-    image: mcr.microsoft.com/playwright:v1.64.1-jammy
+    image: mcr.microsoft.com/playwright:v1.65.0-jammy
     working_dir: /app
     command: ./scripts/e2e.sh
     environment:
