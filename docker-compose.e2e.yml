@@ -1,4 +1,5 @@
-# Isolated E2E environment: throwaway Postgres + the same Playwright image used in CI.
+# Isolated E2E environment: throwaway Postgres, a Mailpit SMTP server that
+# catches sign-in emails, and the same Playwright image used in CI.
 # Run with `npm run test:e2e` (or `npm run test:e2e:update` to update snapshots).
 
 services:
@@ -14,6 +15,15 @@ services:
       timeout: 5s
       retries: 20
 
+  # Catches emails sent by the app so tests can read them through its API.
+  # Chaos lets tests make SMTP fail on purpose.
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    environment:
+      - MP_ENABLE_CHAOS=true
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+
   e2e:
     image: mcr.microsoft.com/playwright:v1.65.0-jammy
     working_dir: /app
@@ -25,6 +35,15 @@ services:
       - CI=true
       # Don't block on serving the HTML report; view it with `npx playwright show-report`
       - PLAYWRIGHT_HTML_OPEN=never
+      # Must match Playwright's baseURL so sign-in links and cookies use the same host
+      - NEXTAUTH_URL=http://127.0.0.1:3000
+      # Send emails to Mailpit instead of the real provider
+      - EMAIL_SERVER_HOST=mailpit
+      - EMAIL_SERVER_PORT=1025
+      - EMAIL_SERVER_USER=e2e
+      - EMAIL_SERVER_PASSWORD=e2e
+      - EMAIL_FROM=ImprovDB <noreply@improvdb.test>
+      - MAILPIT_URL=http://mailpit:8025
     volumes:
       - .:/app
       # Keep Linux binaries out of the host's node_modules/.next and cache them between runs
@@ -34,6 +53,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      mailpit:
+        condition: service_started
 
 volumes:
   node_modules:

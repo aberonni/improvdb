@@ -1,10 +1,14 @@
-import type { GetServerSidePropsContext } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
 import { Logo } from "@/components/logo";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
@@ -13,6 +17,20 @@ import { cn } from "@/lib/utils";
 import { authOptions } from "@/server/auth";
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
+
+// Error codes NextAuth adds to the URL as `?error=`.
+// See https://next-auth.js.org/configuration/pages#sign-in-page
+const errorMessages: Record<string, string> = {
+  EmailSignin:
+    "We couldn't send you a sign-in email. Please try again later, or continue with Google.",
+  Verification:
+    "This sign-in link is invalid or has expired. Enter your email to get a new one.",
+  OAuthAccountNotLinked:
+    "This email is already linked to a different sign-in method. Please sign in the way you did before.",
+  SessionRequired: "Please sign in to continue.",
+};
+const defaultErrorMessage =
+  "Something went wrong while signing you in. Please try again.";
 
 function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -87,7 +105,9 @@ function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   );
 }
 
-export default function SignIn() {
+export default function SignIn({
+  error,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className="relative flex h-screen flex-col lg:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="relative flex h-16 shrink-0 flex-col px-6 text-white dark:border-r dark:bg-muted lg:h-full lg:p-10">
@@ -114,6 +134,14 @@ export default function SignIn() {
               automagically.
             </p>
           </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Unable to sign in</AlertTitle>
+              <AlertDescription>
+                {errorMessages[error] ?? defaultErrorMessage}
+              </AlertDescription>
+            </Alert>
+          )}
           <UserAuthForm />
           <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
@@ -148,5 +176,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     return { redirect: { destination: "/" } };
   }
 
-  return { props: {} };
+  const { error } = context.query;
+
+  return { props: { error: typeof error === "string" ? error : null } };
 }
