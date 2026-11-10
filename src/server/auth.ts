@@ -90,6 +90,9 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     verifyRequest: "/auth/verify-request",
+    // Show errors (e.g. an expired sign-in link) on the sign-in page instead
+    // of NextAuth's built-in error page.
+    error: "/auth/signin",
   },
   logger: {
     // NextAuth catches errors such as a failing email provider and only logs
