@@ -16,11 +16,9 @@ import {
   publicProcedure,
   type createTRPCContext,
 } from "@/server/api/trpc";
-import { getRateLimiter } from "@/server/helpers/getRateLimiter";
+import { enforceRateLimit } from "@/server/helpers/rateLimit";
 import { sendMail, sendMailToAdmins } from "@/server/nodemailer";
 import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
-
-const ratelimit = getRateLimiter();
 
 function cleanCategories(
   resources: (Resource & {
@@ -350,17 +348,7 @@ export const resourceRouter = createTRPCRouter({
   create: privateProcedure
     .input(resourceCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      const authorId = ctx.session.user.id;
-
-      if (ctx.session.user.role !== UserRole.ADMIN && ratelimit) {
-        const { success } = await ratelimit.limit(authorId);
-
-        if (!success) {
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-          });
-        }
-      }
+      await enforceRateLimit(ctx.session.user);
 
       const resourceWithSameId = await ctx.db.resource.findUnique({
         where: {
@@ -415,17 +403,7 @@ export const resourceRouter = createTRPCRouter({
   proposeUpdate: privateProcedure
     .input(resourceCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      const authorId = ctx.session.user.id;
-
-      if (ctx.session.user.role !== UserRole.ADMIN && ratelimit) {
-        const { success } = await ratelimit.limit(authorId);
-
-        if (!success) {
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-          });
-        }
-      }
+      await enforceRateLimit(ctx.session.user);
 
       const originalResource = await ctx.db.resource.findUnique({
         where: {

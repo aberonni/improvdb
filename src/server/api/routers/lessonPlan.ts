@@ -7,10 +7,8 @@ import {
   privateProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { getRateLimiter } from "@/server/helpers/getRateLimiter";
+import { enforceRateLimit } from "@/server/helpers/rateLimit";
 import { lessonPlanCreateSchema } from "@/utils/zod";
-
-const ratelimit = getRateLimiter();
 
 type LessonPlanCreateType = z.infer<typeof lessonPlanCreateSchema>;
 
@@ -126,17 +124,7 @@ export const lessonPlanRouter = createTRPCRouter({
   create: privateProcedure
     .input(lessonPlanCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      const authorId = ctx.session.user.id;
-
-      if (ctx.session.user.role !== UserRole.ADMIN && ratelimit) {
-        const { success } = await ratelimit.limit(authorId);
-
-        if (!success) {
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-          });
-        }
-      }
+      await enforceRateLimit(ctx.session.user);
 
       const lessonPlan = await ctx.db.lessonPlan.create({
         data: {
@@ -155,17 +143,7 @@ export const lessonPlanRouter = createTRPCRouter({
   update: privateProcedure
     .input(lessonPlanCreateSchema.extend({ id: z.string() }))
     .mutation(async ({ ctx, input: { id, ...input } }) => {
-      const authorId = ctx.session.user.id;
-
-      if (ctx.session.user.role !== UserRole.ADMIN && ratelimit) {
-        const { success } = await ratelimit.limit(authorId);
-
-        if (!success) {
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-          });
-        }
-      }
+      await enforceRateLimit(ctx.session.user);
 
       const originalLessonPlan = await ctx.db.lessonPlan.findUnique({
         where: {
