@@ -4,11 +4,21 @@ import { useMemo } from "react";
 
 import { SiteHeaderDesktop } from "@/components/site-header-desktop";
 import { SiteHeaderMobile } from "@/components/site-header-mobile";
+import { TYPE_LANDING_PAGE_LIST } from "@/lib/catalogue";
 
-export type SiteHeaderLinks = {
+export type SiteHeaderLink = {
   name: string;
   href: string;
-}[];
+  /** Shown as a dropdown on desktop and a nested list on mobile */
+  children?: { name: string; href: string }[];
+};
+
+export type SiteHeaderLinks = SiteHeaderLink[];
+
+const catalogueLinks = [
+  { name: "All games & exercises", href: "/" },
+  ...TYPE_LANDING_PAGE_LIST.map(({ name, path }) => ({ name, href: path })),
+];
 
 const userNavigation = [
   { name: "My Favourite Resources", href: "/user/my-favourite-resources" },
@@ -22,8 +32,8 @@ export function SiteHeader() {
   const { data: session } = useSession();
 
   const navigation = useMemo(() => {
-    const nav = [
-      { name: "Games & Exercises", href: "/" },
+    const nav: SiteHeaderLinks = [
+      { name: "Games & Exercises", href: "/", children: catalogueLinks },
       { name: "Lesson Plans", href: "/lesson-plan/browse" },
       { name: "Create Lesson Plan", href: "/lesson-plan/create" },
       { name: "About", href: "/about" },
@@ -39,6 +49,7 @@ export function SiteHeader() {
 
     return nav.concat([
       { name: "Pending Publication", href: "/admin/pending-publication" },
+      { name: "Categories", href: "/admin/categories" },
     ]);
   }, [session]);
 

@@ -15,6 +15,8 @@ import {
   getFacetedUniqueValues,
   type RowSelectionState,
   type Row,
+  type Updater,
+  functionalUpdate,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
@@ -48,6 +50,12 @@ interface DataTableProps<
   hiddenColumnsByDefault?: (keyof VisibilityState)[];
   hiddenColumnsOnMobile?: (keyof VisibilityState)[];
   onSelectionChange?: (selectedRows: Row<TData>[]) => void;
+  /** Pass to control filters from outside (e.g. the URL) */
+  columnFilters?: ColumnFiltersState;
+  onColumnFiltersChange?: (filters: ColumnFiltersState) => void;
+  /** Pass to control sorting from outside (e.g. the URL) */
+  sorting?: SortingState;
+  onSortingChange?: (sorting: SortingState) => void;
 }
 
 export function DataTable<TData, TValue = unknown>({
@@ -60,12 +68,31 @@ export function DataTable<TData, TValue = unknown>({
   hiddenColumnsByDefault = [],
   hiddenColumnsOnMobile = [],
   onSelectionChange,
+  columnFilters: controlledColumnFilters,
+  onColumnFiltersChange,
+  sorting: controlledSorting,
+  onSortingChange,
   ...props
 }: DataTableProps<TData, TValue>) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]);
+  const [internalColumnFilters, setInternalColumnFilters] =
+    useState<ColumnFiltersState>([]);
+
+  const sorting = controlledSorting ?? internalSorting;
+  const columnFilters = controlledColumnFilters ?? internalColumnFilters;
+
+  const setSorting = (updater: Updater<SortingState>) => {
+    const next = functionalUpdate(updater, sorting);
+    if (onSortingChange) onSortingChange(next);
+    else setInternalSorting(next);
+  };
+  const setColumnFilters = (updater: Updater<ColumnFiltersState>) => {
+    const next = functionalUpdate(updater, columnFilters);
+    if (onColumnFiltersChange) onColumnFiltersChange(next);
+    else setInternalColumnFilters(next);
+  };
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     () => Object.fromEntries(hiddenColumnsByDefault.map((key) => [key, false])),
   );

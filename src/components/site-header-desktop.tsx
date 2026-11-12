@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { type User } from "next-auth";
@@ -52,20 +53,40 @@ export const SiteHeaderDesktop = ({
         </div>
         <div>
           <div className="flex items-center gap-6 text-sm">
-            {navigation.map((item) => (
-              <Link
-                href={item.href}
-                key={item.name}
-                className={cn(
-                  "transition-colors hover:text-foreground/80",
-                  isActiveLink(router.pathname, item.href)
-                    ? "text-foreground"
-                    : "text-foreground/60",
-                )}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              const className = cn(
+                "transition-colors hover:text-foreground/80",
+                isActiveLink(router.pathname, item.href, item.children)
+                  ? "text-foreground"
+                  : "text-foreground/60",
+              );
+
+              if (!item.children) {
+                return (
+                  <Link href={item.href} key={item.name} className={className}>
+                    {item.name}
+                  </Link>
+                );
+              }
+
+              return (
+                <DropdownMenu key={item.name}>
+                  <DropdownMenuTrigger
+                    className={cn(className, "flex items-center gap-1")}
+                  >
+                    {item.name}
+                    <ChevronDownIcon className="h-4 w-4" aria-hidden />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {item.children.map((child) => (
+                      <DropdownMenuItem key={child.href} asChild>
+                        <Link href={child.href}>{child.name}</Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            })}
           </div>
         </div>
       </div>

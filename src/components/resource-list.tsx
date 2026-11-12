@@ -3,8 +3,10 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import {
   type ColumnDef,
+  type ColumnFiltersState,
   createColumnHelper,
   type Row,
+  type SortingState,
 } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
 import Link from "next/link";
@@ -21,6 +23,7 @@ import { ResourceFavouriteButton } from "@/components/resource-favourite-button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs } from "@/utils/api";
 
@@ -37,7 +40,9 @@ function getColumns({
   showSelection,
   showFavourites,
   useFilters,
+  linkBadges,
 }: {
+  linkBadges: boolean;
   showPublishedStatus: boolean;
   showEditProposals: boolean;
   showSelection: boolean;
@@ -53,7 +58,17 @@ function getColumns({
           className="w-40"
         />
       ),
-      cell: (props) => ResourceTypeLabels[props.getValue()],
+      cell: (props) =>
+        linkBadges ? (
+          <Link
+            href={TYPE_LANDING_PAGES[props.getValue()].path}
+            className="hover:underline"
+          >
+            {ResourceTypeLabels[props.getValue()]}
+          </Link>
+        ) : (
+          ResourceTypeLabels[props.getValue()]
+        ),
       filterFn: "arrIncludesSome",
     }),
     columnHelper.accessor("configuration", {
@@ -72,7 +87,13 @@ function getColumns({
           {(props.getValue() ?? [])
             .sort(({ name: a }, { name: b }) => a.localeCompare(b))
             .map(({ id, name }) => {
-              return <Badge key={id}>{name}</Badge>;
+              return linkBadges ? (
+                <Link key={id} href={categoryLandingPath(id)}>
+                  <Badge className="hover:opacity-80">{name}</Badge>
+                </Link>
+              ) : (
+                <Badge key={id}>{name}</Badge>
+              );
             })}
         </div>
       ),
@@ -266,7 +287,15 @@ export const ResourceList = ({
   showEditProposals = false,
   showFavourites = false,
   onSelectionChange,
+  linkBadges = false,
+  ...controlledState
 }: {
+  /** Link type and category badges to their Landing Pages */
+  linkBadges?: boolean;
+  columnFilters?: ColumnFiltersState;
+  onColumnFiltersChange?: (filters: ColumnFiltersState) => void;
+  sorting?: SortingState;
+  onSortingChange?: (sorting: SortingState) => void;
   useFilters?: boolean;
   usePagination?: boolean;
   queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
@@ -297,6 +326,7 @@ export const ResourceList = ({
     showFavourites,
     showSelection: !!onSelectionChange,
     useFilters,
+    linkBadges: linkBadges && !onSelectionChange,
   });
 
   return (
@@ -314,6 +344,7 @@ export const ResourceList = ({
       hiddenColumnsByDefault={["alternativeNames", "createdAt"]}
       hiddenColumnsOnMobile={["categories", "configuration"]}
       onSelectionChange={onSelectionChange}
+      {...controlledState}
       data-testid="resource-list"
     />
   );
