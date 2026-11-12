@@ -130,7 +130,7 @@ Environment variables are validated using `@t3-oss/env-nextjs` in `src/env.js`. 
 - `DATABASE_URL`: PostgreSQL connection string
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL`: NextAuth configuration
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: Google OAuth credentials
-- `EMAIL_SERVER_*`: SendGrid SMTP configuration for magic links
+- `EMAIL_SERVER_*`, `EMAIL_FROM`: SendGrid SMTP configuration for magic links and Resource notification emails (`src/server/mailer.ts`)
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`: Redis for rate limiting (optional in dev)
 
 ### Prisma Schema
@@ -139,7 +139,7 @@ The schema is split across multiple files in `prisma/schema/`. The main `index.p
 - **Multi-file setup**: Schemas organized by domain (user, resource, lesson-plan, category)
 
 ### Testing Strategy
-E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps (skipped when `node_modules` matches the lockfile), checks for pending migrations, builds the database from migrations, seeds, runs `npm run build`, and runs Playwright, whose `webServer` config serves the build with `npm run start` (or the dev server when `CI` is unset). Tests run on desktop Chromium and mobile WebKit with 4 workers, so they must not depend on each other's data. Specs in `tests/http/` check only what the server sends (headers, meta tags, generated images) and run on Chromium only.
+E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps (skipped when `node_modules` matches the lockfile), checks for pending migrations, builds the database from migrations, seeds, runs `npm run build`, and runs Playwright, whose `webServer` config serves the build with `npm run start` (or the dev server when `CI` is unset). Tests run on desktop Chromium and mobile WebKit with 4 workers, so they must not depend on each other's data. Specs in `tests/http/` check only what the server sends (headers, meta tags, generated images) and run on Chromium only. Tests that send email read it from Mailpit; tests tagged `@mail-failure` make Mailpit reject all email, so they run in their own project after the others.
 
 ### Dependency updates
 Renovate (`renovate.json`) opens grouped non-major PRs and one PR per major, and auto-merges them when CI is green. Use the `/fix-deps` skill to fix a failing update branch locally.
