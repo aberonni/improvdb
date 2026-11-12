@@ -167,7 +167,7 @@ test.describe("Sitemap", () => {
   test("sitemap.xml returns valid XML with expected URLs", async ({
     request,
   }) => {
-    const response = await request.get("/api/sitemap.xml");
+    const response = await request.get("/sitemap.xml");
 
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toBe("application/xml");
@@ -209,7 +209,7 @@ test.describe("Sitemap", () => {
   });
 
   test("sitemap.xml has correct caching headers", async ({ request }) => {
-    const response = await request.get("/api/sitemap.xml");
+    const response = await request.get("/sitemap.xml");
 
     expect(response.status()).toBe(200);
     const cacheControl = response.headers()["cache-control"];
@@ -235,7 +235,25 @@ test.describe("Robots.txt", () => {
     expect(content).toContain("Disallow: /api/");
     expect(content).toContain("Disallow: /auth/");
     expect(content).toContain("Disallow: /user/");
-    expect(content).toContain("Sitemap: https://improvdb.com/api/sitemap.xml");
+    expect(content).toContain("Sitemap: https://improvdb.com/sitemap.xml");
+  });
+
+  test("robots.txt does not block its own sitemap", async ({ request }) => {
+    const content = await (await request.get("/robots.txt")).text();
+    const directive = (name: string) =>
+      [...content.matchAll(new RegExp(`^${name}: (.+)$`, "gm"))].map((m) =>
+        m[1]!.trim(),
+      );
+
+    const [sitemapUrl] = directive("Sitemap");
+    expect(sitemapUrl).toBeDefined();
+    const sitemapPath = new URL(sitemapUrl!).pathname;
+    for (const disallowed of directive("Disallow")) {
+      expect(sitemapPath.startsWith(disallowed)).toBe(false);
+    }
+
+    const response = await request.get(sitemapPath);
+    expect(response.status()).toBe(200);
   });
 });
 
