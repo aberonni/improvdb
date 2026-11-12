@@ -72,9 +72,7 @@ export function resourceUpdateData(
     categories: {
       createMany: {
         data: categoryIds
-          .filter(
-            (id) => !original.categories.some((c) => c.categoryId === id),
-          )
+          .filter((id) => !original.categories.some((c) => c.categoryId === id))
           .map((categoryId) => ({ categoryId })),
       },
       deleteMany: original.categories

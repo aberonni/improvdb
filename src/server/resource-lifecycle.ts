@@ -80,7 +80,9 @@ export function resourceLifecycle({
     proposal: StoredResource,
     values: ResourceFormValues,
   ) {
-    const original = await findOrThrow(proposal.editProposalOriginalResourceId!);
+    const original = await findOrThrow(
+      proposal.editProposalOriginalResourceId!,
+    );
     const resource = await update(original, values);
     await db.resource.delete({ where: { id: proposal.id } });
 
@@ -151,8 +153,14 @@ export function resourceLifecycle({
 
       if (isAdmin(editor)) {
         return state === "EDIT_PROPOSAL"
-          ? { resource: await acceptEdit(target, values), outcome: "accepted" as const }
-          : { resource: await update(target, values), outcome: "updated" as const };
+          ? {
+              resource: await acceptEdit(target, values),
+              outcome: "accepted" as const,
+            }
+          : {
+              resource: await update(target, values),
+              outcome: "updated" as const,
+            };
       }
 
       if (state === "EDIT_PROPOSAL") {

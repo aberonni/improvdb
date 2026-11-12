@@ -7,6 +7,7 @@ import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { isAdmin as isAdminUser } from "@/lib/access";
 import { resourceState } from "@/lib/resource";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
@@ -23,6 +24,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
 
   const router = useRouter();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const reviewingProposal =
     isAdmin && !!resource && resourceState(resource) === "EDIT_PROPOSAL";
@@ -45,17 +47,8 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
                 : "Your changes have been saved.",
         });
       },
-    onError: (e) => {
-      const errorMessage = e.message ?? e.data?.zodError?.errors?.[0];
-
-      toast({
-        title: "Uh oh! Something went wrong.",
-        variant: "destructive",
-        description:
-          errorMessage ??
-          "Failed to save your changes! Please try again later.",
-      });
-    },
+    onError: (e) =>
+      showError(e, "Failed to save your changes! Please try again later."),
   });
 
   if (isLoadingResource || status === "loading") {

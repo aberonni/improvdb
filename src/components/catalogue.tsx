@@ -68,7 +68,9 @@ export function CataloguePage({ view }: { view: CatalogueView }) {
       )}
       <PageLayout
         breadcrumbs={
-          isHome ? undefined : [{ name: "Home", href: "/" }, { name: view.name }]
+          isHome
+            ? undefined
+            : [{ name: "Home", href: "/" }, { name: view.name }]
         }
         title={
           <>

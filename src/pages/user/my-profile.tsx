@@ -19,6 +19,7 @@ import {
 import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { type RouterOutputs, api } from "@/utils/api";
 import { userUpdateSchema } from "@/utils/zod";
 
@@ -29,6 +30,7 @@ const MyProfileForm = ({
 }) => {
   const { update } = useSession();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const { mutate: updateUser, isPending: isSaving } =
     api.user.updateUser.useMutation({
@@ -40,17 +42,8 @@ const MyProfileForm = ({
 
         void update(updatedUser);
       },
-      onError: (e) => {
-        const errorMessage =
-          e.message ?? e.data?.zodError?.errors?.[0];
-
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description:
-            errorMessage ?? "Failed to update user! Please try again later.",
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to update user! Please try again later."),
     });
 
   const form = useForm<z.infer<typeof userUpdateSchema>>({

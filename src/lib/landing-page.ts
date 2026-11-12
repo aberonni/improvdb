@@ -90,9 +90,8 @@ export function typeLandingPage(type: ResourceType): LandingPage {
 }
 
 /** One Landing Page per type, in navigation order */
-export const typeLandingPages = Object.values(ResourceType).map(
-  typeLandingPage,
-);
+export const typeLandingPages =
+  Object.values(ResourceType).map(typeLandingPage);
 
 /** Prisma include/select that gives a Category what categoryLandingPage needs */
 export const categoryLandingPageFields = {
@@ -120,7 +119,9 @@ function paragraphs(text: string | null) {
     .filter(Boolean);
 }
 
-export function categoryLandingPage(category: LandingPageCategory): LandingPage {
+export function categoryLandingPage(
+  category: LandingPageCategory,
+): LandingPage {
   const skill = category.name.toLowerCase();
   const written = paragraphs(category.description);
   const intro = written.length

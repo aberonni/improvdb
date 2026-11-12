@@ -69,10 +69,12 @@ describe("category Landing Pages", () => {
   });
 
   it("is indexed from 3 published Resources", () => {
-    expect(categoryLandingPage(category({ _count: { resources: 2 } })).indexable)
-      .toBe(false);
-    expect(categoryLandingPage(category({ _count: { resources: 3 } })).indexable)
-      .toBe(true);
+    expect(
+      categoryLandingPage(category({ _count: { resources: 2 } })).indexable,
+    ).toBe(false);
+    expect(
+      categoryLandingPage(category({ _count: { resources: 3 } })).indexable,
+    ).toBe(true);
   });
 
   it("says game or exercise in the singular", () => {

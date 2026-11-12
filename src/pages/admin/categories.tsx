@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { categoryLandingPage } from "@/lib/landing-page";
 import { type RouterOutputs, api } from "@/utils/api";
 
@@ -18,19 +19,14 @@ function CategoryDescriptionForm({ category }: { category: Category }) {
   const [description, setDescription] = useState(category.description ?? "");
   const utils = api.useUtils();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const { mutate, isPending } = api.category.update.useMutation({
     onSuccess: () => {
       void utils.category.invalidate();
       toast({ title: "Saved", description: `${category.name} updated.` });
     },
-    onError: (e) => {
-      toast({
-        title: "Uh oh! Something went wrong.",
-        variant: "destructive",
-        description: e.message,
-      });
-    },
+    onError: (e) => showError(e, "Please try again later."),
   });
 
   const id = `category-${category.id}`;
