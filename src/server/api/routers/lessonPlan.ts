@@ -203,6 +203,13 @@ export const lessonPlanRouter = createTRPCRouter({
         });
       }
 
+      if (lessonPlan.createdById !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Lesson Plan ${input.id} is not owned by you`,
+        });
+      }
+
       lessonPlan = await ctx.db.lessonPlan.delete({
         where: {
           id: input.id,
