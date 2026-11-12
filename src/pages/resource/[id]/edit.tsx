@@ -8,6 +8,7 @@ import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
 import { useToast } from "@/components/ui/use-toast";
 import { isAdmin as isAdminUser } from "@/lib/access";
+import { resourceState } from "@/lib/resource";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -24,26 +25,26 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const { toast } = useToast();
 
   const reviewingProposal =
-    isAdmin &&
-    resource?.editProposalOriginalResourceId !== undefined &&
-    resource?.editProposalOriginalResourceId !== null;
+    isAdmin && !!resource && resourceState(resource) === "EDIT_PROPOSAL";
 
-  const { mutate: updateResource, isPending: isSubmitting } = (
-    reviewingProposal
-      ? api.resource.acceptProposedUpdate
-      : isAdmin
-        ? api.resource.update
-        : api.resource.proposeUpdate
-  ).useMutation({
-    onSuccess: ({ resource: res }) => {
-      void router.push(
-        isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
-      );
-      toast({
-        title: "Success!",
-        description: "Your proposed changes have been saved.",
-      });
-    },
+  const { mutate: save, isPending: isSubmitting } =
+    api.resource.save.useMutation({
+      onSuccess: ({ resource: saved, outcome }) => {
+        void router.push(
+          outcome === "proposed"
+            ? "/user/my-proposed-resources"
+            : `/resource/${saved.id}`,
+        );
+        toast({
+          title: "Success!",
+          description:
+            outcome === "proposed"
+              ? "Your proposed changes have been saved."
+              : outcome === "accepted"
+                ? "The proposed changes have been applied."
+                : "Your changes have been saved.",
+        });
+      },
     onError: (e) => {
       const errorMessage = e.message ?? e.data?.zodError?.errors?.[0];
 
@@ -79,12 +80,11 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           resource={resource}
           isSubmitting={isSubmitting}
           isEditing
-          isEditingProposal={reviewingProposal}
           onSubmit={(values) => {
             if (isSubmitting) {
               return;
             }
-            updateResource(values);
+            save(values);
           }}
         />
       </PageLayout>

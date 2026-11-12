@@ -11,6 +11,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { isAdmin } from "@/lib/access";
 import { typeLandingPage } from "@/lib/landing-page";
+import { resourceState } from "@/lib/resource";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api } from "@/utils/api";
@@ -73,7 +74,7 @@ const AdminToolbar = ({
       <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
         Admin Features
       </span>
-      {resource.editProposalOriginalResourceId ? (
+      {resourceState(resource) === "EDIT_PROPOSAL" ? (
         <>
           <Link
             href={`/resource/${resource.editProposalOriginalResourceId}/`}
@@ -177,7 +178,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
         {isAdmin(user) && <AdminToolbar resource={resource} />}
         <SingleResourceComponent
           resource={resource}
-          showProposeChanges={!resource.editProposalOriginalResourceId}
+          showProposeChanges={resourceState(resource) !== "EDIT_PROPOSAL"}
         />
       </PageLayout>
     </>

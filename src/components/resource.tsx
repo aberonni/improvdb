@@ -14,6 +14,7 @@ import { ResourceFavouriteButton } from "@/components/resource-favourite-button"
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { categoryLandingPath, typeLandingPage } from "@/lib/landing-page";
+import { splitAlternativeNames } from "@/lib/resource";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
@@ -55,12 +56,9 @@ export function SingleResourceComponent({
   showProposeChanges = false,
 }: Props) {
   const alternativeNames = useMemo(() => {
-    if (!resource.alternativeNames || resource.alternativeNames === "") {
-      return [];
-    }
-
-    return typeof resource.alternativeNames === "string"
-      ? resource.alternativeNames.split(";")
+    return typeof resource.alternativeNames === "string" ||
+      !resource.alternativeNames
+      ? splitAlternativeNames(resource.alternativeNames)
       : resource.alternativeNames.map((name) => name.value);
   }, [resource]);
 

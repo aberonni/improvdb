@@ -30,6 +30,17 @@ _Avoid_: Tag, topic
 The filterable list of all published Resources. It is the home page.
 _Avoid_: Browse page, resource list
 
+**Proposal**:
+A Resource that is not published yet, waiting for an admin to publish it. Anyone can propose a new Resource; its proposer and admins can see it.
+_Avoid_: Draft, pending resource
+
+**Edit Proposal**:
+A suggested change to an existing Resource, stored as a separate unpublished Resource until an admin accepts it (the change is applied to the original) or deletes it.
+_Avoid_: Suggestion, revision
+
+**Published**:
+A Resource everybody can see, and the only kind listed in the Catalogue, on Landing Pages and in the sitemap.
+
 **Landing Page**:
 A Catalogue view fixed to one type or one Category, with its own heading and introduction, meant to be found through search.
 _Avoid_: Hub, filtered page, SEO page
