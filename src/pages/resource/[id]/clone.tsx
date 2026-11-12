@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
-import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -16,35 +16,15 @@ export const ResourceClonePage: NextPage<{ id: string }> = ({ id }) => {
     });
 
   const router = useRouter();
-  const { toast } = useToast();
+  const showError = useErrorToast();
 
   const { mutate: createResource, isPending: isSubmitting } =
     api.resource.create.useMutation({
       onSuccess: ({ resource: res }) => {
         void router.push("/resource/" + res.id);
       },
-      onError: (e) => {
-        if (e.data?.code === "CONFLICT") {
-          toast({
-            title: "Uh oh! Something went wrong.",
-            variant: "destructive",
-            description:
-              "A game or exercise already exists at this URL. Please choose a new URL.",
-          });
-          return;
-        }
-
-        const errorMessage =
-          e.message ??
-          e.data?.zodError?.errors?.[0] ??
-          "Failed to create resource! Please try again later.";
-
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description: errorMessage,
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to create resource! Please try again later."),
     });
 
   if (isLoadingResource) {

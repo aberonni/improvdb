@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -10,7 +9,10 @@ import { SingleResourceComponent } from "@/components/resource";
 import { ResourceSEO } from "@/components/seo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import { useErrorToast } from "@/hooks/use-error-toast";
+import { isAdmin } from "@/lib/access";
+import { typeLandingPage } from "@/lib/landing-page";
+import { resourceState } from "@/lib/resource";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api } from "@/utils/api";
@@ -23,6 +25,7 @@ const AdminToolbar = ({
   const utils = api.useUtils();
   const router = useRouter();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const { mutate: setPublished, isPending: isSettingPublishedStatus } =
     api.resource.setPublished.useMutation({
@@ -33,17 +36,8 @@ const AdminToolbar = ({
           description: `"${resource.title}" updated.`,
         });
       },
-      onError: (e) => {
-        const errorMessage =
-          e.message ??
-          e.data?.zodError?.errors?.[0] ??
-          "Failed to update resource! Please try again later.";
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description: errorMessage,
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to update resource! Please try again later."),
     });
 
   const { mutate: deleteResource, isPending: isDeletingResource } =
@@ -55,17 +49,8 @@ const AdminToolbar = ({
           description: `"${resource.title}" deleted.`,
         });
       },
-      onError: (e) => {
-        const errorMessage =
-          e.message ??
-          e.data?.zodError?.errors?.[0] ??
-          "Failed to delete resource! Please try again later.";
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description: errorMessage,
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to delete resource! Please try again later."),
     });
 
   return (
@@ -73,7 +58,7 @@ const AdminToolbar = ({
       <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
         Admin Features
       </span>
-      {resource.editProposalOriginalResourceId ? (
+      {resourceState(resource) === "EDIT_PROPOSAL" ? (
         <>
           <Link
             href={`/resource/${resource.editProposalOriginalResourceId}/`}
@@ -168,16 +153,16 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
         breadcrumbs={[
           { name: "Home", href: "/" },
           {
-            name: TYPE_LANDING_PAGES[resource.type].name,
-            href: TYPE_LANDING_PAGES[resource.type].path,
+            name: typeLandingPage(resource.type).name,
+            href: typeLandingPage(resource.type).path,
           },
           { name: resource.title },
         ]}
       >
-        {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}
+        {isAdmin(user) && <AdminToolbar resource={resource} />}
         <SingleResourceComponent
           resource={resource}
-          showProposeChanges={!resource.editProposalOriginalResourceId}
+          showProposeChanges={resourceState(resource) !== "EDIT_PROPOSAL"}
         />
       </PageLayout>
     </>

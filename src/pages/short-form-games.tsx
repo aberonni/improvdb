@@ -1,10 +1,13 @@
 import { ResourceType } from "@prisma/client";
 
-import { TypeLandingPage } from "@/components/type-landing-page";
+import { CataloguePage } from "@/components/catalogue";
+import { typeLandingPage } from "@/lib/landing-page";
 import { catalogueStaticProps } from "@/server/helpers/landingPageProps";
 
+const page = typeLandingPage(ResourceType.SHORT_FORM);
+
 export default function ShortFormGames() {
-  return <TypeLandingPage type={ResourceType.SHORT_FORM} />;
+  return <CataloguePage view={page} />;
 }
 
-export const getStaticProps = catalogueStaticProps(ResourceType.SHORT_FORM);
+export const getStaticProps = catalogueStaticProps(page.filter);

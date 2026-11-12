@@ -1,16 +1,11 @@
 import { z } from "zod";
 
+import { categoryLandingPageFields } from "@/lib/landing-page";
 import {
   adminProcedure,
   createTRPCRouter,
   publicProcedure,
 } from "@/server/api/trpc";
-
-const publishedResourceCount = {
-  _count: {
-    select: { resources: { where: { resource: { published: true } } } },
-  },
-} as const;
 
 export const categoryRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -19,7 +14,7 @@ export const categoryRouter = createTRPCRouter({
       orderBy: {
         name: "asc",
       },
-      include: publishedResourceCount,
+      select: categoryLandingPageFields,
     });
   }),
   getById: publicProcedure
@@ -27,7 +22,7 @@ export const categoryRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.db.category.findUnique({
         where: { id: input.id },
-        include: publishedResourceCount,
+        select: categoryLandingPageFields,
       });
     }),
   update: adminProcedure

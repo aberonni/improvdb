@@ -1,7 +1,8 @@
 import Head from "next/head";
 
+import { SITE_URL } from "@/lib/site";
+
 const SITE_NAME = "ImprovDB";
-const SITE_URL = "https://improvdb.com";
 const DEFAULT_DESCRIPTION =
   "ImprovDB is the open-source database for improv games and lesson plans. Find warm-up exercises, short form games, and long form formats.";
 

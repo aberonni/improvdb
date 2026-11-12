@@ -23,7 +23,7 @@ import { ResourceFavouriteButton } from "@/components/resource-favourite-button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import { categoryLandingPath, typeLandingPage } from "@/lib/landing-page";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs } from "@/utils/api";
 
@@ -69,7 +69,7 @@ function getColumns({
       cell: (props) =>
         linkBadges ? (
           <Link
-            href={TYPE_LANDING_PAGES[props.getValue()].path}
+            href={typeLandingPage(props.getValue()).path}
             className="hover:underline"
           >
             {ResourceTypeLabels[props.getValue()]}

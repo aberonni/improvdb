@@ -5,14 +5,9 @@ import {
   type CatalogueState,
   EMPTY_CATALOGUE_STATE,
   NEWEST_SORTING,
-  TYPE_LANDING_PAGE_LIST,
-  TYPE_LANDING_PAGES,
   catalogueHref,
   catalogueQuery,
-  categoryLandingPath,
-  columnFiltersToState,
   parseCatalogueQuery,
-  stateToColumnFilters,
 } from "@/lib/catalogue";
 
 const state = (overrides: Partial<CatalogueState>): CatalogueState => ({
@@ -153,55 +148,5 @@ describe("catalogueQuery and catalogueHref", () => {
     const search = catalogueHref(original).replace(/^\/\??/, "");
     const query = Object.fromEntries(new URLSearchParams(search));
     expect(parseCatalogueQuery(query)).toEqual(original);
-  });
-});
-
-describe("column filters", () => {
-  it("maps the category filter to the categories column", () => {
-    expect(
-      stateToColumnFilters(
-        state({ title: "zip", category: ["listening"], type: [] }),
-      ),
-    ).toEqual([
-      { id: "title", value: "zip" },
-      { id: "categories", value: ["listening"] },
-    ]);
-  });
-
-  it("has no filters for the empty state", () => {
-    expect(stateToColumnFilters(EMPTY_CATALOGUE_STATE)).toEqual([]);
-  });
-
-  it("round-trips through column filters, keeping the sorting given", () => {
-    const original: CatalogueState = {
-      title: "zip",
-      type: [ResourceType.EXERCISE],
-      configuration: [ResourceConfiguration.CIRCLE],
-      category: ["listening"],
-      sorting: NEWEST_SORTING,
-    };
-    expect(
-      columnFiltersToState(stateToColumnFilters(original), original.sorting),
-    ).toEqual(original);
-  });
-
-  it("treats missing filters as empty", () => {
-    expect(columnFiltersToState([], [])).toEqual(EMPTY_CATALOGUE_STATE);
-  });
-});
-
-describe("Landing Page paths", () => {
-  it("has one type Landing Page per resource type", () => {
-    for (const type of Object.values(ResourceType)) {
-      expect(TYPE_LANDING_PAGES[type].type).toBe(type);
-    }
-  });
-
-  it("gives every Landing Page its own path", () => {
-    const paths = [
-      ...TYPE_LANDING_PAGE_LIST.map((page) => page.path),
-      categoryLandingPath("listening"),
-    ];
-    expect(new Set(paths).size).toBe(paths.length);
   });
 });

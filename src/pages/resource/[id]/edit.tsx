@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -8,6 +7,9 @@ import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
+import { isAdmin as isAdminUser } from "@/lib/access";
+import { resourceState } from "@/lib/resource";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -18,43 +20,35 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     });
 
   const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
+  const isAdmin = isAdminUser(session?.user);
 
   const router = useRouter();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const reviewingProposal =
-    isAdmin &&
-    resource?.editProposalOriginalResourceId !== undefined &&
-    resource?.editProposalOriginalResourceId !== null;
+    isAdmin && !!resource && resourceState(resource) === "EDIT_PROPOSAL";
 
-  const { mutate: updateResource, isPending: isSubmitting } = (
-    reviewingProposal
-      ? api.resource.acceptProposedUpdate
-      : isAdmin
-        ? api.resource.update
-        : api.resource.proposeUpdate
-  ).useMutation({
-    onSuccess: ({ resource: res }) => {
-      void router.push(
-        isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
-      );
-      toast({
-        title: "Success!",
-        description: "Your proposed changes have been saved.",
-      });
-    },
-    onError: (e) => {
-      const errorMessage = e.message ?? e.data?.zodError?.errors?.[0];
-
-      toast({
-        title: "Uh oh! Something went wrong.",
-        variant: "destructive",
-        description:
-          errorMessage ??
-          "Failed to save your changes! Please try again later.",
-      });
-    },
+  const { mutate: save, isPending: isSubmitting } =
+    api.resource.save.useMutation({
+      onSuccess: ({ resource: saved, outcome }) => {
+        void router.push(
+          outcome === "proposed"
+            ? "/user/my-proposed-resources"
+            : `/resource/${saved.id}`,
+        );
+        toast({
+          title: "Success!",
+          description:
+            outcome === "proposed"
+              ? "Your proposed changes have been saved."
+              : outcome === "accepted"
+                ? "The proposed changes have been applied."
+                : "Your changes have been saved.",
+        });
+      },
+    onError: (e) =>
+      showError(e, "Failed to save your changes! Please try again later."),
   });
 
   if (isLoadingResource || status === "loading") {
@@ -79,12 +73,11 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           resource={resource}
           isSubmitting={isSubmitting}
           isEditing
-          isEditingProposal={reviewingProposal}
           onSubmit={(values) => {
             if (isSubmitting) {
               return;
             }
-            updateResource(values);
+            save(values);
           }}
         />
       </PageLayout>

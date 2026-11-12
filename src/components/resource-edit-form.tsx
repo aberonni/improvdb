@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
-import { kebabCase, pickBy } from "lodash";
+import { kebabCase } from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
@@ -40,9 +40,10 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { resourceFormValues } from "@/lib/resource";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
-import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
+import { resourceCreateSchema, resourceUpdateSchema } from "@/utils/zod";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -84,13 +85,11 @@ export default function ResourceEditForm({
   onSubmit,
   isSubmitting,
   isEditing = false,
-  isEditingProposal = false,
 }: {
   resource?: Readonly<RouterOutputs["resource"]["getById"]>;
   onSubmit: (values: z.infer<typeof resourceCreateSchema>) => void;
   isSubmitting: boolean;
   isEditing?: boolean;
-  isEditingProposal?: boolean;
 }) {
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
   const [optionalFieldsOpen, setOptionalFieldsOpen] = useState(true);
@@ -100,33 +99,14 @@ export default function ResourceEditForm({
   const { data: resources, isLoading: isLoadingResources } =
     api.resource.getAllOnlyIdAndTitle.useQuery();
 
-  let defaultValues = editFormDefaults;
+  const defaultValues = resource
+    ? resourceFormValues(resource)
+    : editFormDefaults;
 
-  if (resource) {
-    const resourceWithoutNulls = pickBy(resource, (v) => v !== null);
-
-    defaultValues = {
-      ...resourceWithoutNulls,
-      categories: resource.categories.map(({ category }) => ({
-        label: category.name,
-        value: category.id,
-      })),
-      relatedResources: resource.relatedResources.map((relatedResource) => ({
-        label: relatedResource.title,
-        value: relatedResource.id,
-      })),
-      alternativeNames: (resource.alternativeNames ?? "")
-        .split(";")
-        .filter((s) => s !== "")
-        .map((name) => ({
-          label: name,
-          value: name,
-        })),
-    };
-  }
-
-  const resolverSchema = isEditingProposal
-    ? resourceProposalSchema
+  // An existing Resource keeps its id, which may not match the format new
+  // ids must follow (Edit Proposal ids, for example)
+  const resolverSchema = isEditing
+    ? resourceUpdateSchema
     : resourceCreateSchema;
 
   const form = useForm<CreateSchemaType>({

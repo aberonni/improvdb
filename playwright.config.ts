@@ -42,11 +42,23 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      grepInvert: /@mail-failure/,
     },
     {
       name: "Mobile Safari",
       use: { ...devices["iPhone 12"] },
       testIgnore: "http/**",
+      grepInvert: /@mail-failure/,
+    },
+    /*
+     * Tests tagged @mail-failure make Mailpit reject every email, which would
+     * break any other test sending one at the same time, so they run last.
+     */
+    {
+      name: "mail failure",
+      use: { ...devices["Desktop Chrome"] },
+      grep: /@mail-failure/,
+      dependencies: ["chromium", "Mobile Safari"],
     },
   ],
 
