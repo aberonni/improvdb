@@ -33,6 +33,15 @@ npx tsx prisma/updateSeedData.ts  # Pull production data to seedData.json
 
 ### Testing
 
+Unit tests (Vitest) cover plain logic, as `*.test.ts` files next to the code in `src/`:
+
+```bash
+npm test                 # Run unit tests once
+npx vitest               # Watch mode
+```
+
+E2E tests:
+
 > Requires Docker. Runs in the CI Playwright image against a throwaway, freshly seeded Postgres (does not touch the dev DB); the dev server is started by Playwright.
 
 ```bash
@@ -175,6 +184,7 @@ UI components are from shadcn/ui and located in `src/components/ui/`. These are 
 
 ### Testing
 - **Always add E2E tests** for new features where applicable
+- **Add unit tests** (`*.test.ts` next to the code) for pure logic such as URL parsing or SEO rules
 - Tests go in the `tests/` directory using Playwright
 - Include tests for SEO metadata when adding new pages
 - Test API endpoints return expected responses

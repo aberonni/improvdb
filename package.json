@@ -11,6 +11,7 @@
     "dev": "next dev --webpack",
     "postinstall": "prisma generate",
     "lint": "eslint .",
+    "test": "vitest run",
     "start": "next start",
     "test:e2e": "./scripts/e2e-docker.sh",
     "test:e2e:update": "npm run test:e2e -- --update-snapshots",
@@ -107,7 +108,8 @@
     "prisma": "^6.19.3",
     "tailwindcss": "^3.4.19",
     "tsx": "^4.23.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0"
   },
   "ct3aMetadata": {
     "initVersion": "7.25.0"
