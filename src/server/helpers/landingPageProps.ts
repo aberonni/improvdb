@@ -1,6 +1,7 @@
 import type { ResourceType } from "@prisma/client";
 import type { GetStaticProps } from "next";
 
+import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 
 /**
@@ -16,7 +17,7 @@ export const catalogueStaticProps =
 
     await Promise.all([
       ssg.resource.getCatalogue.prefetch(type ? { type } : undefined),
-      ssg.category.getAll.prefetch(),
+      prefetchSiteFooter(ssg),
     ]);
 
     return {

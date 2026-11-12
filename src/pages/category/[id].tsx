@@ -6,6 +6,7 @@ import {
   EMPTY_CATALOGUE_STATE,
   MIN_RESOURCES_TO_INDEX,
 } from "@/lib/catalogue";
+import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -54,7 +55,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   await Promise.all([
     ssg.resource.getCatalogue.prefetch({ category: id }),
-    ssg.category.getAll.prefetch(),
+    prefetchSiteFooter(ssg),
   ]);
 
   return {

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api } from "@/utils/api";
 
@@ -183,7 +184,10 @@ export const getStaticProps: GetStaticProps = async (context) => {
   if (typeof lessonPlanId !== "string" || lessonPlanId === "")
     throw new Error("No lessonPlanId");
 
-  await ssg.lessonPlan.getById.prefetch({ id: lessonPlanId });
+  await Promise.all([
+    ssg.lessonPlan.getById.prefetch({ id: lessonPlanId }),
+    prefetchSiteFooter(ssg),
+  ]);
 
   return {
     props: {

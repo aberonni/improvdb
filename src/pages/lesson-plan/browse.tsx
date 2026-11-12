@@ -3,6 +3,7 @@ import type { GetStaticProps } from "next";
 import { LessonPlanList } from "@/components/lesson-plan-list";
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
+import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -36,7 +37,10 @@ export default function BrowseLessonPlans() {
 export const getStaticProps: GetStaticProps = async () => {
   const ssg = generateSSGHelper();
 
-  await ssg.lessonPlan.getPublic.prefetch();
+  await Promise.all([
+    ssg.lessonPlan.getPublic.prefetch(),
+    prefetchSiteFooter(ssg),
+  ]);
 
   return {
     props: {
