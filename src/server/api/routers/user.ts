@@ -1,11 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  privateProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, privateProcedure } from "@/server/api/trpc";
 import { userUpdateSchema } from "@/utils/zod";
 
 export const userRouter = createTRPCRouter({
@@ -67,25 +63,4 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
-  getTopContributors: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.user.findMany({
-      select: {
-        name: true,
-        _count: true,
-      },
-      where: {
-        resources: {
-          some: {
-            published: true,
-          },
-        },
-      },
-      orderBy: {
-        resources: {
-          _count: "desc",
-        },
-      },
-      take: 5,
-    });
-  }),
 });

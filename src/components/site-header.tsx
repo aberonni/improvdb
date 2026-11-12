@@ -23,10 +23,10 @@ export function SiteHeader() {
 
   const navigation = useMemo(() => {
     const nav = [
-      { name: "About", href: "/about" },
-      { name: "Browse Resources", href: "/resource/browse" },
-      { name: "Browse Lesson Plans", href: "/lesson-plan/browse" },
+      { name: "Games & Exercises", href: "/" },
+      { name: "Lesson Plans", href: "/lesson-plan/browse" },
       { name: "Create Lesson Plan", href: "/lesson-plan/create" },
+      { name: "About", href: "/about" },
     ];
 
     if (!session?.user) {

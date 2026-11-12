@@ -11,6 +11,7 @@ import Link from "next/link";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { type DataTableSortOption } from "@/components/data-table/data-table-sort-options";
 import { TitleCellContent } from "@/components/data-table/data-table-title-cell-content";
 import {
   ResourceConfigurationLabels,
@@ -102,6 +103,11 @@ function getColumns({
           </div>
         );
       },
+    }),
+    // Never shown; only here so the Catalogue can sort by "Newest"
+    columnHelper.accessor("createdAt", {
+      sortingFn: "datetime",
+      enableHiding: false,
     }),
   ] as Array<ColumnDef<SingleResourceType, unknown>>;
 
@@ -247,6 +253,11 @@ function getColumns({
       }));
 }
 
+const SORT_OPTIONS: DataTableSortOption[] = [
+  { label: "A–Z", sorting: [] },
+  { label: "Newest", sorting: [{ id: "createdAt", desc: true }] },
+];
+
 export const ResourceList = ({
   useFilters = false,
   usePagination = false,
@@ -298,8 +309,9 @@ export const ResourceList = ({
           ? ["title", "type", "configuration", "categories"]
           : undefined
       }
+      sortOptions={useFilters ? SORT_OPTIONS : undefined}
       usePagination={usePagination}
-      hiddenColumnsByDefault={["alternativeNames"]}
+      hiddenColumnsByDefault={["alternativeNames", "createdAt"]}
       hiddenColumnsOnMobile={["categories", "configuration"]}
       onSelectionChange={onSelectionChange}
       data-testid="resource-list"
