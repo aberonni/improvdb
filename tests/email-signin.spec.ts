@@ -43,22 +43,25 @@ test.describe("Email sign-in", () => {
     expect(await session.json()).toMatchObject({ user: { email } });
   });
 
-  test("shows an error when the email can't be sent", async ({
-    page,
-    request,
-  }) => {
-    await setMailpitFailure(request, 451);
-    try {
-      await requestSignInEmail(page, uniqueEmail(page));
+  // Makes every email fail while it runs, so it runs in its own project
+  // after all other tests (see playwright.config.ts)
+  test(
+    "shows an error when the email can't be sent",
+    { tag: "@mail-failure" },
+    async ({ page, request }) => {
+      await setMailpitFailure(request, 451);
+      try {
+        await requestSignInEmail(page, uniqueEmail(page));
 
-      await expect(page).toHaveURL(/\/auth\/signin\?.*error=EmailSignin/);
-      await expect(
-        page.getByRole("alert").filter({ hasText: "Unable to sign in" }),
-      ).toContainText("We couldn't send you a sign-in email");
-    } finally {
-      await setMailpitFailure(request);
-    }
-  });
+        await expect(page).toHaveURL(/\/auth\/signin\?.*error=EmailSignin/);
+        await expect(
+          page.getByRole("alert").filter({ hasText: "Unable to sign in" }),
+        ).toContainText("We couldn't send you a sign-in email");
+      } finally {
+        await setMailpitFailure(request);
+      }
+    },
+  );
 });
 
 test("shows an error for an invalid sign-in link", async ({ page }) => {

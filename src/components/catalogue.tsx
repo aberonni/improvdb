@@ -33,8 +33,13 @@ const HOME = {
   heading: "Improv Games & Exercises",
   description:
     "ImprovDB is the open-source database for improv games and exercises. Find warm-ups, short form games and long form formats for your next improv class or rehearsal, and share lesson plans with other improv teachers.",
-  subtitle: (count: number | undefined) =>
-    `${count ? `${count} ` : ""}warm-ups, exercises, short form games and long form formats, free and open source`,
+  // The count is its own text node, as before, so the text renders the same
+  subtitle: (count: number | undefined) => (
+    <>
+      {count ? `${count} ` : ""}warm-ups, exercises, short form games and long
+      form formats, free and open source
+    </>
+  ),
 };
 
 /**

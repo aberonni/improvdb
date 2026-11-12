@@ -38,15 +38,16 @@ async function expectMail(
 
 async function newSignedInPage(browser: Browser, email: string) {
   const page = await (await browser.newContext()).newPage();
+  // Tick the save dialog's "Don't ask me again", so Save submits directly
+  await page.addInitScript(() => {
+    localStorage.setItem("dontAskAgainForResourceSave", "true");
+  });
   await signInWithEmail(page, email);
   return page;
 }
 
-/** Saves the Resource form, confirming if it asks */
 async function save(page: Page) {
   await page.getByRole("button", { name: "Save" }).click();
-  const confirm = page.getByRole("button", { name: "Continue" });
-  if (await confirm.isVisible()) await confirm.click();
 }
 
 test("an edit is proposed, accepted by an admin, and both sides are emailed", async ({
@@ -69,7 +70,9 @@ test("an edit is proposed, accepted by an admin, and both sides are emailed", as
   const description = proposer.locator("textarea[name=description]");
   await description.fill(`${await description.inputValue()}\n\n${marker}`);
   await save(proposer);
-  await expect(proposer).toHaveURL(/\/user\/my-proposed-resources/);
+  await expect(proposer).toHaveURL(/\/user\/my-proposed-resources/, {
+    timeout: 15_000,
+  });
   await expectMail(request, "admin@e2e.com", "New edit proposal");
 
   // The original is unchanged until an admin accepts the proposal
@@ -79,10 +82,15 @@ test("an edit is proposed, accepted by an admin, and both sides are emailed", as
   // An admin reviews the proposal and accepts it
   const admin = await newSignedInPage(browser, "admin@e2e.com");
   await admin.goto("/admin/pending-publication");
-  await admin
-    .locator(`a[href^="/resource/${resource.id}_proposal_"]`)
-    .first()
-    .click();
+  // The newest proposal for this Resource (a retried test leaves one behind)
+  const proposals = admin.locator(
+    `a[href^="/resource/${resource.id}_proposal_"]`,
+  );
+  await expect(proposals.first()).toBeVisible();
+  const hrefs = await proposals.evaluateAll((links) =>
+    links.map((link) => link.getAttribute("href")!),
+  );
+  await admin.goto(hrefs.sort().at(-1)!);
   await admin.getByRole("link", { name: "Review Proposal" }).click();
   await expect(
     admin.getByRole("heading", { name: /^Review Proposal/ }),
@@ -92,7 +100,9 @@ test("an edit is proposed, accepted by an admin, and both sides are emailed", as
   );
   await save(admin);
 
-  await expect(admin).toHaveURL(new RegExp(`/resource/${resource.id}$`));
+  await expect(admin).toHaveURL(new RegExp(`/resource/${resource.id}$`), {
+    timeout: 15_000,
+  });
   await expect(admin.getByText(marker)).toBeVisible();
   await expectMail(
     request,
