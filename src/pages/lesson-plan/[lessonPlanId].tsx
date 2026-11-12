@@ -6,8 +6,8 @@ import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 
 import {
-    LessonPlanVisibilityLabels,
-    SingleLessonPlanComponent,
+  LessonPlanVisibilityLabels,
+  SingleLessonPlanComponent,
 } from "@/components/lesson-plan";
 import { LessonPlanSharePopover } from "@/components/lesson-plan-share-popover";
 import { LoadingPage } from "@/components/loading";
@@ -99,7 +99,7 @@ const AdminToolbar = ({
           htmlFor="showAllResourceDescriptions"
           className="cursor-pointer select-none pl-2 text-sm font-medium leading-none"
         >
-          Show All Resource Descriptions
+          Show All Descriptions
         </label>
       </div>
     </div>

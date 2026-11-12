@@ -41,18 +41,18 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
       );
       toast({
         title: "Success!",
-        description: "Resource proposal saved.",
+        description: "Your proposed changes have been saved.",
       });
     },
     onError: (e) => {
-      const errorMessage =
-        e.message ?? e.data?.zodError?.errors?.[0];
+      const errorMessage = e.message ?? e.data?.zodError?.errors?.[0];
 
       toast({
         title: "Uh oh! Something went wrong.",
         variant: "destructive",
         description:
-          errorMessage ?? "Failed to update resource! Please try again later.",
+          errorMessage ??
+          "Failed to save your changes! Please try again later.",
       });
     },
   });

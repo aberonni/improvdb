@@ -250,7 +250,7 @@ export function SingleLessonPlanComponent({
                                 target="_blank"
                               >
                                 <OpenInNewWindowIcon className="mr-1 inline-block h-3 w-3" />
-                                Open resource in new tab
+                                Open in new tab
                               </Link>
                             </>
                           ) : (

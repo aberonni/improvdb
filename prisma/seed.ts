@@ -1,6 +1,6 @@
 import fs from "fs";
 
-import { type Prisma } from "@prisma/client";
+import { type Prisma, UserRole } from "@prisma/client";
 
 import {
   seedDataFileName,
@@ -53,6 +53,7 @@ async function createUsers() {
     create: {
       name: "e2e_admin",
       email: "admin@e2e.com",
+      role: UserRole.ADMIN,
       sessions: {
         create: {
           // 2.1. Here we are just making sure the expiration is for a future date, to avoid NextAuth to invalidate our session during the tests
@@ -73,7 +74,7 @@ async function createUsers() {
         },
       },
     },
-    update: {},
+    update: { role: UserRole.ADMIN },
   });
 
   return { user, admin };

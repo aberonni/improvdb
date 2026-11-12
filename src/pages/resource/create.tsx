@@ -25,7 +25,7 @@ export default function Create() {
             title: "Uh oh! Something went wrong.",
             variant: "destructive",
             description:
-              "A resource already exists at this URL. Please choose a new URL.",
+              "A game or exercise already exists at this URL. Please choose a new URL.",
           });
           return;
         }
@@ -46,9 +46,9 @@ export default function Create() {
   return (
     <>
       <Head>
-        <title>Propose Resource - ImprovDB</title>
+        <title>Propose a Game or Exercise - ImprovDB</title>
       </Head>
-      <PageLayout title="Propose Resource" authenticatedOnly>
+      <PageLayout title="Propose a Game or Exercise" authenticatedOnly>
         <ResourceEditForm
           onSubmit={(values) => {
             if (isSubmitting) {

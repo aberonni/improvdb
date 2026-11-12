@@ -60,7 +60,7 @@ const updateResource = async ({
   if (!originalResource) {
     throw new TRPCError({
       code: "NOT_FOUND",
-      message: `Resource ${updatedResource.id} not found`,
+      message: `Couldn't find "${updatedResource.id}"`,
     });
   }
 
@@ -290,7 +290,7 @@ export const resourceRouter = createTRPCRouter({
       if (!resource) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Resource ${input.id} not found`,
+          message: `Couldn't find "${input.id}"`,
         });
       }
 
@@ -303,7 +303,7 @@ export const resourceRouter = createTRPCRouter({
       if (!userCanSeeResource) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: `Resource ${input.id} not found`,
+          message: `Couldn't find "${input.id}"`,
         });
       }
 
@@ -334,7 +334,8 @@ export const resourceRouter = createTRPCRouter({
       if (resourceWithSameId) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "A resource with that URL already exists. Change URL",
+          message:
+            "A game or exercise already exists at this URL. Please choose a new URL.",
         });
       }
 
@@ -363,8 +364,8 @@ export const resourceRouter = createTRPCRouter({
       if (ctx.session.user.role !== UserRole.ADMIN) {
         void sendMailToAdmins(
           {
-            subject: "New resource created",
-            html: `<p>A new resource has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View resource</a></p>`,
+            subject: "New game or exercise proposed",
+            html: `<p>A new game or exercise has been proposed by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
           },
           ctx.db,
         );
@@ -389,14 +390,14 @@ export const resourceRouter = createTRPCRouter({
       if (!originalResource) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Resource ${input.id} not found`,
+          message: `Couldn't find "${input.id}"`,
         });
       }
 
       if (originalResource.editProposalOriginalResourceId) {
         throw new TRPCError({
           code: "METHOD_NOT_SUPPORTED",
-          message: `Resource ${input.id} is already a proposal. Cannot propose changes on a proposal. Edit the original resource (${originalResource.editProposalOriginalResourceId}) and try again.`,
+          message: `"${input.id}" is already a proposed edit. Propose changes to the original (${originalResource.editProposalOriginalResourceId}) instead.`,
         });
       }
 
@@ -428,8 +429,8 @@ export const resourceRouter = createTRPCRouter({
 
       void sendMailToAdmins(
         {
-          subject: "New resource edit proposal",
-          html: `<p>A new resource edit proposal has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View resource</a></p>`,
+          subject: "New edit proposal",
+          html: `<p>A new edit proposal has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
         },
         ctx.db,
       );
@@ -459,14 +460,14 @@ export const resourceRouter = createTRPCRouter({
         if (!proposal) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Resource ${proposalId} not found`,
+            message: `Couldn't find "${proposalId}"`,
           });
         }
 
         if (!proposal.editProposalOriginalResourceId) {
           throw new TRPCError({
             code: "NOT_FOUND",
-            message: `Resource ${proposalId} is not a proposal`,
+            message: `"${proposalId}" is not a proposed edit`,
           });
         }
 
@@ -480,8 +481,8 @@ export const resourceRouter = createTRPCRouter({
 
         if (proposal.editProposalAuthor?.email) {
           void sendMail({
-            subject: `Your proposed resource edit to "${resource.title}" has been accepted`,
-            html: `<p>Your proposed resource edit has been accepted: <a href="https://improvdb.com/resource/${proposal.editProposalOriginalResourceId}">View resource: "${resource.title}"</a></p>`,
+            subject: `Your proposed edit to "${resource.title}" has been accepted`,
+            html: `<p>Your proposed edit has been accepted: <a href="https://improvdb.com/resource/${proposal.editProposalOriginalResourceId}">View "${resource.title}"</a></p>`,
             to: proposal.editProposalAuthor.email,
           });
         }
@@ -509,7 +510,7 @@ export const resourceRouter = createTRPCRouter({
       if (!resource) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Resource ${input.id} not found`,
+          message: `Couldn't find "${input.id}"`,
         });
       }
 
@@ -540,7 +541,7 @@ export const resourceRouter = createTRPCRouter({
       if (!resource) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Resource ${input.id} not found`,
+          message: `Couldn't find "${input.id}"`,
         });
       }
 
@@ -562,8 +563,8 @@ export const resourceRouter = createTRPCRouter({
 
       if (input.published && updatedResource.createdBy.email) {
         void sendMail({
-          subject: `Your proposed resource, "${resource.title}", has been published`,
-          html: `<p>Your proposed resource has been published: <a href="https://improvdb.com/resource/${resource.id}">View resource "${resource.title}"</a></p>`,
+          subject: `"${resource.title}", which you proposed, has been published`,
+          html: `<p>Your proposed game or exercise has been published: <a href="https://improvdb.com/resource/${resource.id}">View "${resource.title}"</a></p>`,
           to: updatedResource.createdBy.email,
         });
       }

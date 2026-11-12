@@ -119,9 +119,9 @@ test.describe("SEO metadata", () => {
     expect(canonical).toBe("https://improvdb.com/resource/blue-ball");
 
     // Check structured data (JSON-LD)
-    const jsonLd = await page
-      .locator('script[type="application/ld+json"]')
-      .textContent();
+    const jsonLd = (
+      await page.locator('script[type="application/ld+json"]').allTextContents()
+    ).find((text) => text.includes('"@type":"Article"'));
     expect(jsonLd).not.toBeNull();
     const structuredData = JSON.parse(jsonLd!);
     expect(structuredData["@type"]).toBe("Article");
@@ -188,6 +188,11 @@ test.describe("Sitemap", () => {
     expect(urls).toContain("https://improvdb.com/about");
     expect(urls).not.toContain("https://improvdb.com/resource/browse");
     expect(urls).toContain("https://improvdb.com/lesson-plan/browse");
+    expect(urls).toContain("https://improvdb.com/exercises");
+    expect(urls).toContain("https://improvdb.com/short-form-games");
+    expect(urls).toContain("https://improvdb.com/long-form-formats");
+    expect(urls).toContain("https://improvdb.com/category/listening");
+    expect(urls).not.toContain("https://improvdb.com/category/relationships");
     expect(urls).toContain("https://improvdb.com/privacy");
     expect(urls).toContain("https://improvdb.com/terms");
 

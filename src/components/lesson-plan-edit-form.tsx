@@ -206,7 +206,7 @@ const SectionItems = ({
                       >
                         {field.value
                           ? field.value.label
-                          : "Select resource (optional)..."}
+                          : "Select a game or exercise (optional)..."}
                       </span>
                     </ResponsiveCombobox>
                   </FormControl>
@@ -637,7 +637,8 @@ export default function LessonPlanEditForm({
                           <p>
                             Each section is made up of <b>items</b>. Items are
                             the building blocks of your lesson plan, and they
-                            can be linked to resources, or just contain text.
+                            can be linked to games and exercises, or just
+                            contain text.
                           </p>
                           <Separator />
                           <p>

@@ -29,7 +29,7 @@ export const ResourceClonePage: NextPage<{ id: string }> = ({ id }) => {
             title: "Uh oh! Something went wrong.",
             variant: "destructive",
             description:
-              "A resource already exists at this URL. Please choose a new URL.",
+              "A game or exercise already exists at this URL. Please choose a new URL.",
           });
           return;
         }

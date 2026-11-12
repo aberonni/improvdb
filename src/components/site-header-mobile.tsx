@@ -71,17 +71,27 @@ export function SiteHeaderMobile({
           />
           <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10">
             <div className="flex flex-col space-y-3 pl-6">
-              {navigation.map(
-                (item) =>
-                  item.href && (
-                    <MobileLink
-                      key={item.href}
-                      href={item.href}
-                      onOpenChange={setOpen}
-                    >
-                      {item.name}
-                    </MobileLink>
-                  ),
+              {navigation.map((item) =>
+                item.children ? (
+                  <div key={item.name} className="flex flex-col space-y-3">
+                    <span className="text-foreground/60">{item.name}</span>
+                    {item.children.map((child) => (
+                      <div key={child.href} className="pl-4">
+                        <MobileLink href={child.href} onOpenChange={setOpen}>
+                          {child.name}
+                        </MobileLink>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <MobileLink
+                    key={item.href}
+                    href={item.href}
+                    onOpenChange={setOpen}
+                  >
+                    {item.name}
+                  </MobileLink>
+                ),
               )}
             </div>
             <div className="flex flex-col space-y-2">

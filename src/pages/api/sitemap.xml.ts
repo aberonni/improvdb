@@ -1,5 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
+import {
+  categoryLandingPath,
+  MIN_RESOURCES_TO_INDEX,
+  TYPE_LANDING_PAGE_LIST,
+} from "@/lib/catalogue";
 import { db } from "@/server/db";
 
 const SITE_URL = "https://improvdb.com";
@@ -7,6 +12,11 @@ const SITE_URL = "https://improvdb.com";
 // Static pages that should always be in the sitemap
 const STATIC_PAGES = [
   { path: "/", priority: 1.0, changefreq: "daily" },
+  ...TYPE_LANDING_PAGE_LIST.map(({ path }) => ({
+    path,
+    priority: 0.9,
+    changefreq: "daily",
+  })),
   { path: "/about", priority: 0.8, changefreq: "monthly" },
   { path: "/lesson-plan/browse", priority: 0.9, changefreq: "daily" },
   { path: "/privacy", priority: 0.3, changefreq: "yearly" },
@@ -42,6 +52,19 @@ export default async function handler(
     select: { id: true, updatedAt: true },
   });
 
+  // Category Landing Pages, unless too small to be indexed
+  const categories = await db.category.findMany({
+    select: {
+      id: true,
+      _count: {
+        select: { resources: { where: { resource: { published: true } } } },
+      },
+    },
+  });
+  const indexableCategories = categories.filter(
+    (category) => category._count.resources >= MIN_RESOURCES_TO_INDEX,
+  );
+
   const now = new Date();
 
   // Build sitemap XML
@@ -56,6 +79,17 @@ export default async function handler(
     <lastmod>${formatDate(now)}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
+  </url>`;
+  }
+
+  // Add category landing pages
+  for (const category of indexableCategories) {
+    xml += `
+  <url>
+    <loc>${SITE_URL}${escapeXml(categoryLandingPath(category.id))}</loc>
+    <lastmod>${formatDate(now)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>`;
   }
 
@@ -86,7 +120,10 @@ export default async function handler(
 
   // Set headers for XML response with caching
   res.setHeader("Content-Type", "application/xml");
-  res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+  res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=3600, stale-while-revalidate=86400",
+  );
 
   res.status(200).send(xml);
 }

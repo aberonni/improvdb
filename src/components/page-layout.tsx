@@ -4,7 +4,9 @@ import { useRouter } from "next/router";
 import { useSession, signIn } from "next-auth/react";
 import { type PropsWithChildren } from "react";
 
+import { type BreadcrumbItem, Breadcrumbs } from "@/components/breadcrumbs";
 import { LoadingPage } from "@/components/loading";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,7 +20,9 @@ export const PageLayout = ({
   authenticatedOnly,
   title,
   headerContent,
+  breadcrumbs,
 }: PropsWithChildren & {
+  breadcrumbs?: BreadcrumbItem[];
   title: React.ReactNode;
   className?: string;
   showBackButton?: boolean;
@@ -33,6 +37,7 @@ export const PageLayout = ({
       <SiteHeader />
       <header className="bg-accent-foreground shadow print:bg-background">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
           <div className="flex items-center justify-between">
             <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-background lg:text-5xl print:text-foreground">
               {title}
@@ -88,6 +93,7 @@ export const PageLayout = ({
           )}
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 };

@@ -30,6 +30,9 @@ const config = {
     ignoreBuildErrors: true,
   },
   devIndicators: false,
+  // E2E tests browse the dev server at 127.0.0.1; without this Next.js blocks
+  // its HMR connection and the dev client can reload pages mid-test
+  allowedDevOrigins: ["127.0.0.1"],
   async redirects() {
     return [
       // The Catalogue lives at the home page (docs/adr/0001)

@@ -1,6 +1,7 @@
 model Category {
-  id   String @id
-  name String
+  id          String  @id
+  name        String
+  description String? @db.Text
 
   resources CategoriesOnResources[]
 }

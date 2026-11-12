@@ -13,6 +13,7 @@ import {
 import { ResourceFavouriteButton } from "@/components/resource-favourite-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
@@ -88,7 +89,16 @@ export function SingleResourceComponent({
           />
 
           <h4 className="tracking-tight text-muted-foreground">
-            {ResourceTypeLabels[resource.type]}
+            {isApiResource(resource) ? (
+              <Link
+                href={TYPE_LANDING_PAGES[resource.type].path}
+                className="hover:underline"
+              >
+                {ResourceTypeLabels[resource.type]}
+              </Link>
+            ) : (
+              ResourceTypeLabels[resource.type]
+            )}
             <br />
             {resource.type !== ResourceType.LONG_FORM &&
               ResourceConfigurationLabels[resource.configuration]}
@@ -115,11 +125,24 @@ export function SingleResourceComponent({
                 Categories:
                 <ul className="ml-6 list-disc [&>li]:mt-0">
                   {resource.categories.map((category) => {
-                    const name =
+                    const { id, name } =
                       "category" in category
-                        ? category.category.name
-                        : category.label;
-                    return <li key={name}>{name}</li>;
+                        ? category.category
+                        : { id: category.value, name: category.label };
+                    return (
+                      <li key={id}>
+                        {isApiResource(resource) ? (
+                          <Link
+                            href={categoryLandingPath(id)}
+                            className="underline hover:opacity-80"
+                          >
+                            {name}
+                          </Link>
+                        ) : (
+                          name
+                        )}
+                      </li>
+                    );
                   })}
                 </ul>
               </div>
@@ -130,7 +153,7 @@ export function SingleResourceComponent({
             <>
               <Separator />
               <div>
-                Related Resources:
+                Related Games & Exercises:
                 <ul className="ml-6 list-disc [&>li]:mt-0">
                   {relatedResources.map(({ id, title }) => {
                     return (
@@ -197,22 +220,23 @@ export function SingleResourceComponent({
                   "grow text-center",
                 )}
               >
-                Clone Resource
+                Clone
               </Link>
             </div>
           )}
         </div>
       </SplitPageLayoutSidebar>
       <SplitPageLayoutContent>
-        <div
-          className="prose prose-zinc max-w-full rounded-md dark:prose-invert lg:prose-lg prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
-        >
+        <div className="prose prose-zinc max-w-full rounded-md dark:prose-invert lg:prose-lg prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0">
           <ReactMarkdown
             // eslint-disable-next-line react/no-children-prop
             children={resource.description}
             components={{
               h1: ({ ...props }) => <h2 {...props} />,
-              a: (props: AnchorHTMLAttributes<HTMLAnchorElement> & RefAttributes<HTMLAnchorElement>) => {
+              a: (
+                props: AnchorHTMLAttributes<HTMLAnchorElement> &
+                  RefAttributes<HTMLAnchorElement>,
+              ) => {
                 const { href, ref } = props;
                 if (!href?.startsWith("resource/")) {
                   return (
@@ -229,8 +253,8 @@ export function SingleResourceComponent({
                 return <Link href={"/" + href} {...props} />;
               },
             }}
-            />
-          </div>
+          />
+        </div>
         {resource.video && (
           <iframe
             className="video mt-6 aspect-video w-full lg:mt-8"

@@ -21,7 +21,8 @@ function generateOgImageUrl(params: {
 
 const DEFAULT_OG_IMAGE = generateOgImageUrl({
   title: "Improv Games, Exercises & Lesson Plans",
-  description: "ImprovDB is the open-source database for improv games and lesson plans. Find warm-up exercises, short form games, long form formats, and share lesson plans with other improv teachers."
+  description:
+    "ImprovDB is the open-source database for improv games and lesson plans. Find warm-up exercises, short form games, long form formats, and share lesson plans with other improv teachers.",
 });
 
 interface SEOProps {
@@ -67,7 +68,7 @@ export function SEO({
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
       {/* Robots */}
-      {noIndex && <meta name="robots" content="noindex,nofollow" />}
+      {noIndex && <meta name="robots" content="noindex" />}
     </Head>
   );
 }

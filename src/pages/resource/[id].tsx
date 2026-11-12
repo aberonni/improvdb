@@ -10,6 +10,7 @@ import { SingleResourceComponent } from "@/components/resource";
 import { ResourceSEO } from "@/components/seo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { TYPE_LANDING_PAGES } from "@/lib/catalogue";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api } from "@/utils/api";
 
@@ -28,7 +29,7 @@ const AdminToolbar = ({
         void utils.resource.getById.invalidate();
         toast({
           title: "Success!",
-          description: "Resource updated.",
+          description: `"${resource.title}" updated.`,
         });
       },
       onError: (e) => {
@@ -50,7 +51,7 @@ const AdminToolbar = ({
         void router.back();
         toast({
           title: "Success!",
-          description: "Resource successfully deleted.",
+          description: `"${resource.title}" deleted.`,
         });
       },
       onError: (e) => {
@@ -159,7 +160,19 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
         id={resource.id}
         categories={resource.categories.map((c) => c.category.name)}
       />
-      <PageLayout title={resource.title} className="py-0" showBackButton>
+      <PageLayout
+        title={resource.title}
+        className="py-0"
+        showBackButton
+        breadcrumbs={[
+          { name: "Home", href: "/" },
+          {
+            name: TYPE_LANDING_PAGES[resource.type].name,
+            href: TYPE_LANDING_PAGES[resource.type].path,
+          },
+          { name: resource.title },
+        ]}
+      >
         {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}
         <SingleResourceComponent
           resource={resource}

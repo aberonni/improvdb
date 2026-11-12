@@ -7,7 +7,7 @@ An open database of improv games, exercises and formats, and the lesson plans te
 ### Resources
 
 **Resource**:
-A single improv activity in the database: an Exercise, a Short Form game or a Long Form format. Internal and code term only; in user-facing copy call them "games & exercises".
+A single improv activity in the database: an Exercise, a Short Form game or a Long Form format. Internal and code term only; in user-facing copy say "games & exercises" (singular: "game or exercise"), or use the Resource's own title.
 _Avoid_: Activity, item (internal); "resource" (user-facing)
 
 **Exercise**:
