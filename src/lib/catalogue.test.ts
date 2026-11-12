@@ -7,9 +7,7 @@ import {
   NEWEST_SORTING,
   catalogueHref,
   catalogueQuery,
-  columnFiltersToState,
   parseCatalogueQuery,
-  stateToColumnFilters,
 } from "@/lib/catalogue";
 
 const state = (overrides: Partial<CatalogueState>): CatalogueState => ({
@@ -150,39 +148,5 @@ describe("catalogueQuery and catalogueHref", () => {
     const search = catalogueHref(original).replace(/^\/\??/, "");
     const query = Object.fromEntries(new URLSearchParams(search));
     expect(parseCatalogueQuery(query)).toEqual(original);
-  });
-});
-
-describe("column filters", () => {
-  it("maps the category filter to the categories column", () => {
-    expect(
-      stateToColumnFilters(
-        state({ title: "zip", category: ["listening"], type: [] }),
-      ),
-    ).toEqual([
-      { id: "title", value: "zip" },
-      { id: "categories", value: ["listening"] },
-    ]);
-  });
-
-  it("has no filters for the empty state", () => {
-    expect(stateToColumnFilters(EMPTY_CATALOGUE_STATE)).toEqual([]);
-  });
-
-  it("round-trips through column filters, keeping the sorting given", () => {
-    const original: CatalogueState = {
-      title: "zip",
-      type: [ResourceType.EXERCISE],
-      configuration: [ResourceConfiguration.CIRCLE],
-      category: ["listening"],
-      sorting: NEWEST_SORTING,
-    };
-    expect(
-      columnFiltersToState(stateToColumnFilters(original), original.sorting),
-    ).toEqual(original);
-  });
-
-  it("treats missing filters as empty", () => {
-    expect(columnFiltersToState([], [])).toEqual(EMPTY_CATALOGUE_STATE);
   });
 });

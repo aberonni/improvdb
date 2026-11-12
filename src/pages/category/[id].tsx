@@ -1,6 +1,6 @@
 import type { GetStaticPaths } from "next";
 
-import { LandingPage } from "@/components/landing-page";
+import { CataloguePage } from "@/components/catalogue";
 import { categoryLandingPage } from "@/lib/landing-page";
 import { categoryLandingPageStaticProps } from "@/server/helpers/landingPageProps";
 import { api } from "@/utils/api";
@@ -10,7 +10,7 @@ export default function CategoryPage({ id }: { id: string }) {
 
   if (!category) return null;
 
-  return <LandingPage page={categoryLandingPage(category)} />;
+  return <CataloguePage view={categoryLandingPage(category)} />;
 }
 
 export const getStaticProps = categoryLandingPageStaticProps;

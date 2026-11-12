@@ -1,8 +1,5 @@
 import { ResourceConfiguration, ResourceType } from "@prisma/client";
-import {
-  type ColumnFiltersState,
-  type SortingState,
-} from "@tanstack/react-table";
+import { type SortingState } from "@tanstack/react-table";
 
 /**
  * The Catalogue's filter and sort state, as it appears in the URL
@@ -90,32 +87,4 @@ export function catalogueQuery(state: CatalogueState): Record<string, string> {
 export function catalogueHref(state: CatalogueState) {
   const search = new URLSearchParams(catalogueQuery(state)).toString();
   return search ? `/?${search}` : "/";
-}
-
-export function stateToColumnFilters(
-  state: CatalogueState,
-): ColumnFiltersState {
-  const filters: ColumnFiltersState = [];
-  if (state.title) filters.push({ id: "title", value: state.title });
-  if (state.type.length) filters.push({ id: "type", value: state.type });
-  if (state.configuration.length)
-    filters.push({ id: "configuration", value: state.configuration });
-  if (state.category.length)
-    filters.push({ id: "categories", value: state.category });
-  return filters;
-}
-
-export function columnFiltersToState(
-  filters: ColumnFiltersState,
-  sorting: SortingState,
-): CatalogueState {
-  const value = (id: string) => filters.find((f) => f.id === id)?.value;
-  return {
-    title: (value("title") as string | undefined) ?? "",
-    type: (value("type") as ResourceType[] | undefined) ?? [],
-    configuration:
-      (value("configuration") as ResourceConfiguration[] | undefined) ?? [],
-    category: (value("categories") as string[] | undefined) ?? [],
-    sorting,
-  };
 }
