@@ -23,9 +23,9 @@ jobs:
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
+          --health-interval 2s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 20
 
       # Catches emails sent by the app (see docker-compose.e2e.yml)
       mailpit:
@@ -40,9 +40,19 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-          cache: "npm"
+      # scripts/e2e.sh skips `npm ci` when node_modules matches the lockfile
+      - uses: actions/cache@v6
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json', '.node-version') }}
+      # Speeds up `next build`
+      - uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       # Same script used locally by `npm run test:e2e`: installs deps, seeds the
-      # database and runs Playwright (which starts the dev server itself)
+      # database, builds the app and runs Playwright (which serves the build)
       - name: Run E2E tests
         run: ./scripts/e2e.sh
         env:
@@ -63,3 +73,5 @@ jobs:
       EMAIL_SERVER_PASSWORD: e2e
       EMAIL_FROM: "ImprovDB <noreply@improvdb.test>"
       MAILPIT_URL: "http://mailpit:8025"
+      UPSTASH_REDIS_REST_URL: "https://upstash.invalid"
+      UPSTASH_REDIS_REST_TOKEN: "e2e"

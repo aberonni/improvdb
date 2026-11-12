@@ -15,10 +15,10 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Retry once on CI, so a flake is reported as flaky rather than failing */
+  retries: process.env.CI ? 1 : 0,
+  /* GitHub's standard runner has 4 vCPUs. Tests must not share mutable data. */
+  workers: process.env.CI ? 4 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { host: "0.0.0.0" }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -33,47 +33,29 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
 
-  /* Configure projects for major browsers */
+  /*
+   * Specs that render pages run on desktop Chromium and mobile WebKit.
+   * Specs in tests/http/ only check what the server sends (headers, meta tags,
+   * generated images), which doesn't depend on the browser, so they run once.
+   */
   projects: [
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-    },
-
-    // {
-    //   name: "webkit",
-    //   use: { ...devices["Desktop Safari"] },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: "Mobile Chrome",
-    //   use: { ...devices["Pixel 5"] },
-    // },
     {
       name: "Mobile Safari",
       use: { ...devices["iPhone 12"] },
+      testIgnore: "http/**",
     },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: "Google Chrome",
-    //   use: { ...devices["Desktop Chrome"], channel: "chrome" },
-    // },
   ],
 
-  /* Run your local dev server before starting the tests */
+  /*
+   * On CI (and in `npm run test:e2e`, which sets CI) scripts/e2e.sh has already
+   * run a production build, so serve it. Locally, use or start the dev server.
+   */
   webServer: {
-    command: "npm run dev",
+    command: process.env.CI ? "npm run start" : "npm run dev",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

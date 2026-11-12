@@ -44,6 +44,10 @@ services:
       - EMAIL_SERVER_PASSWORD=e2e
       - EMAIL_FROM=ImprovDB <noreply@improvdb.test>
       - MAILPIT_URL=http://mailpit:8025
+      # The production build requires these; tests never reach Upstash because
+      # only admins write, and they skip the rate limiter
+      - UPSTASH_REDIS_REST_URL=https://upstash.invalid
+      - UPSTASH_REDIS_REST_TOKEN=e2e
     volumes:
       - .:/app
       # Keep Linux binaries out of the host's node_modules/.next and cache them between runs
