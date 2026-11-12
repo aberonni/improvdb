@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+import { canEditLessonPlan } from "@/lib/access";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api } from "@/utils/api";
@@ -120,9 +121,7 @@ export const SingleLessonPlanPage: NextPage<{ lessonPlanId: string }> = ({
   const { data: session } = useSession();
   const { user } = session ?? {};
 
-  const isOwner = useMemo(() => {
-    return user?.id === lessonPlan?.createdById;
-  }, [user, lessonPlan]);
+  const isOwner = !!lessonPlan && canEditLessonPlan(user, lessonPlan);
 
   const creator = useMemo(() => {
     if (!lessonPlan?.createdBy.name && lessonPlan?.createdBy.name === "")

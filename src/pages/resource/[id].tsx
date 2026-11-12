@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -10,6 +9,7 @@ import { SingleResourceComponent } from "@/components/resource";
 import { ResourceSEO } from "@/components/seo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { isAdmin } from "@/lib/access";
 import { TYPE_LANDING_PAGES } from "@/lib/catalogue";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
@@ -174,7 +174,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
           { name: resource.title },
         ]}
       >
-        {user?.role === UserRole.ADMIN && <AdminToolbar resource={resource} />}
+        {isAdmin(user) && <AdminToolbar resource={resource} />}
         <SingleResourceComponent
           resource={resource}
           showProposeChanges={!resource.editProposalOriginalResourceId}

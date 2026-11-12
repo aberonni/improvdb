@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { publishedResourcesWhere } from "@/lib/access";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -8,7 +9,7 @@ import {
 
 const publishedResourceCount = {
   _count: {
-    select: { resources: { where: { resource: { published: true } } } },
+    select: { resources: { where: { resource: publishedResourcesWhere } } },
   },
 } as const;
 

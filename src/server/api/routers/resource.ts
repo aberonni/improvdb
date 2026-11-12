@@ -3,13 +3,17 @@ import {
   type Category,
   type Resource,
   ResourceType,
-  UserRole,
   LessonPlanVisibility,
 } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { uniqBy } from "lodash";
 import { z } from "zod";
 
+import {
+  canViewResource,
+  isAdmin,
+  publishedResourcesWhere,
+} from "@/lib/access";
 import {
   createTRPCRouter,
   adminProcedure,
@@ -131,7 +135,7 @@ export const resourceRouter = createTRPCRouter({
           title: "asc",
         },
         where: {
-          published: true,
+          ...publishedResourcesWhere,
           type: input?.type,
           categories: input?.category
             ? { some: { categoryId: input.category } }
@@ -168,9 +172,7 @@ export const resourceRouter = createTRPCRouter({
       orderBy: {
         title: "asc",
       },
-      where: {
-        published: true,
-      },
+      where: publishedResourcesWhere,
       select: {
         id: true,
         title: true,
@@ -266,18 +268,14 @@ export const resourceRouter = createTRPCRouter({
               id: true,
               title: true,
             },
-            where: {
-              published: true,
-            },
+            where: publishedResourcesWhere,
           },
           relatedResourceParent: {
             select: {
               id: true,
               title: true,
             },
-            where: {
-              published: true,
-            },
+            where: publishedResourcesWhere,
           },
           lessonPlanItems: {
             where: {
@@ -315,13 +313,7 @@ export const resourceRouter = createTRPCRouter({
         });
       }
 
-      const userCanSeeResource =
-        resource?.published ||
-        ctx.session?.user.role === UserRole.ADMIN ||
-        resource?.createdById === ctx.session?.user.id ||
-        resource?.editProposalAuthorId === ctx.session?.user.id;
-
-      if (!userCanSeeResource) {
+      if (!canViewResource(ctx.session?.user, resource)) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: `Couldn't find "${input.id}"`,
@@ -382,7 +374,7 @@ export const resourceRouter = createTRPCRouter({
         },
       });
 
-      if (ctx.session.user.role !== UserRole.ADMIN) {
+      if (!isAdmin(ctx.session.user)) {
         void sendMailToAdmins(
           {
             subject: "New game or exercise proposed",
