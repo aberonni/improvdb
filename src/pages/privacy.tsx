@@ -1,6 +1,7 @@
 import Head from "next/head";
 
 import { PageLayout } from "@/components/page-layout";
+import { siteFooterStaticProps } from "@/server/helpers/siteFooterProps";
 
 export default function PrivacyPage() {
   return (
@@ -163,3 +164,5 @@ export default function PrivacyPage() {
     </>
   );
 }
+
+export const getStaticProps = siteFooterStaticProps;

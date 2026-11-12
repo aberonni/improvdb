@@ -3,6 +3,7 @@ import Image from "next/image";
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
 import { Separator } from "@/components/ui/separator";
+import { siteFooterStaticProps } from "@/server/helpers/siteFooterProps";
 
 export default function About() {
   return (
@@ -110,3 +111,5 @@ export default function About() {
     </>
   );
 }
+
+export const getStaticProps = siteFooterStaticProps;

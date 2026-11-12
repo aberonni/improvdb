@@ -11,6 +11,7 @@ import { ResourceSEO } from "@/components/seo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api } from "@/utils/api";
 
@@ -190,7 +191,10 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   if (typeof id !== "string" || id === "") throw new Error("No id");
 
-  await ssg.resource.getById.prefetch({ id });
+  await Promise.all([
+    ssg.resource.getById.prefetch({ id }),
+    prefetchSiteFooter(ssg),
+  ]);
 
   return {
     props: {

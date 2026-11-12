@@ -1,6 +1,7 @@
 import Head from "next/head";
 
 import { PageLayout } from "@/components/page-layout";
+import { siteFooterStaticProps } from "@/server/helpers/siteFooterProps";
 
 export default function TermsPage() {
   return (
@@ -508,3 +509,5 @@ export default function TermsPage() {
     </>
   );
 }
+
+export const getStaticProps = siteFooterStaticProps;
