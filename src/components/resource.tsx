@@ -13,7 +13,7 @@ import {
 import { ResourceFavouriteButton } from "@/components/resource-favourite-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import { categoryLandingPath, typeLandingPage } from "@/lib/landing-page";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
@@ -91,7 +91,7 @@ export function SingleResourceComponent({
           <h4 className="tracking-tight text-muted-foreground">
             {isApiResource(resource) ? (
               <Link
-                href={TYPE_LANDING_PAGES[resource.type].path}
+                href={typeLandingPage(resource.type).path}
                 className="hover:underline"
               >
                 {ResourceTypeLabels[resource.type]}

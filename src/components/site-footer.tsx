@@ -1,10 +1,6 @@
 import Link from "next/link";
 
-import {
-  categoryLandingPath,
-  MIN_RESOURCES_TO_INDEX,
-  TYPE_LANDING_PAGE_LIST,
-} from "@/lib/catalogue";
+import { categoryLandingPage, typeLandingPages } from "@/lib/landing-page";
 import { api } from "@/utils/api";
 
 const linkClassName = "text-muted-foreground hover:text-foreground";
@@ -12,9 +8,9 @@ const linkClassName = "text-muted-foreground hover:text-foreground";
 /** "Browse by" links to every indexable Landing Page */
 export function SiteFooter() {
   const { data: categories } = api.category.getAll.useQuery();
-  const indexableCategories = (categories ?? []).filter(
-    (category) => category._count.resources >= MIN_RESOURCES_TO_INDEX,
-  );
+  const categoryPages = (categories ?? [])
+    .map(categoryLandingPage)
+    .filter((page) => page.indexable);
 
   return (
     <footer className="mt-12 border-t print:hidden">
@@ -22,7 +18,7 @@ export function SiteFooter() {
         <nav aria-label="Browse by type">
           <h2 className="mb-3 font-semibold">Browse by type</h2>
           <ul className="space-y-2">
-            {TYPE_LANDING_PAGE_LIST.map(({ path, name }) => (
+            {typeLandingPages.map(({ path, name }) => (
               <li key={path}>
                 <Link href={path} className={linkClassName}>
                   {name}
@@ -31,16 +27,13 @@ export function SiteFooter() {
             ))}
           </ul>
         </nav>
-        {indexableCategories.length > 0 && (
+        {categoryPages.length > 0 && (
           <nav aria-label="Browse by category">
             <h2 className="mb-3 font-semibold">Browse by category</h2>
             <ul className="grid grid-cols-2 gap-2 md:grid-cols-3">
-              {indexableCategories.map(({ id, name }) => (
-                <li key={id}>
-                  <Link
-                    href={categoryLandingPath(id)}
-                    className={linkClassName}
-                  >
+              {categoryPages.map(({ path, name }) => (
+                <li key={path}>
+                  <Link href={path} className={linkClassName}>
                     {name}
                   </Link>
                 </li>

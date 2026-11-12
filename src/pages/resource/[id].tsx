@@ -10,7 +10,7 @@ import { ResourceSEO } from "@/components/seo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { isAdmin } from "@/lib/access";
-import { TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import { typeLandingPage } from "@/lib/landing-page";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api } from "@/utils/api";
@@ -168,8 +168,8 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
         breadcrumbs={[
           { name: "Home", href: "/" },
           {
-            name: TYPE_LANDING_PAGES[resource.type].name,
-            href: TYPE_LANDING_PAGES[resource.type].path,
+            name: typeLandingPage(resource.type).name,
+            href: typeLandingPage(resource.type).path,
           },
           { name: resource.title },
         ]}

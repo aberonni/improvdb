@@ -1,10 +1,13 @@
 import { ResourceType } from "@prisma/client";
 
-import { TypeLandingPage } from "@/components/type-landing-page";
+import { LandingPage } from "@/components/landing-page";
+import { typeLandingPage } from "@/lib/landing-page";
 import { catalogueStaticProps } from "@/server/helpers/landingPageProps";
 
+const page = typeLandingPage(ResourceType.LONG_FORM);
+
 export default function LongFormFormats() {
-  return <TypeLandingPage type={ResourceType.LONG_FORM} />;
+  return <LandingPage page={page} />;
 }
 
-export const getStaticProps = catalogueStaticProps(ResourceType.LONG_FORM);
+export const getStaticProps = catalogueStaticProps(page.filter);

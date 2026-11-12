@@ -7,43 +7,26 @@ import {
 } from "@/components/catalogue";
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
-import { type CatalogueState } from "@/lib/catalogue";
-import { api, type RouterInputs } from "@/utils/api";
-
-export type LandingPageFilter = NonNullable<
-  RouterInputs["resource"]["getCatalogue"]
->;
+import { type LandingPage as LandingPageData } from "@/lib/landing-page";
+import { api } from "@/utils/api";
 
 /**
  * A Catalogue view fixed to one type or one Category, with its own heading
  * and introduction (see docs/adr/0001).
  */
-export function LandingPage({
-  path,
-  name,
-  title,
-  heading,
-  subtitle,
-  description,
-  intro,
-  initialState,
-  filter,
-  noIndex = false,
-}: {
-  path: string;
-  /** Short name for breadcrumbs */
-  name: string;
-  /** <title>, without the site name */
-  title: string;
-  heading: string;
-  subtitle: (count: number) => string;
-  description: string;
-  intro: string[];
-  initialState: CatalogueState;
-  /** Which Resources belong on this page; only those are loaded */
-  filter: LandingPageFilter;
-  noIndex?: boolean;
-}) {
+export function LandingPage({ page }: { page: LandingPageData }) {
+  const {
+    path,
+    name,
+    title,
+    heading,
+    subtitle,
+    description,
+    intro,
+    initialState,
+    filter,
+    indexable,
+  } = page;
   const queryResult = api.resource.getCatalogue.useQuery(filter);
   const [state, setState] = useLandingCatalogueState(initialState);
   const resources = queryResult.data;
@@ -54,9 +37,9 @@ export function LandingPage({
         title={title}
         description={description}
         canonical={path}
-        noIndex={noIndex}
+        noIndex={!indexable}
       />
-      {!noIndex && (
+      {indexable && (
         <CatalogueStructuredData
           name={heading}
           path={path}

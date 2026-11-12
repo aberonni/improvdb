@@ -2,18 +2,18 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import { publishedResourcesWhere } from "@/lib/access";
 import {
-  categoryLandingPath,
-  MIN_RESOURCES_TO_INDEX,
-  TYPE_LANDING_PAGE_LIST,
-} from "@/lib/catalogue";
+  categoryLandingPage,
+  categoryLandingPageFields,
+  typeLandingPages,
+} from "@/lib/landing-page";
+import { SITE_URL } from "@/lib/site";
 import { db } from "@/server/db";
 
-const SITE_URL = "https://improvdb.com";
 
 // Static pages that should always be in the sitemap
 const STATIC_PAGES = [
   { path: "/", priority: 1.0, changefreq: "daily" },
-  ...TYPE_LANDING_PAGE_LIST.map(({ path }) => ({
+  ...typeLandingPages.map(({ path }) => ({
     path,
     priority: 0.9,
     changefreq: "daily",
@@ -55,16 +55,11 @@ export default async function handler(
 
   // Category Landing Pages, unless too small to be indexed
   const categories = await db.category.findMany({
-    select: {
-      id: true,
-      _count: {
-        select: { resources: { where: { resource: publishedResourcesWhere } } },
-      },
-    },
+    select: categoryLandingPageFields,
   });
-  const indexableCategories = categories.filter(
-    (category) => category._count.resources >= MIN_RESOURCES_TO_INDEX,
-  );
+  const categoryPages = categories
+    .map(categoryLandingPage)
+    .filter((page) => page.indexable);
 
   const now = new Date();
 
@@ -84,10 +79,10 @@ export default async function handler(
   }
 
   // Add category landing pages
-  for (const category of indexableCategories) {
+  for (const page of categoryPages) {
     xml += `
   <url>
-    <loc>${SITE_URL}${escapeXml(categoryLandingPath(category.id))}</loc>
+    <loc>${SITE_URL}${escapeXml(page.path)}</loc>
     <lastmod>${formatDate(now)}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -3,7 +3,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { Fragment } from "react";
 
-const SITE_URL = "https://improvdb.com";
+import { SITE_URL } from "@/lib/site";
+
 
 export type BreadcrumbItem = {
   name: string;

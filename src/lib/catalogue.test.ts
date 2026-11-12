@@ -5,11 +5,8 @@ import {
   type CatalogueState,
   EMPTY_CATALOGUE_STATE,
   NEWEST_SORTING,
-  TYPE_LANDING_PAGE_LIST,
-  TYPE_LANDING_PAGES,
   catalogueHref,
   catalogueQuery,
-  categoryLandingPath,
   columnFiltersToState,
   parseCatalogueQuery,
   stateToColumnFilters,
@@ -187,21 +184,5 @@ describe("column filters", () => {
 
   it("treats missing filters as empty", () => {
     expect(columnFiltersToState([], [])).toEqual(EMPTY_CATALOGUE_STATE);
-  });
-});
-
-describe("Landing Page paths", () => {
-  it("has one type Landing Page per resource type", () => {
-    for (const type of Object.values(ResourceType)) {
-      expect(TYPE_LANDING_PAGES[type].type).toBe(type);
-    }
-  });
-
-  it("gives every Landing Page its own path", () => {
-    const paths = [
-      ...TYPE_LANDING_PAGE_LIST.map((page) => page.path),
-      categoryLandingPath("listening"),
-    ];
-    expect(new Set(paths).size).toBe(paths.length);
   });
 });

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { categoryLandingPath, MIN_RESOURCES_TO_INDEX } from "@/lib/catalogue";
+import { categoryLandingPage } from "@/lib/landing-page";
 import { type RouterOutputs, api } from "@/utils/api";
 
 type Category = RouterOutputs["category"]["getAll"][0];
@@ -35,6 +35,7 @@ function CategoryDescriptionForm({ category }: { category: Category }) {
 
   const id = `category-${category.id}`;
   const count = category._count.resources;
+  const page = categoryLandingPage(category);
   const isDirty = description !== (category.description ?? "");
 
   return (
@@ -51,8 +52,8 @@ function CategoryDescriptionForm({ category }: { category: Category }) {
         </Label>
         <span className="text-sm text-muted-foreground">
           {count} published
-          {count < MIN_RESOURCES_TO_INDEX && " · not indexed"} ·{" "}
-          <Link href={categoryLandingPath(category.id)} className="underline">
+          {!page.indexable && " · not indexed"} ·{" "}
+          <Link href={page.path} className="underline">
             View page
           </Link>
         </span>

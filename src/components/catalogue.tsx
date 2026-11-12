@@ -14,11 +14,10 @@ import {
   parseCatalogueQuery,
   stateToColumnFilters,
 } from "@/lib/catalogue";
+import { SITE_URL } from "@/lib/site";
 import { type RouterOutputs } from "@/utils/api";
 
 type Resources = RouterOutputs["resource"]["getCatalogue"];
-
-const SITE_URL = "https://improvdb.com";
 
 /**
  * The filterable list of all published Resources, driven by a

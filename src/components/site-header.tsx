@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { SiteHeaderDesktop } from "@/components/site-header-desktop";
 import { SiteHeaderMobile } from "@/components/site-header-mobile";
 import { isAdmin } from "@/lib/access";
-import { TYPE_LANDING_PAGE_LIST } from "@/lib/catalogue";
+import { typeLandingPages } from "@/lib/landing-page";
 
 export type SiteHeaderLink = {
   name: string;
@@ -17,7 +17,7 @@ export type SiteHeaderLinks = SiteHeaderLink[];
 
 const catalogueLinks = [
   { name: "All games & exercises", href: "/" },
-  ...TYPE_LANDING_PAGE_LIST.map(({ name, path }) => ({ name, href: path })),
+  ...typeLandingPages.map(({ name, path }) => ({ name, href: path })),
 ];
 
 const userNavigation = [
