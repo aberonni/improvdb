@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useMemo } from "react";
 
 import {
   Catalogue,
@@ -9,9 +8,11 @@ import {
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
 import { type CatalogueState } from "@/lib/catalogue";
-import { api, type RouterOutputs } from "@/utils/api";
+import { api, type RouterInputs } from "@/utils/api";
 
-type Resource = RouterOutputs["resource"]["getAll"][0];
+export type LandingPageFilter = NonNullable<
+  RouterInputs["resource"]["getCatalogue"]
+>;
 
 /**
  * A Catalogue view fixed to one type or one Category, with its own heading
@@ -26,7 +27,7 @@ export function LandingPage({
   description,
   intro,
   initialState,
-  matches,
+  filter,
   noIndex = false,
 }: {
   path: string;
@@ -39,17 +40,13 @@ export function LandingPage({
   description: string;
   intro: string[];
   initialState: CatalogueState;
-  /** Which Resources belong on this page (for the count and ItemList) */
-  matches: (resource: Resource) => boolean;
+  /** Which Resources belong on this page; only those are loaded */
+  filter: LandingPageFilter;
   noIndex?: boolean;
 }) {
-  const queryResult = api.resource.getAll.useQuery();
+  const queryResult = api.resource.getCatalogue.useQuery(filter);
   const [state, setState] = useLandingCatalogueState(initialState);
-
-  const resources = useMemo(
-    () => queryResult.data?.filter(matches),
-    [queryResult.data, matches],
-  );
+  const resources = queryResult.data;
 
   return (
     <>

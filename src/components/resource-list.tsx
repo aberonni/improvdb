@@ -27,10 +27,18 @@ import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs } from "@/utils/api";
 
-type CategoriesInResource =
-  RouterOutputs["resource"]["getAll"][0]["categories"];
+/**
+ * A row of the list: what the Catalogue sends, plus the fields the admin and
+ * proposal lists show when they pass full Resources.
+ */
+export type ResourceListRow = RouterOutputs["resource"]["getCatalogue"][0] & {
+  published?: boolean;
+  editProposalOriginalResourceId?: string | null;
+};
 
-type SingleResourceType = RouterOutputs["resource"]["getAll"][0];
+type CategoriesInResource = ResourceListRow["categories"];
+
+type SingleResourceType = ResourceListRow;
 
 const columnHelper = createColumnHelper<SingleResourceType>();
 
@@ -298,13 +306,11 @@ export const ResourceList = ({
   onSortingChange?: (sorting: SortingState) => void;
   useFilters?: boolean;
   usePagination?: boolean;
-  queryResult: UseTRPCQueryResult<RouterOutputs["resource"]["getAll"], unknown>;
+  queryResult: UseTRPCQueryResult<ResourceListRow[], unknown>;
   showPublishedStatus?: boolean;
   showEditProposals?: boolean;
   showFavourites?: boolean;
-  onSelectionChange?: (
-    selectedRows: Row<RouterOutputs["resource"]["getAll"][0]>[],
-  ) => void;
+  onSelectionChange?: (selectedRows: Row<ResourceListRow>[]) => void;
 }) => {
   const { data, isLoading } = queryResult;
 

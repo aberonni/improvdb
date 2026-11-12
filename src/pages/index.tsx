@@ -1,19 +1,18 @@
-import type { GetServerSideProps } from "next";
 import Link from "next/link";
 
 import {
   Catalogue,
+  CataloguePendingScript,
   CatalogueStructuredData,
   useUrlCatalogueState,
 } from "@/components/catalogue";
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
-import { canonicalPathFor } from "@/lib/catalogue";
-import { generateSSGHelper } from "@/server/helpers/ssgHelper";
+import { catalogueStaticProps } from "@/server/helpers/landingPageProps";
 import { api } from "@/utils/api";
 
 export default function Home() {
-  const queryResult = api.resource.getAll.useQuery();
+  const queryResult = api.resource.getCatalogue.useQuery();
   const [state, setState] = useUrlCatalogueState();
   const count = queryResult.data?.length;
 
@@ -22,8 +21,9 @@ export default function Home() {
       <SEO
         title="Improv Games, Exercises & Warm-ups"
         description="ImprovDB is the open-source database for improv games and exercises. Find warm-ups, short form games and long form formats for your next improv class or rehearsal, and share lesson plans with other improv teachers."
-        canonical={canonicalPathFor(state)}
+        canonical="/"
       />
+      <CataloguePendingScript />
       <CatalogueStructuredData
         name="Improv Games & Exercises"
         path="/"
@@ -56,24 +56,6 @@ export default function Home() {
   );
 }
 
-// Server-rendered (not static) so the canonical tag can follow the query
-// string; the CDN cache keeps it about as cheap as the old ISR page.
-export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  res.setHeader(
-    "Cache-Control",
-    "public, s-maxage=60, stale-while-revalidate=600",
-  );
-
-  const ssg = generateSSGHelper();
-
-  await Promise.all([
-    ssg.resource.getAll.prefetch(),
-    ssg.category.getAll.prefetch(),
-  ]);
-
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-    },
-  };
-};
+// Pre-built, so the canonical is always "/", even for filtered views; see
+// docs/adr/0001.
+export const getStaticProps = catalogueStaticProps();

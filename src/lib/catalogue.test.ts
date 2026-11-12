@@ -7,12 +7,10 @@ import {
   NEWEST_SORTING,
   TYPE_LANDING_PAGE_LIST,
   TYPE_LANDING_PAGES,
-  canonicalPathFor,
   catalogueHref,
   catalogueQuery,
   categoryLandingPath,
   columnFiltersToState,
-  landingPathFor,
   parseCatalogueQuery,
   stateToColumnFilters,
 } from "@/lib/catalogue";
@@ -155,61 +153,6 @@ describe("catalogueQuery and catalogueHref", () => {
     const search = catalogueHref(original).replace(/^\/\??/, "");
     const query = Object.fromEntries(new URLSearchParams(search));
     expect(parseCatalogueQuery(query)).toEqual(original);
-  });
-});
-
-describe("landingPathFor and canonicalPathFor", () => {
-  it.each(TYPE_LANDING_PAGE_LIST.map((page) => [page.type, page.path]))(
-    "a single %s type is its type Landing Page",
-    (type, path) => {
-      expect(landingPathFor(state({ type: [type] }))).toBe(path);
-    },
-  );
-
-  it("a single category is its category Landing Page", () => {
-    expect(landingPathFor(state({ category: ["listening"] }))).toBe(
-      "/category/listening",
-    );
-  });
-
-  it("ignores sorting", () => {
-    expect(
-      landingPathFor(
-        state({ type: [ResourceType.SHORT_FORM], sorting: NEWEST_SORTING }),
-      ),
-    ).toBe("/short-form-games");
-  });
-
-  it.each<[string, Partial<CatalogueState>]>([
-    ["no filters", {}],
-    ["only sorting", { sorting: NEWEST_SORTING }],
-    ["two types", { type: [ResourceType.EXERCISE, ResourceType.SHORT_FORM] }],
-    ["two categories", { category: ["listening", "agreement"] }],
-    [
-      "a type and a category",
-      { type: [ResourceType.SHORT_FORM], category: ["listening"] },
-    ],
-    [
-      "a type and a title search",
-      { type: [ResourceType.SHORT_FORM], title: "freeze" },
-    ],
-    [
-      "a category and a configuration",
-      {
-        category: ["listening"],
-        configuration: [ResourceConfiguration.PAIRS],
-      },
-    ],
-    ["only a configuration", { configuration: [ResourceConfiguration.PAIRS] }],
-  ])("has no Landing Page with %s", (_, overrides) => {
-    expect(landingPathFor(state(overrides))).toBeUndefined();
-    expect(canonicalPathFor(state(overrides))).toBe("/");
-  });
-
-  it("canonical is the Landing Page when there is one", () => {
-    expect(canonicalPathFor(state({ category: ["listening"] }))).toBe(
-      "/category/listening",
-    );
   });
 });
 

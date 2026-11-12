@@ -2,6 +2,7 @@ import {
   type CategoriesOnResources,
   type Category,
   type Resource,
+  ResourceType,
   UserRole,
   LessonPlanVisibility,
 } from "@prisma/client";
@@ -111,20 +112,41 @@ const updateResource = async ({
 };
 
 export const resourceRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.resource
-      .findMany({
-        take: 1000,
+  /**
+   * Published Resources for the Catalogue, with only the fields its list
+   * shows. Landing Pages pass their type or Category to get just their slice.
+   */
+  getCatalogue: publicProcedure
+    .input(
+      z
+        .object({
+          type: z.nativeEnum(ResourceType).optional(),
+          category: z.string().optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const resources = await ctx.db.resource.findMany({
         orderBy: {
           title: "asc",
         },
         where: {
           published: true,
+          type: input?.type,
+          categories: input?.category
+            ? { some: { categoryId: input.category } }
+            : undefined,
         },
-        include: {
+        select: {
+          id: true,
+          title: true,
+          type: true,
+          configuration: true,
+          alternativeNames: true,
+          createdAt: true,
           categories: {
-            include: {
-              category: true,
+            select: {
+              category: { select: { id: true, name: true } },
             },
             orderBy: {
               category: {
@@ -132,15 +154,14 @@ export const resourceRouter = createTRPCRouter({
               },
             },
           },
-          _count: {
-            select: {
-              favouritedBy: true,
-            },
-          },
         },
-      })
-      .then(cleanCategories);
-  }),
+      });
+
+      return resources.map((resource) => ({
+        ...resource,
+        categories: resource.categories.map(({ category }) => category),
+      }));
+    }),
   getAllOnlyIdAndTitle: publicProcedure.query(({ ctx }) => {
     return ctx.db.resource.findMany({
       take: 1000,

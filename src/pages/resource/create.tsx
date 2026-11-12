@@ -17,7 +17,7 @@ export default function Create() {
         void router.push("/resource/" + res.id);
         // incredible magic that makes the "getAll" automatically re-trigger
         // XXX: do I need to invalidate all the getAlls?
-        void utils.resource.getAll.invalidate();
+        void utils.resource.getCatalogue.invalidate();
       },
       onError: (e) => {
         if (e.data?.code === "CONFLICT") {
