@@ -6,4 +6,4 @@ Disallow: /auth/
 Disallow: /user/
 Disallow: /maintenance
 
-Sitemap: https://improvdb.com/api/sitemap.xml
+Sitemap: https://improvdb.com/sitemap.xml
