@@ -42,7 +42,7 @@ npx vitest               # Watch mode
 
 E2E tests:
 
-> Requires Docker. Runs in the CI Playwright image against a throwaway, freshly seeded Postgres (does not touch the dev DB); the dev server is started by Playwright.
+> Requires Docker. Runs in the CI Playwright image against a throwaway, freshly seeded Postgres (does not touch the dev DB) and a production build of the app.
 
 ```bash
 npm run test:e2e                          # Run all E2E tests
@@ -139,7 +139,7 @@ The schema is split across multiple files in `prisma/schema/`. The main `index.p
 - **Multi-file setup**: Schemas organized by domain (user, resource, lesson-plan, category)
 
 ### Testing Strategy
-E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps, pushes the schema, checks for pending migrations, seeds, and runs Playwright, whose `webServer` config starts the dev server.
+E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps (skipped when `node_modules` matches the lockfile), checks for pending migrations, builds the database from migrations, seeds, runs `npm run build`, and runs Playwright, whose `webServer` config serves the build with `npm run start` (or the dev server when `CI` is unset). Tests run on desktop Chromium and mobile WebKit with 4 workers, so they must not depend on each other's data. Specs in `tests/http/` check only what the server sends (headers, meta tags, generated images) and run on Chromium only.
 
 ### Dependency updates
 Renovate (`renovate.json`) opens grouped non-major PRs and one PR per major, and auto-merges them when CI is green. Use the `/fix-deps` skill to fix a failing update branch locally.
@@ -185,6 +185,6 @@ UI components are from shadcn/ui and located in `src/components/ui/`. These are 
 ### Testing
 - **Always add E2E tests** for new features where applicable
 - **Add unit tests** (`*.test.ts` next to the code) for pure logic such as URL parsing or SEO rules
-- Tests go in the `tests/` directory using Playwright
+- Tests go in the `tests/` directory using Playwright; tests that never depend on the browser go in `tests/http/`
 - Include tests for SEO metadata when adding new pages
 - Test API endpoints return expected responses

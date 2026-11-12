@@ -3,6 +3,10 @@ import { test, expect } from "@playwright/test";
 import { expectToMatchLightAndDarkThemesScreenshot } from "@/../tests/utils";
 
 test("looks good", async ({ page, isMobile }) => {
+  // Six full-page screenshots: more than the default timeout allows when
+  // workers share the CPU
+  test.slow();
+
   await page.goto("/");
   await expect(page).toHaveTitle(
     "Improv Games, Exercises & Warm-ups | ImprovDB",
