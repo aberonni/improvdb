@@ -155,31 +155,6 @@ export function catalogueHref(state: CatalogueState) {
   return search ? `/?${search}` : "/";
 }
 
-/**
- * The Landing Page a Catalogue view is equivalent to, if any: exactly one
- * type, or exactly one category, and no other filter. Sorting is ignored
- * because it does not change which Resources are shown.
- */
-export function landingPathFor(state: CatalogueState): string | undefined {
-  if (state.title || state.configuration.length) return undefined;
-
-  const [type] = state.type;
-  if (type && state.type.length === 1 && state.category.length === 0) {
-    return TYPE_LANDING_PAGES[type].path;
-  }
-
-  const [category] = state.category;
-  if (category && state.category.length === 1 && state.type.length === 0) {
-    return categoryLandingPath(category);
-  }
-
-  return undefined;
-}
-
-export function canonicalPathFor(state: CatalogueState) {
-  return landingPathFor(state) ?? "/";
-}
-
 export function stateToColumnFilters(
   state: CatalogueState,
 ): ColumnFiltersState {

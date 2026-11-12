@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 import { ResourceList } from "@/components/resource-list";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   type CatalogueState,
   catalogueHref,
@@ -15,7 +16,7 @@ import {
 } from "@/lib/catalogue";
 import { type RouterOutputs } from "@/utils/api";
 
-type Resources = RouterOutputs["resource"]["getAll"];
+type Resources = RouterOutputs["resource"]["getCatalogue"];
 
 const SITE_URL = "https://improvdb.com";
 
@@ -33,18 +34,53 @@ export function Catalogue({
   onStateChange: (state: CatalogueState) => void;
 }) {
   return (
-    <ResourceList
-      queryResult={queryResult}
-      useFilters
-      showFavourites
-      linkBadges
-      columnFilters={stateToColumnFilters(state)}
-      onColumnFiltersChange={(filters) =>
-        onStateChange(columnFiltersToState(filters, state.sorting))
-      }
-      sorting={state.sorting}
-      onSortingChange={(sorting) => onStateChange({ ...state, sorting })}
-    />
+    <div className="relative">
+      <div className="[.catalogue-pending_&]:invisible">
+        <ResourceList
+          queryResult={queryResult}
+          useFilters
+          showFavourites
+          linkBadges
+          columnFilters={stateToColumnFilters(state)}
+          onColumnFiltersChange={(filters) =>
+            onStateChange(columnFiltersToState(filters, state.sorting))
+          }
+          sorting={state.sorting}
+          onSortingChange={(sorting) => onStateChange({ ...state, sorting })}
+        />
+      </div>
+      <div
+        aria-hidden
+        data-testid="catalogue-pending"
+        className="absolute inset-x-0 top-0 hidden space-y-4 [.catalogue-pending_&]:block"
+      >
+        <Skeleton className="h-9 w-full max-w-md" />
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className="h-10 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const PENDING_CLASS = "catalogue-pending";
+
+/**
+ * The home page is pre-built without a query string, so a filtered link
+ * first renders the unfiltered list. This blocking script hides the list
+ * behind a skeleton until useUrlCatalogueState has applied the URL's filters
+ * (or after a few seconds, in case that never happens).
+ */
+export function CataloguePendingScript() {
+  return (
+    <Head>
+      <script
+        key="catalogue-pending"
+        dangerouslySetInnerHTML={{
+          __html: `if(location.search){var c=document.documentElement.classList;c.add("${PENDING_CLASS}");setTimeout(function(){c.remove("${PENDING_CLASS}")},5000)}`,
+        }}
+      />
+    </Head>
   );
 }
 
@@ -67,6 +103,13 @@ export function useUrlCatalogueState() {
     if (pendingWrites.current.delete(search)) return;
     setState((current) => (isEqual(current, fromUrl) ? current : fromUrl));
   }, [router.query]);
+
+  // Runs after the commit that rendered the URL's filters
+  useEffect(() => {
+    if (router.isReady && isEqual(state, parseCatalogueQuery(router.query))) {
+      document.documentElement.classList.remove(PENDING_CLASS);
+    }
+  }, [router.isReady, router.query, state]);
 
   const update = (next: CatalogueState) => {
     setState(next);

@@ -1,15 +1,10 @@
 import { type ResourceType } from "@prisma/client";
-import { useCallback } from "react";
 
 import { LandingPage } from "@/components/landing-page";
 import { EMPTY_CATALOGUE_STATE, TYPE_LANDING_PAGES } from "@/lib/catalogue";
 
 export function TypeLandingPage({ type }: { type: ResourceType }) {
   const page = TYPE_LANDING_PAGES[type];
-  const matches = useCallback(
-    (resource: { type: ResourceType }) => resource.type === type,
-    [type],
-  );
 
   return (
     <LandingPage
@@ -23,7 +18,7 @@ export function TypeLandingPage({ type }: { type: ResourceType }) {
       description={page.description}
       intro={page.intro}
       initialState={{ ...EMPTY_CATALOGUE_STATE, type: [type] }}
-      matches={matches}
+      filter={{ type }}
     />
   );
 }

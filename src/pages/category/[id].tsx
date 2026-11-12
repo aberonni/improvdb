@@ -1,5 +1,4 @@
 import type { GetStaticPaths, GetStaticProps } from "next";
-import { useCallback } from "react";
 
 import { LandingPage } from "@/components/landing-page";
 import {
@@ -19,11 +18,6 @@ function paragraphs(text: string | null | undefined) {
 
 export default function CategoryPage({ id }: { id: string }) {
   const { data: category } = api.category.getById.useQuery({ id });
-  const matches = useCallback(
-    (resource: { categories: { id: string }[] }) =>
-      resource.categories.some((c) => c.id === id),
-    [id],
-  );
 
   if (!category) return null;
 
@@ -43,7 +37,7 @@ export default function CategoryPage({ id }: { id: string }) {
       description={description}
       intro={intro.length ? intro : [fallbackIntro]}
       initialState={{ ...EMPTY_CATALOGUE_STATE, category: [category.id] }}
-      matches={matches}
+      filter={{ category: id }}
       noIndex={category._count.resources < MIN_RESOURCES_TO_INDEX}
     />
   );
@@ -59,7 +53,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   if (!category) return { notFound: true, revalidate: 60 };
 
   await Promise.all([
-    ssg.resource.getAll.prefetch(),
+    ssg.resource.getCatalogue.prefetch({ category: id }),
     ssg.category.getAll.prefetch(),
   ]);
 

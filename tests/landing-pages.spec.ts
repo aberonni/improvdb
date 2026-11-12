@@ -135,9 +135,7 @@ test.describe("Catalogue URL state", () => {
     if (isMobile) await page.getByRole("button", { name: "Close" }).click();
 
     await expect(page).toHaveURL(/\/\?type=short-form$/);
-    await expect
-      .poll(() => canonical(page))
-      .toBe("https://improvdb.com/short-form-games");
+    expect(await canonical(page)).toBe("https://improvdb.com/");
 
     await page.getByRole("button", { name: "A–Z" }).click();
     await page.getByRole("menuitemradio", { name: "Newest" }).click();
@@ -146,6 +144,7 @@ test.describe("Catalogue URL state", () => {
     // survives a reload
     await page.reload();
     await waitForList(page);
+    await expect(page.getByTestId("catalogue-pending")).toBeHidden();
     await expect(page.getByRole("button", { name: "Newest" })).toBeVisible();
     const types = await page
       .getByTestId("resource-list")
@@ -160,20 +159,92 @@ test.describe("Catalogue URL state", () => {
     await expect.poll(() => canonical(page)).toBe("https://improvdb.com/");
   });
 
-  test("server sends the canonical for the query string", async ({ page }) => {
-    expect(await serverCanonical(page, "/?type=short-form")).toBe(
-      "https://improvdb.com/short-form-games",
-    );
-    expect(await serverCanonical(page, "/?category=listening")).toBe(
-      "https://improvdb.com/category/listening",
-    );
-    expect(
-      await serverCanonical(page, "/?type=short-form&category=listening"),
-    ).toBe("https://improvdb.com/");
-    expect(await serverCanonical(page, "/?sort=newest")).toBe(
-      "https://improvdb.com/",
-    );
+  test("filtered views are canonical to the home page", async ({ page }) => {
+    for (const path of [
+      "/?type=short-form",
+      "/?category=listening",
+      "/?type=short-form&category=listening",
+    ]) {
+      expect(await serverCanonical(page, path)).toBe("https://improvdb.com/");
+    }
   });
+
+  // The dev server hides the page until its JavaScript runs, so the
+  // pre-hydration moment is tested in parts rather than by blocking scripts.
+  test("a filtered link hides the list until its filters apply", async ({
+    page,
+  }) => {
+    const html = await (await page.request.get("/?type=long-form")).text();
+    const head = html.slice(0, html.indexOf("<body"));
+    expect(head).toContain('classList;c.add("catalogue-pending")');
+
+    await page.goto("/?type=long-form");
+    await waitForList(page);
+    await expect(page.locator("html")).not.toHaveClass(/catalogue-pending/);
+    await expect(page.getByTestId("catalogue-pending")).toBeHidden();
+    const types = await page
+      .getByTestId("resource-list")
+      .locator("tbody tr td:nth-child(3)")
+      .allTextContents();
+    expect(types.length).toBeGreaterThan(0);
+    for (const type of types) expect(type).toContain("Long Form");
+
+    // While the class is set, the skeleton replaces the list
+    await page.evaluate(() =>
+      document.documentElement.classList.add("catalogue-pending"),
+    );
+    await expect(page.getByTestId("catalogue-pending")).toBeVisible();
+    await expect(page.getByTestId("resource-list")).toBeHidden();
+  });
+
+  test("the unfiltered home page never hides the list", async ({ page }) => {
+    await page.goto("/");
+    await waitForList(page);
+    expect(
+      await page.evaluate(() =>
+        document.documentElement.classList.contains("catalogue-pending"),
+      ),
+    ).toBe(false);
+  });
+});
+
+test.describe("Catalogue payload", () => {
+  for (const path of ["/", "/short-form-games", "/category/listening"]) {
+    test(`${path} sends only what the list needs`, async ({ request }) => {
+      const html = await (await request.get(path)).text();
+      const nextData =
+        /<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/s.exec(html)?.[1] ??
+        "";
+      const queries = (
+        JSON.parse(nextData) as {
+          props: {
+            pageProps: {
+              trpcState: {
+                json: {
+                  queries: {
+                    queryKey: unknown[];
+                    state: { data: unknown };
+                  }[];
+                };
+              };
+            };
+          };
+        }
+      ).props.pageProps.trpcState.json.queries;
+      const catalogue = queries.find(
+        ({ queryKey }) =>
+          JSON.stringify(queryKey[0]) ===
+          JSON.stringify(["resource", "getCatalogue"]),
+      )?.state.data as Record<string, unknown>[] | undefined;
+
+      expect(catalogue?.length).toBeGreaterThan(0);
+      // Full Resources (description, nested Category descriptions…) were
+      // ~2.7 KB each and pushed production's home page past 2.5 MB
+      expect(nextData.length / catalogue!.length).toBeLessThan(1024);
+      expect(nextData.length).toBeLessThan(500 * 1024);
+      expect(Object.keys(catalogue![0]!)).not.toContain("description");
+    });
+  }
 });
 
 test.describe("Navigation", () => {
