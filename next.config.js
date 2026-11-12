@@ -30,6 +30,12 @@ const config = {
     ignoreBuildErrors: true,
   },
   devIndicators: false,
+  async redirects() {
+    return [
+      // The Catalogue lives at the home page (docs/adr/0001)
+      { source: "/resource/browse", destination: "/", permanent: true },
+    ];
+  },
 };
 
 export default withAxiom(config);

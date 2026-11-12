@@ -141,31 +141,6 @@ export const resourceRouter = createTRPCRouter({
       })
       .then(cleanCategories);
   }),
-  getLatest: publicProcedure.query(({ ctx }) => {
-    return ctx.db.resource
-      .findMany({
-        take: 5,
-        orderBy: {
-          updatedAt: "desc",
-        },
-        where: {
-          published: true,
-        },
-        include: {
-          categories: {
-            include: {
-              category: true,
-            },
-            orderBy: {
-              category: {
-                name: "asc",
-              },
-            },
-          },
-        },
-      })
-      .then(cleanCategories);
-  }),
   getAllOnlyIdAndTitle: publicProcedure.query(({ ctx }) => {
     return ctx.db.resource.findMany({
       take: 1000,

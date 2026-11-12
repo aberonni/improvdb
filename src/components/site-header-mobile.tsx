@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
+import { cn, isActiveLink } from "@/lib/utils";
 
 export function SiteHeaderMobile({
   navigation,
@@ -157,7 +157,7 @@ function MobileLink({
       }}
       className={cn(
         "transition-colors hover:text-foreground/80",
-        router.pathname.startsWith(href)
+        isActiveLink(router.pathname, href)
           ? "text-foreground"
           : "text-foreground/60",
       )}

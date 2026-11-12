@@ -19,6 +19,7 @@ import {
 import { useEffect, useState } from "react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
+import { type DataTableSortOption } from "@/components/data-table/data-table-sort-options";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -32,14 +33,17 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
-interface DataTableProps<TData, TValue = unknown>
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableProps<
+  TData,
+  TValue = unknown,
+> extends React.HTMLAttributes<HTMLDivElement> {
   columns: (ColumnDef<TData, TValue> & {
     accessorKey?: string;
   })[];
   data?: TData[];
   usePagination?: boolean;
   filters?: string[];
+  sortOptions?: DataTableSortOption[];
   isLoading: boolean;
   hiddenColumnsByDefault?: (keyof VisibilityState)[];
   hiddenColumnsOnMobile?: (keyof VisibilityState)[];
@@ -51,6 +55,7 @@ export function DataTable<TData, TValue = unknown>({
   data,
   usePagination = false,
   filters,
+  sortOptions,
   isLoading,
   hiddenColumnsByDefault = [],
   hiddenColumnsOnMobile = [],
@@ -61,7 +66,9 @@ export function DataTable<TData, TValue = unknown>({
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    () => Object.fromEntries(hiddenColumnsByDefault.map((key) => [key, false])),
+  );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   useEffect(() => {
@@ -121,7 +128,13 @@ export function DataTable<TData, TValue = unknown>({
 
   return (
     <div className="space-y-4" data-loaded={!isLoading} {...props}>
-      {filters && <DataTableToolbar table={table} filters={filters} />}
+      {filters && (
+        <DataTableToolbar
+          table={table}
+          filters={filters}
+          sortOptions={sortOptions}
+        />
+      )}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

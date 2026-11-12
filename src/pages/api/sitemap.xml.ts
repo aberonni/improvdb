@@ -8,7 +8,6 @@ const SITE_URL = "https://improvdb.com";
 const STATIC_PAGES = [
   { path: "/", priority: 1.0, changefreq: "daily" },
   { path: "/about", priority: 0.8, changefreq: "monthly" },
-  { path: "/resource/browse", priority: 0.9, changefreq: "daily" },
   { path: "/lesson-plan/browse", priority: 0.9, changefreq: "daily" },
   { path: "/privacy", priority: 0.3, changefreq: "yearly" },
   { path: "/terms", priority: 0.3, changefreq: "yearly" },

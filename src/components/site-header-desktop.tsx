@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, isActiveLink } from "@/lib/utils";
 
 const UserWidget = ({ user }: { user: User }) => (
   <div className="flex items-center">
@@ -58,7 +58,7 @@ export const SiteHeaderDesktop = ({
                 key={item.name}
                 className={cn(
                   "transition-colors hover:text-foreground/80",
-                  router.pathname.startsWith(item.href)
+                  isActiveLink(router.pathname, item.href)
                     ? "text-foreground"
                     : "text-foreground/60",
                 )}

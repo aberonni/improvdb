@@ -1,7 +1,15 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
 import { XMLParser } from "fast-xml-parser";
 
-const verifyOgImage = async ({ url, request, name }: { url: string; request: APIRequestContext; name: string }) => {
+const verifyOgImage = async ({
+  url,
+  request,
+  name,
+}: {
+  url: string;
+  request: APIRequestContext;
+  name: string;
+}) => {
   const shouldSkipScreenshots = !!process.env.SKIP_SCREENSHOT_COMPARISON;
 
   expect(url).toContain("/api/og");
@@ -25,7 +33,7 @@ test.describe("SEO metadata", () => {
 
     // Check title
     await expect(page).toHaveTitle(
-      "Improv Games, Exercises & Lesson Plans | ImprovDB",
+      "Improv Games, Exercises & Warm-ups | ImprovDB",
     );
 
     // Check meta description
@@ -38,7 +46,7 @@ test.describe("SEO metadata", () => {
     const ogTitle = await page
       .locator('meta[property="og:title"]')
       .getAttribute("content");
-    expect(ogTitle).toBe("Improv Games, Exercises & Lesson Plans | ImprovDB");
+    expect(ogTitle).toBe("Improv Games, Exercises & Warm-ups | ImprovDB");
 
     const ogDescription = await page
       .locator('meta[property="og:description"]')
@@ -120,34 +128,19 @@ test.describe("SEO metadata", () => {
     expect(structuredData.headline).toBe("Blue Ball");
   });
 
-  test("browse resources page has correct meta tags", async ({ page, request }) => {
-    await page.goto("/resource/browse");
+  test("old browse resources URL permanently redirects to the homepage", async ({
+    request,
+  }) => {
+    const response = await request.get("/resource/browse", { maxRedirects: 0 });
 
-    await expect(page).toHaveTitle("Browse Improv Resources | ImprovDB");
-
-    const description = await page
-      .locator('meta[name="description"]')
-      .getAttribute("content");
-    expect(description).toContain("improv warm-ups");
-
-    const canonical = await page
-      .locator('link[rel="canonical"]')
-      .getAttribute("href");
-    expect(canonical).toBe("https://improvdb.com/resource/browse");
-
-    const ogImage = await page
-      .locator('meta[property="og:image"]')
-      .getAttribute("content");
-    expect(ogImage).toContain("/api/og");
-
-    await verifyOgImage({
-      url: ogImage ?? "",
-      request,
-      name: "og-browse-resources.png",
-    });
+    expect(response.status()).toBe(308);
+    expect(response.headers()["location"]).toBe("/");
   });
 
-  test("browse lesson plans page has correct meta tags", async ({ page, request }) => {
+  test("browse lesson plans page has correct meta tags", async ({
+    page,
+    request,
+  }) => {
     await page.goto("/lesson-plan/browse");
 
     await expect(page).toHaveTitle("Browse Improv Lesson Plans | ImprovDB");
@@ -171,7 +164,9 @@ test.describe("SEO metadata", () => {
 });
 
 test.describe("Sitemap", () => {
-  test("sitemap.xml returns valid XML with expected URLs", async ({ request }) => {
+  test("sitemap.xml returns valid XML with expected URLs", async ({
+    request,
+  }) => {
     const response = await request.get("/api/sitemap.xml");
 
     expect(response.status()).toBe(200);
@@ -191,7 +186,7 @@ test.describe("Sitemap", () => {
     const urls = parsed.urlset.url.map((u: { loc: string }) => u.loc);
     expect(urls).toContain("https://improvdb.com/");
     expect(urls).toContain("https://improvdb.com/about");
-    expect(urls).toContain("https://improvdb.com/resource/browse");
+    expect(urls).not.toContain("https://improvdb.com/resource/browse");
     expect(urls).toContain("https://improvdb.com/lesson-plan/browse");
     expect(urls).toContain("https://improvdb.com/privacy");
     expect(urls).toContain("https://improvdb.com/terms");
@@ -219,7 +214,9 @@ test.describe("Sitemap", () => {
 });
 
 test.describe("Robots.txt", () => {
-  test("robots.txt is accessible and has correct content", async ({ request }) => {
+  test("robots.txt is accessible and has correct content", async ({
+    request,
+  }) => {
     const response = await request.get("/robots.txt");
 
     expect(response.status()).toBe(200);
