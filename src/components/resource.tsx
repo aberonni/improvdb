@@ -153,7 +153,7 @@ export function SingleResourceComponent({
             <>
               <Separator />
               <div>
-                Related Resources:
+                Related Games & Exercises:
                 <ul className="ml-6 list-disc [&>li]:mt-0">
                   {relatedResources.map(({ id, title }) => {
                     return (
@@ -220,7 +220,7 @@ export function SingleResourceComponent({
                   "grow text-center",
                 )}
               >
-                Clone Resource
+                Clone
               </Link>
             </div>
           )}

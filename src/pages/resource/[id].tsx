@@ -29,7 +29,7 @@ const AdminToolbar = ({
         void utils.resource.getById.invalidate();
         toast({
           title: "Success!",
-          description: "Resource updated.",
+          description: `"${resource.title}" updated.`,
         });
       },
       onError: (e) => {
@@ -51,7 +51,7 @@ const AdminToolbar = ({
         void router.back();
         toast({
           title: "Success!",
-          description: "Resource successfully deleted.",
+          description: `"${resource.title}" deleted.`,
         });
       },
       onError: (e) => {

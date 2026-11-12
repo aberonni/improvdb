@@ -10,9 +10,9 @@ export default function MyFavouriteResources() {
   return (
     <>
       <Head>
-        <title>My Favourite Resources - ImprovDB</title>
+        <title>My Favourites - ImprovDB</title>
       </Head>
-      <PageLayout title="My Favourite Resources" authenticatedOnly>
+      <PageLayout title="My Favourites" authenticatedOnly>
         <ResourceList queryResult={queryResult} useFilters showFavourites />
       </PageLayout>
     </>

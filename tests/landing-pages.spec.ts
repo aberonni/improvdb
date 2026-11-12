@@ -61,12 +61,16 @@ test.describe("Type landing pages", () => {
     await expectToMatchLightAndDarkThemesScreenshot(page, "short-form-games");
   });
 
-  test("exercises and long form pages exist", async ({ page }) => {
-    await page.goto("/exercises");
-    await expect(page).toHaveTitle("Improv Exercises & Warm-ups | ImprovDB");
-    await page.goto("/long-form-formats");
-    await expect(page).toHaveTitle("Long Form Improv Formats | ImprovDB");
-  });
+  for (const [path, title] of [
+    ["/exercises", "Improv Exercises & Warm-ups | ImprovDB"],
+    ["/long-form-formats", "Long Form Improv Formats | ImprovDB"],
+  ] as const) {
+    test(`${path} page exists`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page).toHaveTitle(title);
+      await waitForList(page);
+    });
+  }
 
   test("changing a filter moves to the home page catalogue", async ({
     page,
@@ -237,7 +241,9 @@ test("admin can edit a category description", async ({
   test.skip(!mailpitUrl, "Needs Mailpit: run with `npm run test:e2e`");
   await signInWithEmail(page, "admin@e2e.com");
 
-  const description = `Spontaneity intro written by ${browserName}${isMobile ? " mobile" : ""}.`;
+  // Unique per run so retries and repeats still change the text (Save is
+  // disabled until it does)
+  const description = `Spontaneity intro written by ${browserName}${isMobile ? " mobile" : ""} at ${Date.now()}.`;
 
   await page.goto("/admin/categories");
   const field = page.getByLabel("Spontaneity");
@@ -246,7 +252,9 @@ test("admin can edit a category description", async ({
     .locator("xpath=ancestor::form")
     .getByRole("button", { name: "Save" })
     .click();
-  await expect(page.getByText("Spontaneity updated.")).toBeVisible();
+  await expect(
+    page.getByText("Spontaneity updated.", { exact: true }),
+  ).toBeVisible();
 
   await page.goto("/category/spontaneity");
   await expect(page.getByRole("main")).toContainText(description);

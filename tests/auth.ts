@@ -45,10 +45,21 @@ export async function getSignInLink(request: APIRequestContext, email: string) {
   return link!;
 }
 
-/** Sign in through the email flow (needs Mailpit, see docker-compose.e2e.yml) */
+/**
+ * Sign in through the email flow (needs Mailpit, see docker-compose.e2e.yml).
+ * Works for a fixed address, such as a seeded user, used by several tests.
+ */
 export async function signInWithEmail(page: Page, email: string) {
+  // Drop earlier sign-in emails so we don't follow an already-used link
+  const cleared = await page.request.delete(`${mailpitUrl}/api/v1/search`, {
+    params: { query: `to:"${email}"` },
+  });
+  expect(cleared.ok(), "Mailpit should delete old emails").toBe(true);
+
   await requestSignInEmail(page, email);
-  await expect(page).toHaveURL(/\/auth\/verify-request/);
+  await expect(
+    page.getByRole("heading", { name: "Check your email" }),
+  ).toBeVisible();
   await page.goto(await getSignInLink(page.request, email));
   await expect(page).not.toHaveURL(/\/auth\//);
 }

@@ -21,11 +21,11 @@ const catalogueLinks = [
 ];
 
 const userNavigation = [
-  { name: "My Favourite Resources", href: "/user/my-favourite-resources" },
+  { name: "My Favourites", href: "/user/my-favourite-resources" },
   { name: "My Lesson Plans", href: "/user/my-lesson-plans" },
-  { name: "My Proposed Resources", href: "/user/my-proposed-resources" },
+  { name: "My Proposals", href: "/user/my-proposed-resources" },
   { name: "My Profile", href: "/user/my-profile" },
-  { name: "Propose Resource", href: "/resource/create" },
+  { name: "Propose a Game or Exercise", href: "/resource/create" },
 ];
 
 export function SiteHeader() {

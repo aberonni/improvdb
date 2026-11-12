@@ -48,7 +48,7 @@ export default function Home() {
         <p className="mt-6 text-center text-sm text-muted-foreground">
           See something missing? You can{" "}
           <Link href="/resource/create" className="underline">
-            propose a new resource.
+            propose a new one.
           </Link>
         </p>
       </PageLayout>

@@ -1,4 +1,5 @@
 import { HeartFilledIcon, HeartIcon } from "@radix-ui/react-icons";
+import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -17,7 +18,12 @@ export const ResourceFavouriteButton = ({
   showLabel?: boolean;
 } & ButtonProps) => {
   const { toast } = useToast();
-  const { data: user, isLoading } = api.user.getUser.useQuery();
+  const { status } = useSession();
+  // Signed-out visitors have no favourites: don't ask (the request would
+  // fail and keep the button disabled while it retries)
+  const { data: user, isLoading } = api.user.getUser.useQuery(undefined, {
+    enabled: status === "authenticated",
+  });
   const utils = api.useUtils();
 
   const isFavourite = useMemo(() => {
@@ -33,8 +39,7 @@ export const ResourceFavouriteButton = ({
         void utils.resource.invalidate();
       },
       onError: (e) => {
-        const errorMessage =
-          e.message ?? e.data?.zodError?.errors?.[0];
+        const errorMessage = e.message ?? e.data?.zodError?.errors?.[0];
 
         toast({
           title: "Uh oh! Something went wrong.",
@@ -58,7 +63,7 @@ export const ResourceFavouriteButton = ({
       onClick={() => {
         if (!user) {
           return toast({
-            title: "You must be logged in to favourite a resource.",
+            title: "Sign in to save your favourites.",
             variant: "destructive",
           });
         }
@@ -68,7 +73,11 @@ export const ResourceFavouriteButton = ({
           favourite: !isFavourite,
         });
       }}
-      disabled={isSaving || isLoading}
+      disabled={
+        isSaving ||
+        status === "loading" ||
+        (status === "authenticated" && isLoading)
+      }
       variant={buttonProps.variant ?? "outline"}
       className={cn(buttonProps.className, "group")}
       data-testid="resource-favourite-button"

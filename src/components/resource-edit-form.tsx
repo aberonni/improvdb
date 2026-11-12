@@ -52,7 +52,7 @@ const editFormDefaults: Partial<CreateSchemaType> = {
   relatedResources: [],
   type: ResourceType.EXERCISE,
   configuration: ResourceConfiguration.SCENE,
-  description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when looking at your resource.
+  description: `Write a description of the warm-up/exercise/game etc. Include any and all details that you think are important. This is the first thing people will see when they open it.
 
 You can use markdown to format your text. For example **bold text**, *italic text*, and [links](https://your.url). Click on the "Preview" button to see what your text will look like.
 
@@ -191,13 +191,13 @@ export default function ResourceEditForm({
         ) : (
           <>
             <Alert className="mb-4" variant="warning">
-              <AlertTitle>About proposing new resources</AlertTitle>
+              <AlertTitle>About proposing games & exercises</AlertTitle>
               <AlertDescription>
                 <br />
-                Currently, anyone can propose new resources, but only admins can
-                approve them, and subsequently edit or delete them. You will not
-                be able to use them in your lesson plans until they have been
-                approved by an admin.
+                Currently, anyone can propose new games and exercises, but only
+                admins can approve them, and subsequently edit or delete them.
+                You will not be able to use them in your lesson plans until they
+                have been approved by an admin.
                 <br />
                 <br />
                 This website is a work in progress, and these limitations on new
@@ -264,12 +264,12 @@ export default function ResourceEditForm({
                           )}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a resource type" />
+                            <SelectValue placeholder="Select a type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Resource types</SelectLabel>
+                            <SelectLabel>Types</SelectLabel>
                             {Object.keys(ResourceType).map((typeKey) => (
                               <SelectItem key={typeKey} value={typeKey}>
                                 {ResourceTypeLabels[typeKey as ResourceType]}
@@ -442,10 +442,10 @@ export default function ResourceEditForm({
                                 ...field,
                                 ref: null,
                               }}
-                              placeholder="Related Resources..."
+                              placeholder="Related games & exercises..."
                               instanceId="relatedResources"
                               isLoading={isLoadingResources}
-                              loadingMessage={() => "Loading resources..."}
+                              loadingMessage={() => "Loading..."}
                               options={(isEditing
                                 ? resources?.filter(
                                     (r) => r.id !== resource?.id,
@@ -531,7 +531,7 @@ export default function ResourceEditForm({
               <AreYouSureDialog
                 isFormValid={form.formState.isValid}
                 dialog="ResourceSave"
-                description={`You are about to propose a new resource. This action cannot be undone. Your new resource will be pending publication after you submit it. You can monitor the status in your "My Proposed Resources\" page.`}
+                description={`You are about to propose a new game or exercise. This action cannot be undone. It will be pending publication after you submit it. You can monitor its status on your "My Proposals" page.`}
                 onSave={handleSubmit(onSubmit)}
                 isSaving={isSubmitting}
               />
