@@ -10,7 +10,7 @@ npm ci
 npx prisma db push
 echo "Checking for pending migrations..."
 npx prisma migrate diff \
-  --from-migrations ./prisma/migrations \
+  --from-migrations ./prisma/schema/migrations \
   --to-schema-datamodel ./prisma/schema \
   --exit-code \
   --shadow-database-url="$DATABASE_URL"
