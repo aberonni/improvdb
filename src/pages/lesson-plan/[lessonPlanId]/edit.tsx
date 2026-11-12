@@ -7,6 +7,7 @@ import LessonPlanEditForm from "@/components/lesson-plan-edit-form";
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import { useToast } from "@/components/ui/use-toast";
+import { canEditLessonPlan } from "@/lib/access";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -59,7 +60,7 @@ export const LessonPlanEditPage: NextPage<{ lessonPlanId: string }> = ({
     return <LoadingPage />;
   }
 
-  if (!lessonPlan || lessonPlan.createdById !== session?.user?.id) {
+  if (!lessonPlan || !canEditLessonPlan(session?.user, lessonPlan)) {
     return <div>404</div>;
   }
 

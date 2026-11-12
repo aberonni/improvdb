@@ -1,9 +1,9 @@
-import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 
 import { SiteHeaderDesktop } from "@/components/site-header-desktop";
 import { SiteHeaderMobile } from "@/components/site-header-mobile";
+import { isAdmin } from "@/lib/access";
 import { TYPE_LANDING_PAGE_LIST } from "@/lib/catalogue";
 
 export type SiteHeaderLink = {
@@ -39,11 +39,7 @@ export function SiteHeader() {
       { name: "About", href: "/about" },
     ];
 
-    if (!session?.user) {
-      return nav;
-    }
-
-    if (session?.user?.role !== UserRole.ADMIN) {
+    if (!isAdmin(session?.user)) {
       return nav;
     }
 

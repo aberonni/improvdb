@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
+import { publishedResourcesWhere } from "@/lib/access";
 import {
   categoryLandingPath,
   MIN_RESOURCES_TO_INDEX,
@@ -42,7 +43,7 @@ export default async function handler(
 ) {
   // Get all published resources
   const resources = await db.resource.findMany({
-    where: { published: true },
+    where: publishedResourcesWhere,
     select: { id: true, updatedAt: true },
   });
 
@@ -57,7 +58,7 @@ export default async function handler(
     select: {
       id: true,
       _count: {
-        select: { resources: { where: { resource: { published: true } } } },
+        select: { resources: { where: { resource: publishedResourcesWhere } } },
       },
     },
   });

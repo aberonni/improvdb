@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -8,6 +7,7 @@ import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
 import { useToast } from "@/components/ui/use-toast";
+import { isAdmin as isAdminUser } from "@/lib/access";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -18,7 +18,7 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     });
 
   const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
+  const isAdmin = isAdminUser(session?.user);
 
   const router = useRouter();
   const { toast } = useToast();
