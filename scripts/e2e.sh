@@ -6,5 +6,9 @@ set -e
 
 ./scripts/prepare-app.sh
 
+# Against the same database; they delete what they create, so the pages
+# Playwright checks are unchanged
+npm run test:integration
+
 # Playwright serves the build with `npm run start` (see playwright.config.ts)
 npx playwright test "$@"

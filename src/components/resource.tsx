@@ -39,15 +39,13 @@ export function SingleResourceComponent({
   resource,
   showProposeChanges = false,
 }: Props) {
-  const alternativeNames = useMemo(() => {
-    if (!resource.alternativeNames || resource.alternativeNames === "") {
-      return [];
-    }
-
-    return typeof resource.alternativeNames === "string"
-      ? resource.alternativeNames.split(";")
-      : resource.alternativeNames.map((name) => name.value);
-  }, [resource]);
+  const alternativeNames = useMemo(
+    () =>
+      isApiResource(resource)
+        ? resource.alternativeNames
+        : resource.alternativeNames.map((name) => name.value),
+    [resource],
+  );
 
   const relatedResources = useMemo<{ id: string; title: string }[]>(() => {
     if (!isApiResource(resource)) {

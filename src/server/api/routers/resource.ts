@@ -1,6 +1,7 @@
 import {
   type CategoriesOnResources,
   type Category,
+  type PrismaClient,
   type Resource,
   ResourceType,
   LessonPlanVisibility,
@@ -9,22 +10,20 @@ import { TRPCError } from "@trpc/server";
 import { uniqBy } from "lodash";
 import { z } from "zod";
 
-import {
-  canViewResource,
-  isAdmin,
-  publishedResourcesWhere,
-} from "@/lib/access";
-import { escapeHtml } from "@/lib/utils";
+import { canViewResource, publishedResourcesWhere } from "@/lib/access";
 import {
   createTRPCRouter,
   adminProcedure,
   privateProcedure,
   publicProcedure,
-  type createTRPCContext,
 } from "@/server/api/trpc";
 import { enforceRateLimit } from "@/server/helpers/rateLimit";
-import { adminRecipients, mailer } from "@/server/mailer";
-import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
+import { mailer } from "@/server/mailer";
+import {
+  decodeAlternativeNames,
+  resourceLifecycle,
+} from "@/server/resource-lifecycle";
+import { resourceCreateSchema, resourceSaveSchema } from "@/utils/zod";
 
 function cleanCategories(
   resources: (Resource & {
@@ -34,87 +33,14 @@ function cleanCategories(
 ) {
   return resources.map((resource) => ({
     ...resource,
+    alternativeNames: decodeAlternativeNames(resource.alternativeNames),
     categories: resource.categories.map(({ category }) => category),
   }));
 }
 
-const updateResource = async ({
-  ctx,
-  input: updatedResource,
-}: {
-  ctx: Awaited<ReturnType<typeof createTRPCContext>>;
-  input: z.infer<typeof resourceCreateSchema>;
-}) => {
-  const originalResource = await ctx.db.resource.findUnique({
-    where: {
-      id: updatedResource.id,
-    },
-    include: {
-      categories: {
-        select: {
-          categoryId: true,
-        },
-      },
-      relatedResources: {
-        select: {
-          id: true,
-        },
-      },
-    },
-  });
-
-  if (!originalResource) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: `Couldn't find "${updatedResource.id}"`,
-    });
-  }
-
-  const resource = await ctx.db.resource.update({
-    where: {
-      id: updatedResource.id,
-    },
-    data: {
-      ...updatedResource,
-      categories: {
-        createMany: {
-          data: updatedResource.categories
-            .filter(
-              ({ value }) =>
-                !originalResource.categories.find(
-                  ({ categoryId }) => categoryId === value,
-                ),
-            )
-            .map(({ value }) => ({
-              categoryId: value,
-            })),
-        },
-        deleteMany: originalResource.categories.filter((cat) => {
-          return !updatedResource.categories.find(
-            ({ value }) => value === cat.categoryId,
-          );
-        }),
-      },
-      relatedResources: {
-        connect: updatedResource.relatedResources.map(({ value }) => ({
-          id: value,
-        })),
-        disconnect: originalResource.relatedResources.filter((res) => {
-          return !updatedResource.relatedResources.find(
-            ({ value }) => value === res.id,
-          );
-        }),
-      },
-      alternativeNames: updatedResource.alternativeNames
-        .map(({ value }) => value)
-        .join(";"),
-    },
-  });
-
-  return {
-    resource,
-  };
-};
+/** Writes go through the Resource lifecycle module (see docs/adr/0002) */
+const lifecycle = (ctx: { db: PrismaClient }) =>
+  resourceLifecycle({ db: ctx.db, mailer });
 
 export const resourceRouter = createTRPCRouter({
   /**
@@ -164,6 +90,7 @@ export const resourceRouter = createTRPCRouter({
 
       return resources.map((resource) => ({
         ...resource,
+        alternativeNames: decodeAlternativeNames(resource.alternativeNames),
         categories: resource.categories.map(({ category }) => category),
       }));
     }),
@@ -331,6 +258,7 @@ export const resourceRouter = createTRPCRouter({
 
       return {
         ...resourceWithoutLessonPlanItems,
+        alternativeNames: decodeAlternativeNames(resource.alternativeNames),
         lessonPlans: uniqBy(lessonPlans, (lessonPlan) => lessonPlan.id),
       };
     }),
@@ -338,252 +266,43 @@ export const resourceRouter = createTRPCRouter({
     .input(resourceCreateSchema)
     .mutation(async ({ ctx, input }) => {
       await enforceRateLimit(ctx.session.user);
-
-      const resourceWithSameId = await ctx.db.resource.findUnique({
-        where: {
-          id: input.id,
-        },
-      });
-
-      if (resourceWithSameId) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message:
-            "A game or exercise already exists at this URL. Please choose a new URL.",
-        });
-      }
-
-      const resource = await ctx.db.resource.create({
-        data: {
-          ...input,
-          createdById: ctx.session.user.id,
-          categories: {
-            createMany: {
-              data: input.categories.map(({ value }) => ({
-                categoryId: value,
-              })),
-            },
-          },
-          relatedResources: {
-            connect: input.relatedResources.map(({ value }) => ({
-              id: value,
-            })),
-          },
-          alternativeNames: input.alternativeNames
-            .map(({ value }) => value)
-            .join(";"),
-        },
-      });
-
-      if (!isAdmin(ctx.session.user)) {
-        await mailer.send({
-          to: await adminRecipients(ctx.db),
-          subject: "New game or exercise proposed",
-          html: `<p>A new game or exercise has been proposed by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
-        });
-      }
-
-      return {
-        resource,
-      };
+      return lifecycle(ctx).create(ctx.session.user, input);
     }),
-  update: adminProcedure.input(resourceCreateSchema).mutation(updateResource),
-  proposeUpdate: privateProcedure
-    .input(resourceCreateSchema)
+  /** Edits, proposes an edit or accepts an Edit Proposal; see resourceLifecycle */
+  save: privateProcedure
+    .input(resourceSaveSchema)
     .mutation(async ({ ctx, input }) => {
       await enforceRateLimit(ctx.session.user);
-
-      const originalResource = await ctx.db.resource.findUnique({
-        where: {
-          id: input.id,
-        },
-      });
-
-      if (!originalResource) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `Couldn't find "${input.id}"`,
-        });
-      }
-
-      if (originalResource.editProposalOriginalResourceId) {
-        throw new TRPCError({
-          code: "METHOD_NOT_SUPPORTED",
-          message: `"${input.id}" is already a proposed edit. Propose changes to the original (${originalResource.editProposalOriginalResourceId}) instead.`,
-        });
-      }
-
-      const resource = await ctx.db.resource.create({
-        data: {
-          ...input,
-          id: input.id + "_proposal_" + Date.now(),
-          published: false,
-          editProposalOriginalResourceId: input.id,
-          editProposalAuthorId: ctx.session.user.id,
-          // The proposer, so the original's creator doesn't see it as theirs
-          createdById: ctx.session.user.id,
-          categories: {
-            createMany: {
-              data: input.categories.map(({ value }) => ({
-                categoryId: value,
-              })),
-            },
-          },
-          relatedResources: {
-            connect: input.relatedResources.map(({ value }) => ({
-              id: value,
-            })),
-          },
-          alternativeNames: input.alternativeNames
-            .map(({ value }) => value)
-            .join(";"),
-        },
-      });
-
-      await mailer.send({
-        to: await adminRecipients(ctx.db),
-        subject: "New edit proposal",
-        html: `<p>A new edit proposal has been created by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
-      });
-
-      return {
-        resource,
-      };
+      return lifecycle(ctx).save(ctx.session.user, input);
     }),
-  acceptProposedUpdate: adminProcedure
-    .input(resourceProposalSchema)
-    .mutation(
-      async ({ ctx, input: { id: proposalId, ...proposedUpdates } }) => {
-        const proposal = await ctx.db.resource.findUnique({
-          where: {
-            id: proposalId,
-          },
-          select: {
-            editProposalAuthor: {
-              select: {
-                email: true,
-              },
-            },
-            editProposalOriginalResourceId: true,
-          },
-        });
-
-        if (!proposal) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `Couldn't find "${proposalId}"`,
-          });
-        }
-
-        if (!proposal.editProposalOriginalResourceId) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: `"${proposalId}" is not a proposed edit`,
-          });
-        }
-
-        const { resource } = await updateResource({
-          ctx,
-          input: {
-            ...proposedUpdates,
-            id: proposal.editProposalOriginalResourceId,
-          },
-        });
-
-        if (proposal.editProposalAuthor?.email) {
-          await mailer.send({
-            subject: `Your proposed edit to "${resource.title}" has been accepted`,
-            html: `<p>Your proposed edit has been accepted: <a href="https://improvdb.com/resource/${proposal.editProposalOriginalResourceId}">View "${escapeHtml(resource.title)}"</a></p>`,
-            to: proposal.editProposalAuthor.email,
-          });
-        }
-
-        await ctx.db.resource.delete({
-          where: {
-            id: proposalId,
-          },
-        });
-
-        return {
-          resource,
-        };
-      },
-    ),
-  delete: adminProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      let resource = await ctx.db.resource.findUnique({
-        where: {
-          id: input.id,
-        },
-      });
-
-      if (!resource) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `Couldn't find "${input.id}"`,
-        });
-      }
-
-      resource = await ctx.db.resource.delete({
-        where: {
-          id: input.id,
-        },
-      });
-
-      return {
-        resource,
-      };
-    }),
-  setPublished: adminProcedure
+  reject: privateProcedure
     .input(
       z.object({
         id: z.string(),
-        published: z.boolean(),
+        reason: z.string().trim().max(1000).optional(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      const resource = await ctx.db.resource.findUnique({
-        where: {
-          id: input.id,
-        },
-      });
-
-      if (!resource) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `Couldn't find "${input.id}"`,
-        });
-      }
-
-      const updatedResource = await ctx.db.resource.update({
-        where: {
-          id: input.id,
-        },
-        data: {
-          published: input.published,
-        },
-        select: {
-          createdBy: {
-            select: {
-              email: true,
-            },
-          },
-        },
-      });
-
-      if (input.published && updatedResource.createdBy.email) {
-        await mailer.send({
-          subject: `"${resource.title}", which you proposed, has been published`,
-          html: `<p>Your proposed game or exercise has been published: <a href="https://improvdb.com/resource/${resource.id}">View "${escapeHtml(resource.title)}"</a></p>`,
-          to: updatedResource.createdBy.email,
-        });
-      }
-
-      return {
-        resource: updatedResource,
-      };
-    }),
+    .mutation(({ ctx, input }) =>
+      lifecycle(ctx).reject(ctx.session.user, {
+        id: input.id,
+        reason: input.reason || undefined,
+      }),
+    ),
+  publish: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) =>
+      lifecycle(ctx).publish(ctx.session.user, input.id),
+    ),
+  unpublish: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) =>
+      lifecycle(ctx).unpublish(ctx.session.user, input.id),
+    ),
+  delete: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) =>
+      lifecycle(ctx).delete(ctx.session.user, input.id),
+    ),
   getPendingPublication: adminProcedure.query(({ ctx }) => {
     return ctx.db.resource
       .findMany({

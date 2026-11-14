@@ -9,8 +9,15 @@ import ResourceEditForm from "@/components/resource-edit-form";
 import { useToast } from "@/components/ui/use-toast";
 import { useErrorToast } from "@/hooks/use-error-toast";
 import { isAdmin as isAdminUser } from "@/lib/access";
+import { ResourceState, stateOf } from "@/lib/resource-state";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
+
+const SAVED_MESSAGES = {
+  edited: "Your changes have been saved.",
+  proposed: "Your proposed changes have been sent for review.",
+  accepted: "The Edit Proposal has been accepted.",
+} as const;
 
 export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const { data: resource, isLoading: isLoadingResource } =
@@ -22,33 +29,26 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
   const isAdmin = isAdminUser(session?.user);
 
   const router = useRouter();
+  const utils = api.useUtils();
   const { toast } = useToast();
   const showError = useErrorToast();
 
-  const reviewingProposal =
-    isAdmin &&
-    resource?.editProposalOriginalResourceId !== undefined &&
-    resource?.editProposalOriginalResourceId !== null;
-
-  const { mutate: updateResource, isPending: isSubmitting } = (
-    reviewingProposal
-      ? api.resource.acceptProposedUpdate
-      : isAdmin
-        ? api.resource.update
-        : api.resource.proposeUpdate
-  ).useMutation({
-    onSuccess: ({ resource: res }) => {
-      void router.push(
-        isAdmin ? `/resource/${res.id}` : "/user/my-proposed-resources",
-      );
-      toast({
-        title: "Success!",
-        description: "Your proposed changes have been saved.",
-      });
-    },
-    onError: (e) =>
-      showError(e, "Failed to save your changes! Please try again later."),
-  });
+  const { mutate: save, isPending: isSubmitting } =
+    api.resource.save.useMutation({
+      onSuccess: async ({ resource: saved, outcome }) => {
+        toast({ title: "Success!", description: SAVED_MESSAGES[outcome] });
+        if (outcome === "proposed") {
+          void router.push("/user/my-proposed-resources");
+          return;
+        }
+        // The Resource's page is pre-built and may predate this save; fresher
+        // data in the cache wins over the page's when it loads
+        await utils.resource.getById.fetch({ id: saved.id }, { staleTime: 0 });
+        void router.push(`/resource/${saved.id}`);
+      },
+      onError: (e) =>
+        showError(e, "Failed to save your changes! Please try again later."),
+    });
 
   if (isLoadingResource || status === "loading") {
     return <LoadingPage />;
@@ -58,9 +58,13 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     return <div>404</div>;
   }
 
-  const title = `${
-    reviewingProposal ? "Review Proposal" : isAdmin ? "Edit" : "Propose Changes"
-  }: "${resource.title}"`;
+  const action =
+    stateOf(resource) === ResourceState.EDIT_PROPOSAL && isAdmin
+      ? "Review Proposal"
+      : isAdmin
+        ? "Edit"
+        : "Propose Changes";
+  const title = `${action}: "${resource.title}"`;
 
   return (
     <>
@@ -72,12 +76,11 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           resource={resource}
           isSubmitting={isSubmitting}
           isEditing
-          isEditingProposal={reviewingProposal}
           onSubmit={(values) => {
             if (isSubmitting) {
               return;
             }
-            updateResource(values);
+            save(values);
           }}
         />
       </PageLayout>

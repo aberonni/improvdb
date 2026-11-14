@@ -129,11 +129,11 @@ function getColumns({
       ),
       cell: (props) => {
         const names = props.getValue();
-        if (!names) return null;
+        if (!names.length) return null;
 
         return (
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            {names.split(";").map((name) => (
+            {names.map((name) => (
               <Badge variant="outline" key={name}>
                 {name}
               </Badge>

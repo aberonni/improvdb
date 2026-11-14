@@ -42,7 +42,11 @@ export const resourceCreateSchema = z.object({
   relatedResources: z.array(z.object({ label: z.string(), value: z.string() })),
 });
 
-export const resourceProposalSchema = z.object({
+/**
+ * Saving an existing Resource or Edit Proposal: its id is fixed, and an Edit
+ * Proposal's id doesn't follow the rule for new ones
+ */
+export const resourceSaveSchema = z.object({
   ...resourceCreateSchema.shape,
   id: z.string(),
 });
