@@ -1,4 +1,4 @@
-import { type ResourceConfiguration, ResourceType } from "@prisma/client";
+import { ResourceType } from "@prisma/client";
 import { uniqBy } from "lodash";
 import Link from "next/link";
 import { type AnchorHTMLAttributes, type RefAttributes, useMemo } from "react";
@@ -14,28 +14,13 @@ import { ResourceFavouriteButton } from "@/components/resource-favourite-button"
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import {
+  ResourceConfigurationLabels,
+  ResourceTypeLabels,
+} from "@/lib/resource-labels";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
-
-export const ResourceTypeLabels: Record<ResourceType, string> = {
-  EXERCISE: "🚀 Warm-up / Exercise",
-  SHORT_FORM: "⚡️ Short Form Game",
-  LONG_FORM: "🍿 Long Form Format",
-};
-
-export const ResourceConfigurationLabels: Record<
-  ResourceConfiguration,
-  string
-> = {
-  SCENE: "🎭 Scenework",
-  BACKLINE: "👥 Backline",
-  WHOLE_CLASS: "♾️ Whole Group",
-  SOLO: "🧍 Solo",
-  PAIRS: "👯 Pairs",
-  GROUPS: "👨‍👨‍👦 Groups",
-  CIRCLE: "⭕️ Circle",
-};
 
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
 type CreationResource = z.infer<typeof resourceCreateSchema>;
@@ -88,7 +73,7 @@ export function SingleResourceComponent({
             className="w-full"
           />
 
-          <h4 className="tracking-tight text-muted-foreground">
+          <p className="tracking-tight text-muted-foreground">
             {isApiResource(resource) ? (
               <Link
                 href={TYPE_LANDING_PAGES[resource.type].path}
@@ -102,7 +87,7 @@ export function SingleResourceComponent({
             <br />
             {resource.type !== ResourceType.LONG_FORM &&
               ResourceConfigurationLabels[resource.configuration]}
-          </h4>
+          </p>
 
           {alternativeNames.length > 0 && (
             <>
@@ -227,6 +212,9 @@ export function SingleResourceComponent({
         </div>
       </SplitPageLayoutSidebar>
       <SplitPageLayoutContent>
+        {/* Descriptions mostly use ### for their sections, so this keeps the
+            heading levels in order after the page's h1 */}
+        <h2 className="sr-only">Description</h2>
         <div className="prose prose-zinc max-w-full rounded-md dark:prose-invert lg:prose-lg prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0">
           <ReactMarkdown
             // eslint-disable-next-line react/no-children-prop

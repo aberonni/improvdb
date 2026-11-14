@@ -13,14 +13,28 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
+  /** Columns hidden below md until the visitor picks them (see DataTable) */
+  hiddenColumnsOnMobile?: string[];
 }
 
 export function DataTableViewOptions<TData>({
   table,
+  hiddenColumnsOnMobile = [],
 }: DataTableViewOptionsProps<TData>) {
+  // Only read once the menu is open, so it never shifts the page
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { columnVisibility } = table.getState();
+
+  const isShown = (columnId: string, isVisible: boolean) =>
+    hiddenColumnsOnMobile.includes(columnId) &&
+    columnVisibility[columnId] === undefined
+      ? isDesktop
+      : isVisible;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,7 +56,7 @@ export function DataTableViewOptions<TData>({
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
-                checked={column.getIsVisible()}
+                checked={isShown(column.id, column.getIsVisible())}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
                 {startCase(column.id)}

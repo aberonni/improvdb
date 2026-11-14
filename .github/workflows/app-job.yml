@@ -1,0 +1,92 @@
+# Runs a script against a fresh, seeded database and a production build of the
+# app, in the same Playwright image as docker-compose.test.yml. Called by
+# e2e-tests.yml and lighthouse.yml.
+name: App job
+
+on:
+  workflow_call:
+    inputs:
+      script:
+        description: Script to run, e.g. ./scripts/e2e.sh
+        required: true
+        type: string
+      artifact-name:
+        description: Name of the artifact uploaded after the run
+        required: true
+        type: string
+      artifact-path:
+        description: Path uploaded as the artifact, even when the script fails
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-jammy
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 20
+
+      # Catches emails sent by the app (see docker-compose.test.yml)
+      mailpit:
+        image: axllent/mailpit:v1.33.0
+        env:
+          MP_ENABLE_CHAOS: "true"
+          MP_SMTP_AUTH_ACCEPT_ANY: "true"
+          MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".node-version"
+      # scripts/prepare-app.sh skips `npm ci` when node_modules matches the lockfile
+      - uses: actions/cache@v6
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json', '.node-version') }}
+      # Speeds up `next build`
+      - uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+      # Same script used locally through scripts/in-docker.sh
+      - name: Run ${{ inputs.script }}
+        run: ${{ inputs.script }}
+        env:
+          HOME: /root
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}
+          retention-days: 30
+    env:
+      DATABASE_URL: "postgres://postgres:secret@postgres:5432/postgres"
+      # Keep in sync with docker-compose.test.yml
+      NEXTAUTH_URL: "http://127.0.0.1:3000"
+      EMAIL_SERVER_HOST: mailpit
+      EMAIL_SERVER_PORT: 1025
+      EMAIL_SERVER_USER: e2e
+      EMAIL_SERVER_PASSWORD: e2e
+      EMAIL_FROM: "ImprovDB <noreply@improvdb.test>"
+      MAILPIT_URL: "http://mailpit:8025"
+      UPSTASH_REDIS_REST_URL: "https://upstash.invalid"
+      UPSTASH_REDIS_REST_TOKEN: "e2e"

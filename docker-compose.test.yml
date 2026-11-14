@@ -1,6 +1,7 @@
-# Isolated E2E environment: throwaway Postgres, a Mailpit SMTP server that
+# Isolated test environment: throwaway Postgres, a Mailpit SMTP server that
 # catches sign-in emails, and the same Playwright image used in CI.
-# Run with `npm run test:e2e` (or `npm run test:e2e:update` to update snapshots).
+# Used through scripts/in-docker.sh: `npm run test:e2e` (or
+# `npm run test:e2e:update` to update snapshots) and `npm run test:lighthouse`.
 
 services:
   postgres:
@@ -24,10 +25,9 @@ services:
       - MP_SMTP_AUTH_ACCEPT_ANY=true
       - MP_SMTP_AUTH_ALLOW_INSECURE=true
 
-  e2e:
+  test:
     image: mcr.microsoft.com/playwright:v1.65.0-jammy
     working_dir: /app
-    command: ./scripts/e2e.sh
     environment:
       - DATABASE_URL=postgres://postgres:secret@postgres:5432/postgres
       - HOME=/root

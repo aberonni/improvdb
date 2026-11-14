@@ -13,12 +13,14 @@ interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   filters: string[];
   sortOptions?: DataTableSortOption[];
+  hiddenColumnsOnMobile?: string[];
 }
 
 export function DataTableToolbar<TData>({
   table,
   filters,
   sortOptions,
+  hiddenColumnsOnMobile,
 }: DataTableToolbarProps<TData>) {
   return (
     <div className="flex items-center justify-between">
@@ -27,7 +29,10 @@ export function DataTableToolbar<TData>({
         {sortOptions && (
           <DataTableSortOptions table={table} sortOptions={sortOptions} />
         )}
-        <DataTableViewOptions table={table} />
+        <DataTableViewOptions
+          table={table}
+          hiddenColumnsOnMobile={hiddenColumnsOnMobile}
+        />
       </div>
     </div>
   );

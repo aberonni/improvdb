@@ -5,14 +5,15 @@ import {
   PlusIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
-import { type AnchorHTMLAttributes, type RefAttributes, useMemo, useState } from "react";
+import {
+  type AnchorHTMLAttributes,
+  type RefAttributes,
+  useMemo,
+  useState,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import type * as z from "zod";
 
-import {
-  ResourceConfigurationLabels,
-  ResourceTypeLabels,
-} from "@/components/resource";
 import {
   Collapsible,
   CollapsibleContent,
@@ -28,6 +29,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  ResourceConfigurationLabels,
+  ResourceTypeLabels,
+} from "@/lib/resource-labels";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type lessonPlanCreateSchema } from "@/utils/zod";
@@ -213,16 +218,17 @@ export function SingleLessonPlanComponent({
                         <CollapsibleContent>
                           {!isPreviewItem(item) ? (
                             <>
-                              <div
-                                className="prose-sm prose-zinc mt-4 max-w-full rounded-md border p-4 dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0"
-                              >
+                              <div className="prose-sm prose-zinc mt-4 max-w-full rounded-md border p-4 dark:prose-invert prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0">
                                 <ReactMarkdown
                                   // eslint-disable-next-line react/no-children-prop
                                   children={item.resource.description}
                                   components={{
                                     h1: ({ ...props }) => <h3 {...props} />,
                                     h2: ({ ...props }) => <h3 {...props} />,
-                                    a: (props: AnchorHTMLAttributes<HTMLAnchorElement> & RefAttributes<HTMLAnchorElement>) => {
+                                    a: (
+                                      props: AnchorHTMLAttributes<HTMLAnchorElement> &
+                                        RefAttributes<HTMLAnchorElement>,
+                                    ) => {
                                       const { href, ref } = props;
 
                                       if (!href?.startsWith("resource/")) {
@@ -242,8 +248,8 @@ export function SingleLessonPlanComponent({
                                       );
                                     },
                                   }}
-                                  />
-                                </div>
+                                />
+                              </div>
                               <Link
                                 href={`/resource/${item.resource.id}`}
                                 className="float-right mt-2 flex items-center underline hover:opacity-75 print:hidden"
@@ -279,7 +285,10 @@ export function SingleLessonPlanComponent({
                         {item.duration ?? 0} <small>mins</small>
                       </TableCell>
                     )}
-                    <TableCell className="w-[calc(100%-70px)] whitespace-pre-wrap" colSpan={2}>
+                    <TableCell
+                      className="w-[calc(100%-70px)] whitespace-pre-wrap"
+                      colSpan={2}
+                    >
                       {item.text}
                     </TableCell>
                   </>
