@@ -49,7 +49,7 @@
       "allowedVersions": "<12"
     },
     {
-      "description": "@playwright/test must match the browsers in the Playwright Docker image (CI and docker-compose.e2e.yml), so update them together. New browser versions may need `npm run test:e2e:update`.",
+      "description": "@playwright/test must match the browsers in the Playwright Docker image (CI and docker-compose.test.yml), so update them together. New browser versions may need `npm run test:e2e:update`.",
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
       "groupName": "playwright",
       "rangeStrategy": "pin"
