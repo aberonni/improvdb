@@ -89,11 +89,11 @@ test.describe("Resource visibility", () => {
     const title = `Original ${Date.now()}`.slice(0, 50);
     const proposedTitle = `Edited ${Date.now()}`.slice(0, 50);
 
-    // A user's Resource, published by an admin
+    // A user's Resource. Left unpublished: proposing an edit doesn't need
+    // it, and a published one would appear in other specs' Catalogue
+    // screenshots.
     const creator = await signedInPage(browser, `${id}@example.com`);
     await mutate(creator, "resource.create", resourceInput(id, title));
-    const admin = await signedInPage(browser, "admin@e2e.com");
-    await mutate(admin, "resource.setPublished", { id, published: true });
 
     // Another user proposes an edit to it
     const proposer = await signedInPage(
