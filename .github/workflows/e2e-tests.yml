@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main, master]
 
+# Only reads the repository; app-job.yml can't have more than this grants
+permissions:
+  contents: read
+
 jobs:
   test:
     uses: ./.github/workflows/app-job.yml
