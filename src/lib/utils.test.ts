@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isActiveLink } from "@/lib/utils";
+import { escapeHtml, isActiveLink } from "@/lib/utils";
 
 describe("isActiveLink", () => {
   it("matches the home page only exactly", () => {
@@ -22,5 +22,17 @@ describe("isActiveLink", () => {
     expect(isActiveLink("/short-form-games", "/", children)).toBe(true);
     expect(isActiveLink("/", "/", children)).toBe(true);
     expect(isActiveLink("/about", "/", children)).toBe(false);
+  });
+});
+
+describe("escapeHtml", () => {
+  it("escapes markup", () => {
+    expect(escapeHtml('<script>alert("hi")</script> & co')).toBe(
+      "&lt;script&gt;alert(&quot;hi&quot;)&lt;/script&gt; &amp; co",
+    );
+  });
+
+  it("treats a missing value as empty", () => {
+    expect(escapeHtml(null)).toBe("");
   });
 });

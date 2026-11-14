@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { api } from "@/utils/api";
 
 export const LessonPlanSharePopover = ({
@@ -25,6 +26,7 @@ export const LessonPlanSharePopover = ({
   const [currentVisibility, setCurrentVisibility] = useState(visibility);
 
   const { toast } = useToast();
+  const showError = useErrorToast();
   const utils = api.useUtils();
 
   const { mutate: setVisibility, isPending: isUpdatingVisibility } =
@@ -36,17 +38,8 @@ export const LessonPlanSharePopover = ({
           description: "Lesson plan updated.",
         });
       },
-      onError: (e) => {
-        const errorMessage =
-          e.message ??
-          e.data?.zodError?.errors?.[0] ??
-          "Failed to update lesson plan! Please try again later.";
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description: errorMessage,
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to update lesson plan! Please try again later."),
     });
 
   async function copyLinkToClipboard() {

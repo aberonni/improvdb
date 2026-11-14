@@ -3,13 +3,13 @@ import { useRouter } from "next/router";
 
 import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
-import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { api } from "@/utils/api";
 
 export default function Create() {
   const utils = api.useUtils();
   const router = useRouter();
-  const { toast } = useToast();
+  const showError = useErrorToast();
 
   const { mutate: createResource, isPending: isSubmitting } =
     api.resource.create.useMutation({
@@ -19,28 +19,8 @@ export default function Create() {
         // XXX: do I need to invalidate all the getAlls?
         void utils.resource.getCatalogue.invalidate();
       },
-      onError: (e) => {
-        if (e.data?.code === "CONFLICT") {
-          toast({
-            title: "Uh oh! Something went wrong.",
-            variant: "destructive",
-            description:
-              "A game or exercise already exists at this URL. Please choose a new URL.",
-          });
-          return;
-        }
-
-        const errorMessage =
-          e.message ??
-          e.data?.zodError?.errors?.[0] ??
-          "Failed to create resource! Please try again later.";
-
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description: errorMessage,
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to create resource! Please try again later."),
     });
 
   return (

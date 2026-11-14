@@ -7,6 +7,8 @@ import LessonPlanEditForm from "@/components/lesson-plan-edit-form";
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
+import { canEditLessonPlan } from "@/lib/access";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -21,6 +23,7 @@ export const LessonPlanEditPage: NextPage<{ lessonPlanId: string }> = ({
 
   const router = useRouter();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const { mutate: updateLessonPlan, isPending: isSubmitting } =
     api.lessonPlan.update.useMutation({
@@ -31,35 +34,15 @@ export const LessonPlanEditPage: NextPage<{ lessonPlanId: string }> = ({
           description: "Lesson plan updated.",
         });
       },
-      onError: (e) => {
-        if (e.data?.code === "CONFLICT") {
-          toast({
-            title: "Uh oh! Something went wrong.",
-            variant: "destructive",
-            description:
-              "A lessonPlan already exists at this URL. Please choose a new URL.",
-          });
-          return;
-        }
-
-        const errorMessage =
-          e.message ?? e.data?.zodError?.errors?.[0];
-
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description:
-            errorMessage ??
-            "Failed to create lessonPlan! Please try again later.",
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to create lessonPlan! Please try again later."),
     });
 
   if (isLoading || sessionStatus === "loading") {
     return <LoadingPage />;
   }
 
-  if (!lessonPlan || lessonPlan.createdById !== session?.user?.id) {
+  if (!lessonPlan || !canEditLessonPlan(session?.user, lessonPlan)) {
     return <div>404</div>;
   }
 
