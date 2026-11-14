@@ -1,8 +1,15 @@
-import { LessonPlanVisibility, UserRole } from "@prisma/client";
+import { LessonPlanVisibility } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
+  canEditLessonPlan,
+  canViewLessonPlan,
+  canViewResource,
+  type Viewer,
+} from "@/lib/access";
+import {
+  type createTRPCContext,
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
@@ -33,6 +40,34 @@ const getLessonPlanSectionsForCreation = (
     },
   }));
 };
+
+/** Loads a Lesson Plan the viewer may change, or throws */
+async function findEditableLessonPlan(
+  ctx: Awaited<ReturnType<typeof createTRPCContext>>,
+  viewer: Viewer,
+  id: string,
+) {
+  const lessonPlan = await ctx.db.lessonPlan.findUnique({
+    where: { id },
+    include: { sections: true },
+  });
+
+  if (!lessonPlan) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: `Lesson Plan ${id} not found`,
+    });
+  }
+
+  if (!canEditLessonPlan(viewer, lessonPlan)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `Lesson Plan ${id} is not owned by you`,
+    });
+  }
+
+  return lessonPlan;
+}
 
 export const lessonPlanRouter = createTRPCRouter({
   getPublic: publicProcedure
@@ -85,6 +120,9 @@ export const lessonPlanRouter = createTRPCRouter({
                       type: true,
                       configuration: true,
                       categories: true,
+                      published: true,
+                      createdById: true,
+                      editProposalAuthorId: true,
                     },
                   },
                 },
@@ -107,19 +145,38 @@ export const lessonPlanRouter = createTRPCRouter({
         });
       }
 
-      const userCantSeeLessonPlan =
-        lessonPlan.visibility === LessonPlanVisibility.PRIVATE &&
-        ctx.session?.user.role !== UserRole.ADMIN &&
-        lessonPlan.createdById !== ctx.session?.user.id;
+      const viewer = ctx.session?.user;
 
-      if (userCantSeeLessonPlan) {
+      if (!canViewLessonPlan(viewer, lessonPlan)) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: `Lesson Plan ${input.id} not found`,
         });
       }
 
-      return lessonPlan;
+      // Leave out items whose Resource the viewer can't see, such as someone
+      // else's unpublished Proposal
+      return {
+        ...lessonPlan,
+        sections: lessonPlan.sections.map((section) => ({
+          ...section,
+          items: section.items
+            .filter(
+              ({ resource }) => !resource || canViewResource(viewer, resource),
+            )
+            .map(({ resource, ...item }) => ({
+              ...item,
+              resource: resource && {
+                id: resource.id,
+                title: resource.title,
+                description: resource.description,
+                type: resource.type,
+                configuration: resource.configuration,
+                categories: resource.categories,
+              },
+            })),
+        })),
+      };
     }),
   create: privateProcedure
     .input(lessonPlanCreateSchema)
@@ -145,28 +202,11 @@ export const lessonPlanRouter = createTRPCRouter({
     .mutation(async ({ ctx, input: { id, ...input } }) => {
       await enforceRateLimit(ctx.session.user);
 
-      const originalLessonPlan = await ctx.db.lessonPlan.findUnique({
-        where: {
-          id,
-        },
-        include: {
-          sections: true,
-        },
-      });
-
-      if (!originalLessonPlan) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `Lesson plan ${id} not found`,
-        });
-      }
-
-      if (originalLessonPlan.createdById !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: `Lesson plan ${id} not found`,
-        });
-      }
+      const originalLessonPlan = await findEditableLessonPlan(
+        ctx,
+        ctx.session.user,
+        id,
+      );
 
       const lessonPlan = await ctx.db.lessonPlan.update({
         where: {
@@ -190,27 +230,9 @@ export const lessonPlanRouter = createTRPCRouter({
   delete: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      let lessonPlan = await ctx.db.lessonPlan.findUnique({
-        where: {
-          id: input.id,
-        },
-      });
+      await findEditableLessonPlan(ctx, ctx.session.user, input.id);
 
-      if (!lessonPlan) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `Lesson Plan ${input.id} not found`,
-        });
-      }
-
-      if (lessonPlan.createdById !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: `Lesson Plan ${input.id} is not owned by you`,
-        });
-      }
-
-      lessonPlan = await ctx.db.lessonPlan.delete({
+      const lessonPlan = await ctx.db.lessonPlan.delete({
         where: {
           id: input.id,
         },
@@ -228,27 +250,9 @@ export const lessonPlanRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      let lessonPlan = await ctx.db.lessonPlan.findUnique({
-        where: {
-          id: input.id,
-        },
-      });
+      await findEditableLessonPlan(ctx, ctx.session.user, input.id);
 
-      if (!lessonPlan) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `Lesson Plan ${input.id} not found`,
-        });
-      }
-
-      if (lessonPlan.createdById !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: `Lesson Plan ${input.id} is not owned by you`,
-        });
-      }
-
-      lessonPlan = await ctx.db.lessonPlan.update({
+      const lessonPlan = await ctx.db.lessonPlan.update({
         where: {
           id: input.id,
         },

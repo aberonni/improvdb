@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -8,6 +7,8 @@ import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import ResourceEditForm from "@/components/resource-edit-form";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
+import { isAdmin as isAdminUser } from "@/lib/access";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
 
@@ -18,10 +19,11 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
     });
 
   const { data: session, status } = useSession();
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
+  const isAdmin = isAdminUser(session?.user);
 
   const router = useRouter();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const reviewingProposal =
     isAdmin &&
@@ -44,17 +46,8 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
         description: "Your proposed changes have been saved.",
       });
     },
-    onError: (e) => {
-      const errorMessage = e.message ?? e.data?.zodError?.errors?.[0];
-
-      toast({
-        title: "Uh oh! Something went wrong.",
-        variant: "destructive",
-        description:
-          errorMessage ??
-          "Failed to save your changes! Please try again later.",
-      });
-    },
+    onError: (e) =>
+      showError(e, "Failed to save your changes! Please try again later."),
   });
 
   if (isLoadingResource || status === "loading") {

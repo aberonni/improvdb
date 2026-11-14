@@ -15,3 +15,12 @@ export function isActiveLink(
   }
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
+
+/** Escapes text (such as names or titles users typed) for use in HTML */
+export function escapeHtml(text: string | null | undefined) {
+  return (text ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}

@@ -3,13 +3,18 @@ import {
   type Category,
   type Resource,
   ResourceType,
-  UserRole,
   LessonPlanVisibility,
 } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { uniqBy } from "lodash";
 import { z } from "zod";
 
+import {
+  canViewResource,
+  isAdmin,
+  publishedResourcesWhere,
+} from "@/lib/access";
+import { escapeHtml } from "@/lib/utils";
 import {
   createTRPCRouter,
   adminProcedure,
@@ -131,7 +136,7 @@ export const resourceRouter = createTRPCRouter({
           title: "asc",
         },
         where: {
-          published: true,
+          ...publishedResourcesWhere,
           type: input?.type,
           categories: input?.category
             ? { some: { categoryId: input.category } }
@@ -168,9 +173,7 @@ export const resourceRouter = createTRPCRouter({
       orderBy: {
         title: "asc",
       },
-      where: {
-        published: true,
-      },
+      where: publishedResourcesWhere,
       select: {
         id: true,
         title: true,
@@ -266,18 +269,14 @@ export const resourceRouter = createTRPCRouter({
               id: true,
               title: true,
             },
-            where: {
-              published: true,
-            },
+            where: publishedResourcesWhere,
           },
           relatedResourceParent: {
             select: {
               id: true,
               title: true,
             },
-            where: {
-              published: true,
-            },
+            where: publishedResourcesWhere,
           },
           lessonPlanItems: {
             where: {
@@ -315,13 +314,7 @@ export const resourceRouter = createTRPCRouter({
         });
       }
 
-      const userCanSeeResource =
-        resource?.published ||
-        ctx.session?.user.role === UserRole.ADMIN ||
-        resource?.createdById === ctx.session?.user.id ||
-        resource?.editProposalAuthorId === ctx.session?.user.id;
-
-      if (!userCanSeeResource) {
+      if (!canViewResource(ctx.session?.user, resource)) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: `Couldn't find "${input.id}"`,
@@ -382,11 +375,11 @@ export const resourceRouter = createTRPCRouter({
         },
       });
 
-      if (ctx.session.user.role !== UserRole.ADMIN) {
+      if (!isAdmin(ctx.session.user)) {
         void sendMailToAdmins(
           {
             subject: "New game or exercise proposed",
-            html: `<p>A new game or exercise has been proposed by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
+            html: `<p>A new game or exercise has been proposed by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
           },
           ctx.db,
         );
@@ -429,7 +422,8 @@ export const resourceRouter = createTRPCRouter({
           published: false,
           editProposalOriginalResourceId: input.id,
           editProposalAuthorId: ctx.session.user.id,
-          createdById: originalResource.createdById,
+          // The proposer, so the original's creator doesn't see it as theirs
+          createdById: ctx.session.user.id,
           categories: {
             createMany: {
               data: input.categories.map(({ value }) => ({
@@ -451,7 +445,7 @@ export const resourceRouter = createTRPCRouter({
       void sendMailToAdmins(
         {
           subject: "New edit proposal",
-          html: `<p>A new edit proposal has been created by ${ctx.session.user.name} (${ctx.session.user.email}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
+          html: `<p>A new edit proposal has been created by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
         },
         ctx.db,
       );
@@ -503,7 +497,7 @@ export const resourceRouter = createTRPCRouter({
         if (proposal.editProposalAuthor?.email) {
           void sendMail({
             subject: `Your proposed edit to "${resource.title}" has been accepted`,
-            html: `<p>Your proposed edit has been accepted: <a href="https://improvdb.com/resource/${proposal.editProposalOriginalResourceId}">View "${resource.title}"</a></p>`,
+            html: `<p>Your proposed edit has been accepted: <a href="https://improvdb.com/resource/${proposal.editProposalOriginalResourceId}">View "${escapeHtml(resource.title)}"</a></p>`,
             to: proposal.editProposalAuthor.email,
           });
         }
@@ -585,7 +579,7 @@ export const resourceRouter = createTRPCRouter({
       if (input.published && updatedResource.createdBy.email) {
         void sendMail({
           subject: `"${resource.title}", which you proposed, has been published`,
-          html: `<p>Your proposed game or exercise has been published: <a href="https://improvdb.com/resource/${resource.id}">View "${resource.title}"</a></p>`,
+          html: `<p>Your proposed game or exercise has been published: <a href="https://improvdb.com/resource/${resource.id}">View "${escapeHtml(resource.title)}"</a></p>`,
           to: updatedResource.createdBy.email,
         });
       }
