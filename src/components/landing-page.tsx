@@ -8,7 +8,7 @@ import {
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
 import { type CatalogueState } from "@/lib/catalogue";
-import { api, type RouterInputs } from "@/utils/api";
+import { api, type RouterInputs, PRE_BUILT_STALE_TIME } from "@/utils/api";
 
 export type LandingPageFilter = NonNullable<
   RouterInputs["resource"]["getCatalogue"]
@@ -44,7 +44,9 @@ export function LandingPage({
   filter: LandingPageFilter;
   noIndex?: boolean;
 }) {
-  const queryResult = api.resource.getCatalogue.useQuery(filter);
+  const queryResult = api.resource.getCatalogue.useQuery(filter, {
+    staleTime: PRE_BUILT_STALE_TIME,
+  });
   const [state, setState] = useLandingCatalogueState(initialState);
   const resources = queryResult.data;
 

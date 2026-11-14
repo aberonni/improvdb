@@ -14,7 +14,7 @@ import { isAdmin } from "@/lib/access";
 import { TYPE_LANDING_PAGES } from "@/lib/catalogue";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
-import { type RouterOutputs, api } from "@/utils/api";
+import { type RouterOutputs, api, PRE_BUILT_STALE_TIME } from "@/utils/api";
 
 const AdminToolbar = ({
   resource,
@@ -121,9 +121,10 @@ const AdminToolbar = ({
 };
 
 export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
-  const { data: resource, isLoading } = api.resource.getById.useQuery({
-    id,
-  });
+  const { data: resource, isLoading } = api.resource.getById.useQuery(
+    { id },
+    { staleTime: PRE_BUILT_STALE_TIME },
+  );
 
   const { data: session } = useSession();
   const { user } = session ?? {};

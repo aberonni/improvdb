@@ -9,10 +9,12 @@ import {
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
 import { catalogueStaticProps } from "@/server/helpers/landingPageProps";
-import { api } from "@/utils/api";
+import { api, PRE_BUILT_STALE_TIME } from "@/utils/api";
 
 export default function Home() {
-  const queryResult = api.resource.getCatalogue.useQuery();
+  const queryResult = api.resource.getCatalogue.useQuery(undefined, {
+    staleTime: PRE_BUILT_STALE_TIME,
+  });
   const [state, setState] = useUrlCatalogueState();
   const count = queryResult.data?.length;
 

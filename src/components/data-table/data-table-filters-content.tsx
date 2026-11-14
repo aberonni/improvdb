@@ -10,7 +10,7 @@ import {
   ResourceTypeLabels,
 } from "@/lib/resource-labels";
 import { cn } from "@/lib/utils";
-import { api } from "@/utils/api";
+import { api, PRE_BUILT_STALE_TIME } from "@/utils/api";
 
 export interface DataTableFiltersProps<TData> {
   table: Table<TData>;
@@ -25,7 +25,9 @@ export function DataTableFiltersContent<TData>({
 }: DataTableFiltersProps<TData> & { className?: string }) {
   const isFiltered = table.getState().columnFilters.length > 0;
   const { data: categories, isLoading: isLoadingCategories } =
-    api.category.getAll.useQuery();
+    api.category.getAll.useQuery(undefined, {
+      staleTime: PRE_BUILT_STALE_TIME,
+    });
 
   return (
     <div className={cn("flex flex-1 items-center space-x-2", className)}>

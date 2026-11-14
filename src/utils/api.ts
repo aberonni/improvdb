@@ -17,6 +17,14 @@ const getBaseUrl = () => {
   return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
 };
 
+/**
+ * For queries whose data a pre-built page already carries: without it, React
+ * Query treats that data as stale the moment it hydrates and fetches it all
+ * again on every visit. Matches the shortest `revalidate` of those pages;
+ * mutations still invalidate these queries, so edits show at once.
+ */
+export const PRE_BUILT_STALE_TIME = 60_000;
+
 /** A set of type-safe react-query hooks for your tRPC API. */
 export const api = createTRPCNext<AppRouter>({
   config() {
@@ -25,7 +33,7 @@ export const api = createTRPCNext<AppRouter>({
         loggerLink({
           enabled: (opts) =>
             process.env.NODE_ENV === "development" ||
-          (opts.direction === "down" && opts.result instanceof Error),
+            (opts.direction === "down" && opts.result instanceof Error),
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
