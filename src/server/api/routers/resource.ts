@@ -14,6 +14,7 @@ import {
   isAdmin,
   publishedResourcesWhere,
 } from "@/lib/access";
+import { escapeHtml } from "@/lib/utils";
 import {
   createTRPCRouter,
   adminProcedure,
@@ -22,7 +23,7 @@ import {
   type createTRPCContext,
 } from "@/server/api/trpc";
 import { enforceRateLimit } from "@/server/helpers/rateLimit";
-import { escapeHtml, sendMail, sendMailToAdmins } from "@/server/nodemailer";
+import { sendMail, sendMailToAdmins } from "@/server/nodemailer";
 import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
 
 function cleanCategories(
