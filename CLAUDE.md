@@ -130,7 +130,7 @@ Environment variables are validated using `@t3-oss/env-nextjs` in `src/env.js`. 
 - `DATABASE_URL`: PostgreSQL connection string
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL`: NextAuth configuration
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: Google OAuth credentials
-- `EMAIL_SERVER_*`: SendGrid SMTP configuration for magic links
+- `EMAIL_SERVER_*`, `EMAIL_FROM`: SMTP server for every email (magic links and notifications, see `src/server/mailer.ts`)
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`: Redis for rate limiting (optional in dev)
 
 ### Prisma Schema
@@ -139,7 +139,7 @@ The schema is split across multiple files in `prisma/schema/`. The main `index.p
 - **Multi-file setup**: Schemas organized by domain (user, resource, lesson-plan, category)
 
 ### Testing Strategy
-E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps (skipped when `node_modules` matches the lockfile), checks for pending migrations, builds the database from migrations, seeds, runs `npm run build`, and runs Playwright, whose `webServer` config serves the build with `npm run start` (or the dev server when `CI` is unset). Tests run on desktop Chromium and mobile WebKit with 4 workers, so they must not depend on each other's data. Specs in `tests/http/` check only what the server sends (headers, meta tags, generated images) and run on Chromium only.
+E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps (skipped when `node_modules` matches the lockfile), checks for pending migrations, builds the database from migrations, seeds, runs `npm run build`, and runs Playwright, whose `webServer` config serves the build with `npm run start` (or the dev server when `CI` is unset). Tests run on desktop Chromium and mobile WebKit with 4 workers, so they must not depend on each other's data. Specs in `tests/http/` check only what the server sends (headers, meta tags, generated images) and run on Chromium only. Specs that publish Resources go in `tests/publishing/`: published Resources appear in the Catalogue, so these run on Chromium only, one at a time, after every other spec has taken its screenshots.
 
 ### Dependency updates
 Renovate (`renovate.json`) opens grouped non-major PRs and one PR per major, and auto-merges them when CI is green. Use the `/fix-deps` skill to fix a failing update branch locally.
@@ -148,7 +148,7 @@ Tests include visual regression testing with snapshots stored in `tests/` direct
 
 ### Authentication Flow
 - **Google OAuth**: Primary authentication method
-- **Email magic links**: Secondary method using SendGrid
+- **Email magic links**: Secondary method, sent over SMTP
 - **Session management**: NextAuth with Prisma adapter stores sessions in database
 - **Test users**: Seed file creates `user@e2e.com` (regular user) and `admin@e2e.com` (admin) with hardcoded session tokens for E2E tests
 
@@ -185,6 +185,6 @@ UI components are from shadcn/ui and located in `src/components/ui/`. These are 
 ### Testing
 - **Always add E2E tests** for new features where applicable
 - **Add unit tests** (`*.test.ts` next to the code) for pure logic such as URL parsing or SEO rules
-- Tests go in the `tests/` directory using Playwright; tests that never depend on the browser go in `tests/http/`
+- Tests go in the `tests/` directory using Playwright; tests that never depend on the browser go in `tests/http/`, tests that publish Resources in `tests/publishing/`
 - Include tests for SEO metadata when adding new pages
 - Test API endpoints return expected responses
