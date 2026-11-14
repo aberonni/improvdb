@@ -73,7 +73,7 @@ export function SingleResourceComponent({
             className="w-full"
           />
 
-          <h4 className="tracking-tight text-muted-foreground">
+          <p className="tracking-tight text-muted-foreground">
             {isApiResource(resource) ? (
               <Link
                 href={TYPE_LANDING_PAGES[resource.type].path}
@@ -87,7 +87,7 @@ export function SingleResourceComponent({
             <br />
             {resource.type !== ResourceType.LONG_FORM &&
               ResourceConfigurationLabels[resource.configuration]}
-          </h4>
+          </p>
 
           {alternativeNames.length > 0 && (
             <>
@@ -212,6 +212,9 @@ export function SingleResourceComponent({
         </div>
       </SplitPageLayoutSidebar>
       <SplitPageLayoutContent>
+        {/* Descriptions mostly use ### for their sections, so this keeps the
+            heading levels in order after the page's h1 */}
+        <h2 className="sr-only">Description</h2>
         <div className="prose prose-zinc max-w-full rounded-md dark:prose-invert lg:prose-lg prose-headings:my-8 prose-h2:scroll-m-20 prose-h2:border-b prose-h2:pb-2 prose-h2:text-3xl prose-h2:font-semibold prose-h2:tracking-tight prose-h2:first:mt-0">
           <ReactMarkdown
             // eslint-disable-next-line react/no-children-prop
