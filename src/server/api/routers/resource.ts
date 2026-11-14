@@ -421,7 +421,8 @@ export const resourceRouter = createTRPCRouter({
           published: false,
           editProposalOriginalResourceId: input.id,
           editProposalAuthorId: ctx.session.user.id,
-          createdById: originalResource.createdById,
+          // The proposer, so the original's creator doesn't see it as theirs
+          createdById: ctx.session.user.id,
           categories: {
             createMany: {
               data: input.categories.map(({ value }) => ({
