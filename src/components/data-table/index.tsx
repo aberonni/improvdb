@@ -32,7 +32,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 interface DataTableProps<
@@ -74,8 +73,6 @@ export function DataTable<TData, TValue = unknown>({
   onSortingChange,
   ...props
 }: DataTableProps<TData, TValue>) {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
   const [internalColumnFilters, setInternalColumnFilters] =
     useState<ColumnFiltersState>([]);
@@ -98,33 +95,17 @@ export function DataTable<TData, TValue = unknown>({
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  useEffect(() => {
-    if (
-      hiddenColumnsByDefault.length === 0 &&
-      hiddenColumnsOnMobile.length === 0
-    ) {
-      return;
-    }
-
-    setColumnVisibility((prev) => ({
-      ...prev,
-      ...Object.fromEntries(
-        hiddenColumnsOnMobile
-          .filter((key) => !prev[key])
-          .map((key) => [key, isDesktop]),
-      ),
-      ...Object.fromEntries(
-        hiddenColumnsByDefault
-          .filter((key) => !prev[key])
-          .map((key) => [key, false]),
-      ),
-    }));
-  }, [
-    hiddenColumnsByDefault,
-    hiddenColumnsOnMobile,
-    isDesktop,
-    setColumnVisibility,
-  ]);
+  /**
+   * Columns in hiddenColumnsOnMobile are hidden below the md breakpoint with
+   * CSS, so the server-rendered HTML already fits the screen and nothing
+   * shifts after hydration. Once the visitor picks them in the View menu,
+   * that choice (kept in columnVisibility) wins over the breakpoint.
+   */
+  const responsiveClassName = (columnId: string) =>
+    hiddenColumnsOnMobile.includes(columnId) &&
+    columnVisibility[columnId] === undefined
+      ? "hidden md:table-cell"
+      : undefined;
 
   const table = useReactTable({
     data: data ?? [],
@@ -160,6 +141,7 @@ export function DataTable<TData, TValue = unknown>({
           table={table}
           filters={filters}
           sortOptions={sortOptions}
+          hiddenColumnsOnMobile={hiddenColumnsOnMobile}
         />
       )}
       <div className="rounded-md border">
@@ -169,7 +151,13 @@ export function DataTable<TData, TValue = unknown>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="capitalize">
+                    <TableHead
+                      key={header.id}
+                      className={cn(
+                        "capitalize",
+                        responsiveClassName(header.column.id),
+                      )}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -187,7 +175,10 @@ export function DataTable<TData, TValue = unknown>({
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
                   {table.getVisibleFlatColumns().map((col, j) => (
-                    <TableCell key={j} className="h-[40px]">
+                    <TableCell
+                      key={j}
+                      className={cn("h-[40px]", responsiveClassName(col.id))}
+                    >
                       <Skeleton
                         className="h-[18px]"
                         style={{ width: `${60 + ((i + j) % 3) * 40}px` }}
@@ -208,7 +199,13 @@ export function DataTable<TData, TValue = unknown>({
                   className={cn(onSelectionChange && "cursor-pointer")}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="h-[40px]">
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "h-[40px]",
+                        responsiveClassName(cell.column.id),
+                      )}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

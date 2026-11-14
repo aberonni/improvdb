@@ -48,6 +48,7 @@ E2E tests:
 npm run test:e2e                          # Run all E2E tests
 npm run test:e2e -- tests/homepage.spec.ts  # Extra args go to `playwright test`
 npm run test:e2e:update                   # Update snapshots
+npm run test:lighthouse                   # Check Lighthouse performance budgets
 
 # Run tests without Docker against local DB (skips screenshot comparison)
 SKIP_SCREENSHOT_COMPARISON=1 npx playwright test
@@ -139,7 +140,7 @@ The schema is split across multiple files in `prisma/schema/`. The main `index.p
 - **Multi-file setup**: Schemas organized by domain (user, resource, lesson-plan, category)
 
 ### Testing Strategy
-E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/e2e.sh` is shared by CI and `npm run test:e2e` (via `docker-compose.e2e.yml`): it installs deps (skipped when `node_modules` matches the lockfile), checks for pending migrations, builds the database from migrations, seeds, runs `npm run build`, and runs Playwright, whose `webServer` config serves the build with `npm run start` (or the dev server when `CI` is unset). Tests run on desktop Chromium and mobile WebKit with 4 workers, so they must not depend on each other's data. Specs in `tests/http/` check only what the server sends (headers, meta tags, generated images) and run on Chromium only. Specs that publish Resources go in `tests/publishing/`: published Resources appear in the Catalogue, so these run on Chromium only, one at a time, after every other spec has taken its screenshots.
+E2E tests use Playwright and run in Docker to ensure consistent screenshot comparisons across environments. `scripts/prepare-app.sh` installs deps (skipped when `node_modules` matches the lockfile), checks for pending migrations, builds the database from migrations, seeds, and runs `npm run build`. `scripts/e2e.sh` runs it and then Playwright, whose `webServer` config serves the build with `npm run start` (or the dev server when `CI` is unset). `scripts/lighthouse.sh` runs it and then Lighthouse CI on mobile and desktop, failing when a page breaks the budgets in `lighthouserc.cjs`. Locally both run through `scripts/in-docker.sh` (`docker-compose.test.yml`); in CI, `e2e-tests.yml` and `lighthouse.yml` run them as parallel jobs through the reusable `app-job.yml` workflow. Tests run on desktop Chromium and mobile WebKit with 4 workers, so they must not depend on each other's data. Specs in `tests/http/` check only what the server sends (headers, meta tags, generated images) and run on Chromium only. Specs that publish Resources go in `tests/publishing/`: published Resources appear in the Catalogue, so these run on Chromium only, one at a time, after every other spec has taken its screenshots.
 
 ### Dependency updates
 Renovate (`renovate.json`) opens grouped non-major PRs and one PR per major, and auto-merges them when CI is green. Use the `/fix-deps` skill to fix a failing update branch locally.

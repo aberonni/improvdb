@@ -2,7 +2,7 @@ import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
 /**
  * Email (magic link) sign-in, end to end. The app sends emails to Mailpit
- * (see docker-compose.e2e.yml), which the tests read through its API.
+ * (see docker-compose.test.yml), which the tests read through its API.
  * https://mailpit.axllent.org/docs/api-v1/
  */
 export const mailpitUrl = process.env.MAILPIT_URL;
@@ -49,7 +49,7 @@ export async function getSignInLink(request: APIRequestContext, email: string) {
 }
 
 /**
- * Sign in through the email flow (needs Mailpit, see docker-compose.e2e.yml).
+ * Sign in through the email flow (needs Mailpit, see docker-compose.test.yml).
  * Works for a fixed address, such as a seeded user, used by several tests.
  */
 export async function signInWithEmail(page: Page, email: string) {

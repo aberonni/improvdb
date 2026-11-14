@@ -1,0 +1,19 @@
+name: Lighthouse
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+# Only reads the repository; app-job.yml can't have more than this grants
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    uses: ./.github/workflows/app-job.yml
+    with:
+      script: ./scripts/lighthouse.sh
+      artifact-name: lighthouse-reports
+      artifact-path: .lighthouseci/

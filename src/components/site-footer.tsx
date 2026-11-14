@@ -5,13 +5,15 @@ import {
   MIN_RESOURCES_TO_INDEX,
   TYPE_LANDING_PAGE_LIST,
 } from "@/lib/catalogue";
-import { api } from "@/utils/api";
+import { api, PRE_BUILT_STALE_TIME } from "@/utils/api";
 
 const linkClassName = "text-muted-foreground hover:text-foreground";
 
 /** "Browse by" links to every indexable Landing Page */
 export function SiteFooter() {
-  const { data: categories } = api.category.getAll.useQuery();
+  const { data: categories } = api.category.getAll.useQuery(undefined, {
+    staleTime: PRE_BUILT_STALE_TIME,
+  });
   const indexableCategories = (categories ?? []).filter(
     (category) => category._count.resources >= MIN_RESOURCES_TO_INDEX,
   );

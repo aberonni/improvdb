@@ -20,7 +20,7 @@ export type Mailer = {
 
 /**
  * The SMTP server every email goes through, sign-in emails included (see
- * src/server/auth.ts). Mailpit in E2E tests, see docker-compose.e2e.yml.
+ * src/server/auth.ts). Mailpit in E2E tests, see docker-compose.test.yml.
  */
 export function smtpServer(): SMTPTransport.Options {
   return {

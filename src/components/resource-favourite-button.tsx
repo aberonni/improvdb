@@ -8,16 +8,11 @@ import { useErrorToast } from "@/hooks/use-error-toast";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
 
-export const ResourceFavouriteButton = ({
-  resourceId,
-  favouriteCount,
-  showLabel,
-  ...buttonProps
-}: {
-  resourceId: string;
-  favouriteCount?: number;
-  showLabel?: boolean;
-} & ButtonProps) => {
+/**
+ * The signed-in visitor's favourites, and a way to toggle one. Asks the
+ * server once, however many Resources use it.
+ */
+export function useFavourites() {
   const { toast } = useToast();
   const showError = useErrorToast();
   const { status } = useSession();
@@ -28,49 +23,70 @@ export const ResourceFavouriteButton = ({
   });
   const utils = api.useUtils();
 
-  const isFavourite = useMemo(() => {
-    return user?.favourites.some(
-      (favourite) => favourite.resourceId === resourceId,
-    );
-  }, [user, resourceId]);
-
-  const { mutate: setFavourite, isPending: isSaving } =
-    api.user.setFavourite.useMutation({
-      onSuccess: async () => {
-        await utils.user.getUser.invalidate();
-        void utils.resource.invalidate();
-      },
-      onError: (e) =>
-        showError(e, "Failed to update favourite! Please try again later."),
-    });
-
-  const label = useMemo(
-    () => (isFavourite ? "Remove from favourites" : "Add to favourites"),
-    [isFavourite],
+  const favouriteIds = useMemo(
+    () => new Set(user?.favourites.map(({ resourceId }) => resourceId)),
+    [user],
   );
+
+  const {
+    mutate: setFavourite,
+    isPending: isSaving,
+    variables,
+  } = api.user.setFavourite.useMutation({
+    onSuccess: async () => {
+      await utils.user.getUser.invalidate();
+      void utils.resource.invalidate();
+    },
+    onError: (e) =>
+      showError(e, "Failed to update favourite! Please try again later."),
+  });
+
+  const isLoadingUser =
+    status === "loading" || (status === "authenticated" && isLoading);
+
+  return {
+    isFavourite: (resourceId: string) => favouriteIds.has(resourceId),
+    isDisabled: (resourceId: string) =>
+      isLoadingUser || (isSaving && variables?.resourceId === resourceId),
+    toggle: (resourceId: string) => {
+      if (!user) {
+        return toast({
+          title: "Sign in to save your favourites.",
+          variant: "destructive",
+        });
+      }
+
+      setFavourite({
+        resourceId,
+        favourite: !favouriteIds.has(resourceId),
+      });
+    },
+  };
+}
+
+export const favouriteLabel = (isFavourite: boolean) =>
+  isFavourite ? "Remove from favourites" : "Add to favourites";
+
+export const ResourceFavouriteButton = ({
+  resourceId,
+  favouriteCount,
+  showLabel,
+  ...buttonProps
+}: {
+  resourceId: string;
+  favouriteCount?: number;
+  showLabel?: boolean;
+} & ButtonProps) => {
+  const favourites = useFavourites();
+  const isFavourite = favourites.isFavourite(resourceId);
+  const label = favouriteLabel(isFavourite);
 
   return (
     <Button
       {...buttonProps}
       title={label}
-      onClick={() => {
-        if (!user) {
-          return toast({
-            title: "Sign in to save your favourites.",
-            variant: "destructive",
-          });
-        }
-
-        setFavourite({
-          resourceId,
-          favourite: !isFavourite,
-        });
-      }}
-      disabled={
-        isSaving ||
-        status === "loading" ||
-        (status === "authenticated" && isLoading)
-      }
+      onClick={() => favourites.toggle(resourceId)}
+      disabled={favourites.isDisabled(resourceId)}
       variant={buttonProps.variant ?? "outline"}
       className={cn(buttonProps.className, "group")}
       data-testid="resource-favourite-button"

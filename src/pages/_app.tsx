@@ -9,6 +9,7 @@ import NextNProgress from "nextjs-progressbar";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { env } from "@/env";
 import { usePreserveScroll } from "@/hooks/use-preserve-scroll";
 import { api } from "@/utils/api";
 
@@ -40,7 +41,8 @@ const MyApp: AppType<{ session: Session | null }> = ({
           <NextNProgress />
           <Toaster />
           <Component {...pageProps} />
-          <SpeedInsights />
+          {/* Its script only exists on Vercel; elsewhere it 404s */}
+          {env.NEXT_PUBLIC_VERCEL_ENV && <SpeedInsights />}
         </div>
       </ThemeProvider>
     </SessionProvider>
