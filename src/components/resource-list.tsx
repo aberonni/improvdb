@@ -19,7 +19,10 @@ import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
 } from "@/components/resource";
-import { ResourceFavouriteButton } from "@/components/resource-favourite-button";
+import {
+  ListFavouriteButton,
+  ListFavouritesProvider,
+} from "@/components/resource-list-favourites";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -42,6 +45,11 @@ type SingleResourceType = ResourceListRow;
 
 const columnHelper = createColumnHelper<SingleResourceType>();
 
+/*
+ * Type and Category badge links prefetch on hover only: there are several per
+ * row but only a few dozen distinct Landing Pages. Title links keep
+ * prefetching when they scroll into view.
+ */
 function getColumns({
   showPublishedStatus,
   showEditProposals,
@@ -71,6 +79,7 @@ function getColumns({
           <Link
             href={TYPE_LANDING_PAGES[props.getValue()].path}
             className="hover:underline"
+            prefetch={false}
           >
             {ResourceTypeLabels[props.getValue()]}
           </Link>
@@ -96,7 +105,7 @@ function getColumns({
             .sort(({ name: a }, { name: b }) => a.localeCompare(b))
             .map(({ id, name }) => {
               return linkBadges ? (
-                <Link key={id} href={categoryLandingPath(id)}>
+                <Link key={id} href={categoryLandingPath(id)} prefetch={false}>
                   <Badge className="hover:opacity-80">{name}</Badge>
                 </Link>
               ) : (
@@ -258,12 +267,7 @@ function getColumns({
           header: () => <></>,
           cell: ({ row }) => (
             <div className="flex items-center">
-              <ResourceFavouriteButton
-                resourceId={row.original.id}
-                className="-mr-4 h-full px-2 py-0"
-                variant="link"
-                // favouriteCount={row.original._count?.favouritedBy}
-              />
+              <ListFavouriteButton resourceId={row.original.id} />
             </div>
           ),
           enableSorting: false,
@@ -335,7 +339,7 @@ export const ResourceList = ({
     linkBadges: linkBadges && !onSelectionChange,
   });
 
-  return (
+  const table = (
     <DataTable
       columns={columns}
       data={data}
@@ -353,5 +357,11 @@ export const ResourceList = ({
       {...controlledState}
       data-testid="resource-list"
     />
+  );
+
+  return showFavourites ? (
+    <ListFavouritesProvider>{table}</ListFavouritesProvider>
+  ) : (
+    table
   );
 };
