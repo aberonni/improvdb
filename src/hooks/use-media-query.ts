@@ -1,7 +1,11 @@
 import * as React from "react";
 
-export function useMediaQuery(query: string) {
-  const [value, setValue] = React.useState(false);
+/**
+ * Whether the media query matches. Until it has been checked in the browser
+ * (on the server, and in the first render) it is `initialValue`.
+ */
+export function useMediaQuery(query: string, initialValue = false) {
+  const [value, setValue] = React.useState(initialValue);
 
   React.useEffect(() => {
     function onChange(event: MediaQueryListEvent) {

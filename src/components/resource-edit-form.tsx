@@ -8,11 +8,7 @@ import type * as z from "zod";
 
 import { AreYouSureDialog } from "@/components/are-you-sure-dialog";
 import { MultiSelectDropown } from "@/components/multi-select-dropdown";
-import {
-  ResourceConfigurationLabels,
-  ResourceTypeLabels,
-  SingleResourceComponent,
-} from "@/components/resource";
+import { SingleResourceComponent } from "@/components/resource";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -40,6 +36,10 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ResourceConfigurationLabels,
+  ResourceTypeLabels,
+} from "@/lib/resource-labels";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
 import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";

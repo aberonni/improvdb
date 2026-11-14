@@ -1,4 +1,4 @@
-import { type ResourceConfiguration, ResourceType } from "@prisma/client";
+import { ResourceType } from "@prisma/client";
 import { uniqBy } from "lodash";
 import Link from "next/link";
 import { type AnchorHTMLAttributes, type RefAttributes, useMemo } from "react";
@@ -14,28 +14,13 @@ import { ResourceFavouriteButton } from "@/components/resource-favourite-button"
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import {
+  ResourceConfigurationLabels,
+  ResourceTypeLabels,
+} from "@/lib/resource-labels";
 import { cn } from "@/lib/utils";
 import type { RouterOutputs } from "@/utils/api";
 import { type resourceCreateSchema } from "@/utils/zod";
-
-export const ResourceTypeLabels: Record<ResourceType, string> = {
-  EXERCISE: "🚀 Warm-up / Exercise",
-  SHORT_FORM: "⚡️ Short Form Game",
-  LONG_FORM: "🍿 Long Form Format",
-};
-
-export const ResourceConfigurationLabels: Record<
-  ResourceConfiguration,
-  string
-> = {
-  SCENE: "🎭 Scenework",
-  BACKLINE: "👥 Backline",
-  WHOLE_CLASS: "♾️ Whole Group",
-  SOLO: "🧍 Solo",
-  PAIRS: "👯 Pairs",
-  GROUPS: "👨‍👨‍👦 Groups",
-  CIRCLE: "⭕️ Circle",
-};
 
 type ApiResource = Readonly<RouterOutputs["resource"]["getById"]>;
 type CreationResource = z.infer<typeof resourceCreateSchema>;

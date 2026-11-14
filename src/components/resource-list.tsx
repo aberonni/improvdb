@@ -16,10 +16,6 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { type DataTableSortOption } from "@/components/data-table/data-table-sort-options";
 import { TitleCellContent } from "@/components/data-table/data-table-title-cell-content";
 import {
-  ResourceConfigurationLabels,
-  ResourceTypeLabels,
-} from "@/components/resource";
-import {
   ListFavouriteButton,
   ListFavouritesProvider,
 } from "@/components/resource-list-favourites";
@@ -27,6 +23,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import {
+  ResourceConfigurationLabels,
+  ResourceTypeLabels,
+} from "@/lib/resource-labels";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs } from "@/utils/api";
 
