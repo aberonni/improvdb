@@ -23,7 +23,7 @@ import {
   type createTRPCContext,
 } from "@/server/api/trpc";
 import { enforceRateLimit } from "@/server/helpers/rateLimit";
-import { sendMail, sendMailToAdmins } from "@/server/nodemailer";
+import { adminRecipients, mailer } from "@/server/mailer";
 import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
 
 function cleanCategories(
@@ -376,13 +376,11 @@ export const resourceRouter = createTRPCRouter({
       });
 
       if (!isAdmin(ctx.session.user)) {
-        void sendMailToAdmins(
-          {
-            subject: "New game or exercise proposed",
-            html: `<p>A new game or exercise has been proposed by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
-          },
-          ctx.db,
-        );
+        await mailer.send({
+          to: await adminRecipients(ctx.db),
+          subject: "New game or exercise proposed",
+          html: `<p>A new game or exercise has been proposed by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
+        });
       }
 
       return {
@@ -442,13 +440,11 @@ export const resourceRouter = createTRPCRouter({
         },
       });
 
-      void sendMailToAdmins(
-        {
-          subject: "New edit proposal",
-          html: `<p>A new edit proposal has been created by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
-        },
-        ctx.db,
-      );
+      await mailer.send({
+        to: await adminRecipients(ctx.db),
+        subject: "New edit proposal",
+        html: `<p>A new edit proposal has been created by ${escapeHtml(ctx.session.user.name)} (${escapeHtml(ctx.session.user.email)}). <a href="https://improvdb.com/resource/${resource.id}">View it</a></p>`,
+      });
 
       return {
         resource,
@@ -495,7 +491,7 @@ export const resourceRouter = createTRPCRouter({
         });
 
         if (proposal.editProposalAuthor?.email) {
-          void sendMail({
+          await mailer.send({
             subject: `Your proposed edit to "${resource.title}" has been accepted`,
             html: `<p>Your proposed edit has been accepted: <a href="https://improvdb.com/resource/${proposal.editProposalOriginalResourceId}">View "${escapeHtml(resource.title)}"</a></p>`,
             to: proposal.editProposalAuthor.email,
@@ -577,7 +573,7 @@ export const resourceRouter = createTRPCRouter({
       });
 
       if (input.published && updatedResource.createdBy.email) {
-        void sendMail({
+        await mailer.send({
           subject: `"${resource.title}", which you proposed, has been published`,
           html: `<p>Your proposed game or exercise has been published: <a href="https://improvdb.com/resource/${resource.id}">View "${escapeHtml(resource.title)}"</a></p>`,
           to: updatedResource.createdBy.email,

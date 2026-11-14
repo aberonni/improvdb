@@ -1,48 +1,12 @@
+import { expect, test } from "@playwright/test";
+
+import { mailpitUrl } from "@/../tests/auth";
 import {
-  type Browser,
-  expect,
-  type Page,
-  test,
-  type TestInfo,
-} from "@playwright/test";
-
-import { mailpitUrl, signInWithEmail } from "@/../tests/auth";
-
-/** Calls a tRPC mutation as the signed-in user of `page` */
-async function mutate<T>(page: Page, path: string, input: unknown) {
-  const response = await page.request.post(`/api/trpc/${path}`, {
-    data: { json: input },
-  });
-  expect(response.ok(), `${path}: ${await response.text()}`).toBe(true);
-  const body = (await response.json()) as { result: { data: { json: T } } };
-  return body.result.data.json;
-}
-
-async function signedInPage(browser: Browser, email: string) {
-  const page = await (await browser.newContext()).newPage();
-  await signInWithEmail(page, email);
-  return page;
-}
-
-/** Unique per test run and project, as projects run in parallel */
-function unique(testInfo: TestInfo, name: string) {
-  const project = testInfo.project.name.toLowerCase().replace(/\W+/g, "-");
-  // Resource ids must end with a letter, so the timestamp goes first
-  return `e2e-${Date.now()}-${project}-${name}`;
-}
-
-function resourceInput(id: string, title: string) {
-  return {
-    id,
-    title,
-    description: "An exercise created by an end-to-end test.",
-    type: "EXERCISE",
-    configuration: "CIRCLE",
-    categories: [],
-    relatedResources: [],
-    alternativeNames: [],
-  };
-}
+  mutate,
+  resourceInput,
+  signedInPage,
+  unique,
+} from "@/../tests/resources";
 
 test.describe("Resource visibility", () => {
   test.skip(!mailpitUrl, "Needs Mailpit: run with `npm run test:e2e`");

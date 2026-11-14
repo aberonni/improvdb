@@ -7,6 +7,9 @@ import { expect, type APIRequestContext, type Page } from "@playwright/test";
  */
 export const mailpitUrl = process.env.MAILPIT_URL;
 
+// NextAuth sends every sign-in link with this subject; admins also get notifications
+const SIGN_IN_SUBJECT = `subject:"Sign in to"`;
+
 export function uniqueEmail(page: Page) {
   const browser = page.context().browser()?.browserType().name() ?? "browser";
   return `e2e-${browser}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
@@ -24,7 +27,7 @@ export async function getSignInLink(request: APIRequestContext, email: string) {
     .poll(
       async () => {
         const response = await request.get(`${mailpitUrl}/api/v1/search`, {
-          params: { query: `to:"${email}"` },
+          params: { query: `to:"${email}" ${SIGN_IN_SUBJECT}` },
         });
         const { messages } = (await response.json()) as {
           messages: { ID: string }[];
@@ -52,7 +55,7 @@ export async function getSignInLink(request: APIRequestContext, email: string) {
 export async function signInWithEmail(page: Page, email: string) {
   // Drop earlier sign-in emails so we don't follow an already-used link
   const cleared = await page.request.delete(`${mailpitUrl}/api/v1/search`, {
-    params: { query: `to:"${email}"` },
+    params: { query: `to:"${email}" ${SIGN_IN_SUBJECT}` },
   });
   expect(cleared.ok(), "Mailpit should delete old emails").toBe(true);
 

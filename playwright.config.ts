@@ -37,16 +37,28 @@ export default defineConfig({
    * Specs that render pages run on desktop Chromium and mobile WebKit.
    * Specs in tests/http/ only check what the server sends (headers, meta tags,
    * generated images), which doesn't depend on the browser, so they run once.
+   * Specs in tests/publishing/ publish Resources, which then show up in the
+   * Catalogue, so they run once, after every other spec has taken its
+   * screenshots. They also sign in as the seeded admin, whose inbox can't be
+   * shared by tests running at the same time, so they run one at a time.
    */
   projects: [
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: "publishing/**",
     },
     {
       name: "Mobile Safari",
       use: { ...devices["iPhone 12"] },
-      testIgnore: "http/**",
+      testIgnore: ["http/**", "publishing/**"],
+    },
+    {
+      name: "publishing",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: "publishing/**/*.spec.ts",
+      dependencies: ["chromium", "Mobile Safari"],
+      workers: 1,
     },
   ],
 
