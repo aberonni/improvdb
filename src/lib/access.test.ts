@@ -48,8 +48,9 @@ describe("canViewResource", () => {
 
   it("lets the author of an Edit Proposal see it", () => {
     expect(canViewResource(user, editProposal)).toBe(true);
-    expect(canViewResource({ id: "third", role: UserRole.USER }, editProposal))
-      .toBe(false);
+    expect(
+      canViewResource({ id: "third", role: UserRole.USER }, editProposal),
+    ).toBe(false);
   });
 });
 
@@ -78,7 +79,10 @@ describe("Lesson Plans", () => {
     visibility: LessonPlanVisibility.PRIVATE,
     createdById: "user",
   };
-  const publicPlan = { ...privatePlan, visibility: LessonPlanVisibility.PUBLIC };
+  const publicPlan = {
+    ...privatePlan,
+    visibility: LessonPlanVisibility.PUBLIC,
+  };
 
   it("shows public plans to everybody and private ones to their creator and admins", () => {
     expect(canViewLessonPlan(null, publicPlan)).toBe(true);

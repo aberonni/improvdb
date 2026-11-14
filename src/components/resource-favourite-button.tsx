@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
 
@@ -18,6 +19,7 @@ export const ResourceFavouriteButton = ({
   showLabel?: boolean;
 } & ButtonProps) => {
   const { toast } = useToast();
+  const showError = useErrorToast();
   const { status } = useSession();
   // Signed-out visitors have no favourites: don't ask (the request would
   // fail and keep the button disabled while it retries)
@@ -38,17 +40,8 @@ export const ResourceFavouriteButton = ({
         await utils.user.getUser.invalidate();
         void utils.resource.invalidate();
       },
-      onError: (e) => {
-        const errorMessage = e.message ?? e.data?.zodError?.errors?.[0];
-
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description:
-            errorMessage ??
-            "Failed to update favourite! Please try again later.",
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to update favourite! Please try again later."),
     });
 
   const label = useMemo(

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { canEditLessonPlan } from "@/lib/access";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
@@ -35,6 +36,7 @@ const AdminToolbar = ({
 }) => {
   const router = useRouter();
   const { toast } = useToast();
+  const showError = useErrorToast();
 
   const { mutate: deleteLessonPlan, isPending: isDeletingLessonPlan } =
     api.lessonPlan.delete.useMutation({
@@ -45,17 +47,8 @@ const AdminToolbar = ({
           description: "Lesson plan successfully deleted.",
         });
       },
-      onError: (e) => {
-        const errorMessage =
-          e.message ??
-          e.data?.zodError?.errors?.[0] ??
-          "Failed to delete lessonPlan! Please try again later.";
-        toast({
-          title: "Uh oh! Something went wrong.",
-          variant: "destructive",
-          description: errorMessage,
-        });
-      },
+      onError: (e) =>
+        showError(e, "Failed to delete lessonPlan! Please try again later."),
     });
 
   return (
