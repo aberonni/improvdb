@@ -51,10 +51,12 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // Set by Vercel on its deployments (production, preview, development)
-    NEXT_PUBLIC_VERCEL_ENV: z
-      .enum(["production", "preview", "development"])
-      .optional(),
+    // "true" where Vercel Speed Insights' script doesn't exist (the E2E and
+    // Lighthouse builds), so it doesn't log a 404
+    NEXT_PUBLIC_DISABLE_SPEED_INSIGHTS: z
+      .enum(["true", "false"])
+      .optional()
+      .transform((value) => value === "true"),
   },
 
   /**
@@ -76,7 +78,8 @@ export const env = createEnv({
     EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
     EMAIL_FROM: process.env.EMAIL_FROM,
     SENTRY_DSN: process.env.SENTRY_DSN,
-    NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
+    NEXT_PUBLIC_DISABLE_SPEED_INSIGHTS:
+      process.env.NEXT_PUBLIC_DISABLE_SPEED_INSIGHTS,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

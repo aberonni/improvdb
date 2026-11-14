@@ -41,8 +41,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           <NextNProgress />
           <Toaster />
           <Component {...pageProps} />
-          {/* Its script only exists on Vercel; elsewhere it 404s */}
-          {env.NEXT_PUBLIC_VERCEL_ENV && <SpeedInsights />}
+          {!env.NEXT_PUBLIC_DISABLE_SPEED_INSIGHTS && <SpeedInsights />}
         </div>
       </ThemeProvider>
     </SessionProvider>

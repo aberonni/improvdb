@@ -48,6 +48,9 @@ services:
       # only admins write, and they skip the rate limiter
       - UPSTASH_REDIS_REST_URL=https://upstash.invalid
       - UPSTASH_REDIS_REST_TOKEN=e2e
+      # Speed Insights' script only exists on Vercel; elsewhere it logs a 404,
+      # which fails Lighthouse's best practices check
+      - NEXT_PUBLIC_DISABLE_SPEED_INSIGHTS=true
     volumes:
       - .:/app
       # Keep Linux binaries out of the host's node_modules/.next and cache them between runs
