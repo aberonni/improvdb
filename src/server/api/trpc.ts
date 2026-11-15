@@ -15,6 +15,7 @@ import { z, ZodError } from "zod";
 
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { nextRevalidator, type Revalidator } from "@/server/revalidator";
 
 /**
  * 1. CONTEXT
@@ -26,6 +27,8 @@ import { db } from "@/server/db";
 
 interface CreateContextOptions {
   session: Session | null;
+  /** Rebuilds statically generated pages after a write */
+  revalidator: Revalidator;
 }
 
 /**
@@ -41,6 +44,7 @@ interface CreateContextOptions {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
+    revalidator: opts.revalidator,
     db,
   };
 };
@@ -59,6 +63,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   return createInnerTRPCContext({
     session,
+    revalidator: nextRevalidator(res),
   });
 };
 

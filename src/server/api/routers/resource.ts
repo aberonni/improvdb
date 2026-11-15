@@ -23,6 +23,7 @@ import {
   decodeAlternativeNames,
   resourceLifecycle,
 } from "@/server/resource-lifecycle";
+import { type Revalidator } from "@/server/revalidator";
 import { resourceCreateSchema, resourceSaveSchema } from "@/utils/zod";
 
 function cleanCategories(
@@ -39,8 +40,8 @@ function cleanCategories(
 }
 
 /** Writes go through the Resource lifecycle module (see docs/adr/0002) */
-const lifecycle = (ctx: { db: PrismaClient }) =>
-  resourceLifecycle({ db: ctx.db, mailer });
+const lifecycle = (ctx: { db: PrismaClient; revalidator: Revalidator }) =>
+  resourceLifecycle({ db: ctx.db, mailer, revalidator: ctx.revalidator });
 
 export const resourceRouter = createTRPCRouter({
   /**

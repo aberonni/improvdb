@@ -5,18 +5,21 @@ import { isAdmin } from "@/lib/access";
 import { ResourceState, stateOf } from "@/lib/resource-state";
 import { type Mailer } from "@/server/mailer";
 import { notifications } from "@/server/resource-lifecycle/notifications";
+import { type Listing, pagesShowing } from "@/server/resource-lifecycle/pages";
 import {
   createData,
   type ResourceInput,
   updateData,
 } from "@/server/resource-lifecycle/write";
+import { type Revalidator } from "@/server/revalidator";
 
 /**
  * Every change to a Resource: creating it, saving changes (an edit, an Edit
  * Proposal, or accepting one), rejecting an Edit Proposal, publishing,
  * unpublishing and deleting. It decides which changes are legal in each
- * state and who may make them (see docs/adr/0002), and sends the email each
- * one triggers once its data is saved.
+ * state and who may make them (see docs/adr/0002). Once a change is saved,
+ * it sends the email the change triggers and rebuilds the statically
+ * generated pages that show the Resource, so every visitor sees it at once.
  */
 
 export { ResourceState, stateOf };
@@ -49,6 +52,32 @@ function assertAdmin(actor: Actor) {
   }
 }
 
+/** How a saved Resource is listed, from its row and links */
+const listing = (resource: {
+  id: string;
+  published: boolean;
+  type: Listing["type"];
+  categories: { categoryId: string }[];
+}): Listing => ({
+  id: resource.id,
+  published: resource.published,
+  type: resource.type,
+  categoryIds: resource.categories.map(({ categoryId }) => categoryId),
+});
+
+/** How a Resource is listed once `input` is saved to it */
+const listingAfter = (
+  input: ResourceInput,
+  { id, published }: { id: string; published: boolean },
+): Listing => ({
+  id,
+  published,
+  type: input.type,
+  categoryIds: input.categories.map(({ value }) => value),
+});
+
+const resourcePage = (id: string) => `/resource/${id}`;
+
 const withLinks = {
   categories: { select: { categoryId: true } },
   relatedResources: { select: { id: true } },
@@ -57,9 +86,11 @@ const withLinks = {
 export function resourceLifecycle({
   db,
   mailer,
+  revalidator,
 }: {
   db: PrismaClient;
   mailer: Mailer;
+  revalidator: Revalidator;
 }) {
   const notify = notifications(db, mailer);
 
@@ -67,7 +98,10 @@ export function resourceLifecycle({
   async function findResource(id: string, refusal: string) {
     const resource = await db.resource.findUnique({
       where: { id },
-      include: { createdBy: { select: { email: true } } },
+      include: {
+        createdBy: { select: { email: true } },
+        categories: { select: { categoryId: true } },
+      },
     });
     if (!resource) throw notFound(id);
     if (stateOf(resource) === ResourceState.EDIT_PROPOSAL) {
@@ -92,6 +126,8 @@ export function resourceLifecycle({
       });
 
       if (!isAdmin(actor)) await notify.draftProposed(resource, actor);
+      // In case its page was built while nothing was at this URL
+      await revalidator.revalidate([resourcePage(resource.id)]);
       return { resource };
     },
 
@@ -122,7 +158,7 @@ export function resourceLifecycle({
           );
         }
 
-        const original = await db.$transaction(async (tx) => {
+        const { existing, original } = await db.$transaction(async (tx) => {
           const existing = await tx.resource.findUnique({
             where: { id: originalId },
             include: withLinks,
@@ -134,12 +170,16 @@ export function resourceLifecycle({
             data: updateData(existing, { ...input, id: originalId }),
           });
           await tx.resource.delete({ where: { id: target.id } });
-          return updated;
+          return { existing, original: updated };
         });
 
         if (target.editProposalAuthor?.email) {
           await notify.editAccepted(original, target.editProposalAuthor.email);
         }
+        await revalidator.revalidate([
+          ...pagesShowing(listing(existing), listingAfter(input, original)),
+          resourcePage(target.id),
+        ]);
         return { resource: original, outcome: "accepted" };
       }
 
@@ -148,6 +188,9 @@ export function resourceLifecycle({
           where: { id: target.id },
           data: updateData(target, input),
         });
+        await revalidator.revalidate(
+          pagesShowing(listing(target), listingAfter(input, resource)),
+        );
         return { resource, outcome: "edited" };
       }
 
@@ -183,6 +226,7 @@ export function resourceLifecycle({
       }
 
       await db.resource.delete({ where: { id } });
+      await revalidator.revalidate([resourcePage(id)]);
 
       const originalId = proposal.editProposalOriginalResourceId!;
       const original = await db.resource.findUnique({
@@ -214,26 +258,33 @@ export function resourceLifecycle({
       if (!resource.published && resource.createdBy.email) {
         await notify.published(published, resource.createdBy.email);
       }
+      await revalidator.revalidate(
+        pagesShowing(listing(resource), listing({ ...resource, ...published })),
+      );
       return { resource: published };
     },
 
     /** Turns a Published Resource back into a Draft */
     async unpublish(actor: Actor, id: string) {
       assertAdmin(actor);
-      await findResource(id, "It was never published.");
+      const before = await findResource(id, "It was never published.");
       const resource = await db.resource.update({
         where: { id },
         data: { published: false },
       });
+      await revalidator.revalidate(pagesShowing(listing(before)));
       return { resource };
     },
 
     /** Deletes a Resource together with its pending Edit Proposals */
     async delete(actor: Actor, id: string) {
       assertAdmin(actor);
-      await findResource(id, "Reject it instead of deleting it.");
+      const before = await findResource(
+        id,
+        "Reject it instead of deleting it.",
+      );
 
-      const resource = await db.$transaction(async (tx) => {
+      const { proposals, resource } = await db.$transaction(async (tx) => {
         const proposals = await tx.resource.findMany({
           where: { editProposalOriginalResourceId: id },
           select: { id: true },
@@ -241,8 +292,15 @@ export function resourceLifecycle({
         for (const proposal of proposals) {
           await tx.resource.delete({ where: { id: proposal.id } });
         }
-        return tx.resource.delete({ where: { id } });
+        return {
+          proposals,
+          resource: await tx.resource.delete({ where: { id } }),
+        };
       });
+      await revalidator.revalidate([
+        ...pagesShowing(listing(before)),
+        ...proposals.map(({ id }) => resourcePage(id)),
+      ]);
       return { resource };
     },
   };
