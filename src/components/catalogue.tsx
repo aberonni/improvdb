@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ResourceList } from "@/components/resource-list";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  CATALOGUE_INITIAL_ROWS,
   type CatalogueState,
   catalogueHref,
   catalogueQuery,
@@ -41,6 +42,7 @@ export function Catalogue({
           useFilters
           showFavourites
           linkBadges
+          initialRowCount={CATALOGUE_INITIAL_ROWS}
           columnFilters={stateToColumnFilters(state)}
           onColumnFiltersChange={(filters) =>
             onStateChange(columnFiltersToState(filters, state.sorting))

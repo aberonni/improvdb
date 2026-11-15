@@ -18,7 +18,7 @@ import {
   type Updater,
   functionalUpdate,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { type DataTableSortOption } from "@/components/data-table/data-table-sort-options";
@@ -55,6 +55,24 @@ interface DataTableProps<
   /** Pass to control sorting from outside (e.g. the URL) */
   sorting?: SortingState;
   onSortingChange?: (sorting: SortingState) => void;
+  /**
+   * Render only this many rows at first (in the server HTML and hydration),
+   * then the rest in chunks while the browser is idle
+   */
+  initialRowCount?: number;
+}
+
+/** Rows added per idle callback after initialRowCount */
+const ROW_CHUNK = 100;
+
+/** requestIdleCallback, or a timeout where it's missing (older Safari) */
+function onIdle(callback: () => void) {
+  if (typeof window.requestIdleCallback === "function") {
+    const id = window.requestIdleCallback(callback);
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = setTimeout(callback, 1);
+  return () => clearTimeout(id);
 }
 
 export function DataTable<TData, TValue = unknown>({
@@ -71,6 +89,7 @@ export function DataTable<TData, TValue = unknown>({
   onColumnFiltersChange,
   sorting: controlledSorting,
   onSortingChange,
+  initialRowCount = Infinity,
   ...props
 }: DataTableProps<TData, TValue>) {
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
@@ -128,6 +147,24 @@ export function DataTable<TData, TValue = unknown>({
     getFacetedUniqueValues: filters ? getFacetedUniqueValues() : undefined,
   });
 
+  /*
+   * Hundreds of rows would make the first render and hydration block the
+   * main thread for seconds on phones, so only the first rows are rendered
+   * up front. The rest follow without any interaction, so search engines
+   * still see (and follow) every row's links. Each chunk renders in a
+   * transition, which React splits into short tasks.
+   */
+  const rows = table.getRowModel().rows;
+  const [renderedRowCount, setRenderedRowCount] = useState(initialRowCount);
+  const isComplete = renderedRowCount >= rows.length;
+
+  useEffect(() => {
+    if (isComplete) return;
+    return onIdle(() =>
+      startTransition(() => setRenderedRowCount((count) => count + ROW_CHUNK)),
+    );
+  }, [isComplete, renderedRowCount]);
+
   useEffect(() => {
     if (!onSelectionChange) return;
 
@@ -135,7 +172,11 @@ export function DataTable<TData, TValue = unknown>({
   }, [onSelectionChange, rowSelection, table]);
 
   return (
-    <div className="space-y-4" data-loaded={!isLoading} {...props}>
+    <div
+      className="space-y-4"
+      data-loaded={!isLoading && isComplete}
+      {...props}
+    >
       {filters && (
         <DataTableToolbar
           table={table}
@@ -187,8 +228,8 @@ export function DataTable<TData, TValue = unknown>({
                   ))}
                 </TableRow>
               ))
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            ) : rows.length ? (
+              rows.slice(0, renderedRowCount).map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
