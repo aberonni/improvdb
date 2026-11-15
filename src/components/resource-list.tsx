@@ -286,6 +286,17 @@ function getColumns({
       }));
 }
 
+/**
+ * Fixed widths for lists that render rows progressively (the Catalogue): Title
+ * takes what's left. Type fits its sort button (w-40 plus padding).
+ */
+const PROGRESSIVE_COLUMN_WIDTHS = {
+  select: "w-8",
+  type: "w-44",
+  configuration: "md:w-36",
+  categories: "md:w-1/3 xl:w-1/2",
+};
+
 const SORT_OPTIONS: DataTableSortOption[] = [
   { label: "A–Z", sorting: [] },
   { label: "Newest", sorting: [{ id: "createdAt", desc: true }] },
@@ -358,6 +369,9 @@ export const ResourceList = ({
       hiddenColumnsOnMobile={["categories", "configuration"]}
       onSelectionChange={onSelectionChange}
       initialRowCount={initialRowCount}
+      columnWidths={
+        initialRowCount === undefined ? undefined : PROGRESSIVE_COLUMN_WIDTHS
+      }
       {...controlledState}
       data-testid="resource-list"
     />
