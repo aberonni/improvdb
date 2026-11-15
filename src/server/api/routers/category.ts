@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { publishedResourcesWhere } from "@/lib/access";
+import { categoryLandingPath } from "@/lib/catalogue";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -38,10 +39,12 @@ export const categoryRouter = createTRPCRouter({
         description: z.string().max(5000),
       }),
     )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.category.update({
+    .mutation(async ({ ctx, input }) => {
+      const category = await ctx.db.category.update({
         where: { id: input.id },
         data: { description: input.description.trim() || null },
       });
+      await ctx.revalidator.revalidate([categoryLandingPath(category.id)]);
+      return category;
     }),
 });

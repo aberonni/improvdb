@@ -6,6 +6,7 @@ import {
   EMPTY_CATALOGUE_STATE,
   MIN_RESOURCES_TO_INDEX,
 } from "@/lib/catalogue";
+import { LISTING_REVALIDATE_SECONDS } from "@/server/helpers/landingPageProps";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { api } from "@/utils/api";
@@ -63,7 +64,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       trpcState: ssg.dehydrate(),
       id,
     },
-    revalidate: 60,
+    revalidate: LISTING_REVALIDATE_SECONDS,
   };
 };
 

@@ -4,6 +4,5 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
 Disallow: /user/
-Disallow: /maintenance
 
 Sitemap: https://improvdb.com/sitemap.xml
