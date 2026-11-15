@@ -20,10 +20,11 @@ const getBaseUrl = () => {
 /**
  * For queries whose data a pre-built page already carries: without it, React
  * Query treats that data as stale the moment it hydrates and fetches it all
- * again on every visit. Matches the shortest `revalidate` of those pages;
- * mutations still invalidate these queries, so edits show at once.
+ * again on every visit. Writes rebuild those pages at once, so the data they
+ * carry is current however long ago they were built (a page's `revalidate`
+ * is only a safety net); mutations still invalidate these queries.
  */
-export const PRE_BUILT_STALE_TIME = 60_000;
+export const PRE_BUILT_STALE_TIME = Infinity;
 
 /** A set of type-safe react-query hooks for your tRPC API. */
 export const api = createTRPCNext<AppRouter>({
