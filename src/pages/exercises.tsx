@@ -1,6 +1,5 @@
-import { ResourceType } from "@prisma/client";
-
 import { TypeLandingPage } from "@/components/type-landing-page";
+import { ResourceType } from "@/lib/enums";
 import { catalogueStaticProps } from "@/server/helpers/landingPageProps";
 
 export default function Exercises() {

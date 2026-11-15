@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LessonPlanVisibility } from "@prisma/client";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -54,6 +53,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LessonPlanVisibility } from "@/lib/enums";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
 import { lessonPlanCreateSchema } from "@/utils/zod";

@@ -1,8 +1,8 @@
-import { UserRole } from "@prisma/client";
 import Head from "next/head";
 
 import { PageLayout } from "@/components/page-layout";
 import { ResourceList } from "@/components/resource-list";
+import { UserRole } from "@/lib/enums";
 import { api } from "@/utils/api";
 
 export default function MyContributions() {

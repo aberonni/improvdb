@@ -1,9 +1,10 @@
+import * as z from "zod";
+
 import {
   ResourceType,
   ResourceConfiguration,
   LessonPlanVisibility,
-} from "@prisma/client";
-import * as z from "zod";
+} from "@/lib/enums";
 
 z.config({
   customError: (issue) => {

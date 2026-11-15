@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
@@ -11,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useErrorToast } from "@/hooks/use-error-toast";
 import { categoryLandingPath, MIN_RESOURCES_TO_INDEX } from "@/lib/catalogue";
+import { UserRole } from "@/lib/enums";
 import { type RouterOutputs, api } from "@/utils/api";
 
 type Category = RouterOutputs["category"]["getAll"][0];

@@ -97,6 +97,26 @@ export default [
     },
   },
   {
+    // Code that can end up in the browser
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/server/**", "src/pages/api/**", "src/**/*.test.ts"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@prisma/client",
+              message:
+                "Its values bundle Prisma into the page. Import enums from @/lib/enums; types are fine.",
+              allowTypeImports: true,
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     ignores: [
       "node_modules/**",
       ".next/**",

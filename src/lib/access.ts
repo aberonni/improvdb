@@ -1,9 +1,10 @@
+import { type Prisma } from "@prisma/client";
+
 import {
   LessonPlanVisibility,
-  type Prisma,
   type UserRole,
   UserRole as UserRoles,
-} from "@prisma/client";
+} from "@/lib/enums";
 
 /**
  * Who may see or change a Resource or a Lesson Plan. Shared by the tRPC
