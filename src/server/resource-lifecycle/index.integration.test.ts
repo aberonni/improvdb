@@ -9,6 +9,7 @@ import {
   ResourceState,
   stateOf,
 } from "@/server/resource-lifecycle";
+import { inMemoryRevalidator } from "@/server/revalidator";
 
 /**
  * Runs against the database (see vitest.integration.config.ts). Everything it
@@ -19,6 +20,7 @@ const db = new PrismaClient();
 const RUN = `it-${Date.now()}`;
 
 let mailer: ReturnType<typeof inMemoryMailer>;
+let revalidator: ReturnType<typeof inMemoryRevalidator>;
 let lifecycle: ReturnType<typeof resourceLifecycle>;
 
 let admin: Actor;
@@ -62,6 +64,7 @@ async function resource(
     await db.resource.update({ where: { id }, data: { published: true } });
   }
   mailer.sent.length = 0;
+  revalidator.paths.length = 0;
   return id;
 }
 
@@ -89,7 +92,8 @@ beforeAll(async () => {
 
 beforeEach(() => {
   mailer = inMemoryMailer();
-  lifecycle = resourceLifecycle({ db, mailer });
+  revalidator = inMemoryRevalidator();
+  lifecycle = resourceLifecycle({ db, mailer, revalidator });
 });
 
 afterAll(async () => {
@@ -110,6 +114,7 @@ describe("create", () => {
     expect(sentTo(admin.email!)).toMatchObject([
       { subject: "New game or exercise proposed" },
     ]);
+    expect(revalidator.paths).toEqual([`/resource/${id}`]);
   });
 
   it("doesn't tell the admins about an admin's own Draft", async () => {
@@ -156,6 +161,15 @@ describe("save", () => {
       [b!.value, c!.value].sort(),
     );
     expect(mailer.sent).toEqual([]);
+    // Including the Category it left and the one it joined
+    expect(revalidator.paths.sort()).toEqual(
+      [
+        `/resource/${id}`,
+        "/",
+        "/exercises",
+        ...[a!, b!, c!].map(({ value }) => `/category/${value}`),
+      ].sort(),
+    );
   });
 
   it("turns a contributor's changes into an Edit Proposal, leaving the original alone", async () => {
@@ -183,6 +197,8 @@ describe("save", () => {
     expect(sentTo(admin.email!)).toMatchObject([
       { subject: "New edit proposal" },
     ]);
+    // Nothing visitors see has changed
+    expect(revalidator.paths).toEqual([]);
   });
 
   it("accepts an Edit Proposal when an admin saves it, with the admin's changes", async () => {
@@ -212,6 +228,13 @@ describe("save", () => {
           'Your proposed edit to "Proposed, then tweaked" has been accepted',
       },
     ]);
+    expect(revalidator.paths).toEqual(
+      expect.arrayContaining([
+        `/resource/${id}`,
+        `/resource/${proposal.id}`,
+        "/",
+      ]),
+    );
   });
 
   it("keeps an Edit Proposal, and sends nothing, when its original is gone", async () => {
@@ -236,6 +259,7 @@ describe("save", () => {
       await db.resource.findUnique({ where: { id: proposalId } }),
     ).not.toBeNull();
     expect(mailer.sent).toEqual([]);
+    expect(revalidator.paths).toEqual([]);
   });
 
   it("refuses a contributor's changes to an Edit Proposal", async () => {
@@ -253,6 +277,7 @@ describe("reject", () => {
     const id = await resource(otherContributor, "PUBLISHED");
     const { resource: created } = await lifecycle.save(contributor, input(id));
     mailer.sent.length = 0;
+    revalidator.paths.length = 0;
     return { id, proposalId: created.id };
   }
 
@@ -274,6 +299,7 @@ describe("reject", () => {
     expect(email?.html).toContain(
       "Reason: Duplicates &lt;b&gt;another&lt;/b&gt; game",
     );
+    expect(revalidator.paths).toEqual([`/resource/${proposalId}`]);
   });
 
   it("leaves the reason out when there is none", async () => {
@@ -309,6 +335,9 @@ describe("publish and unpublish", () => {
     expect(sentTo(contributor.email!)).toMatchObject([
       { subject: `"Title of ${id}", which you proposed, has been published` },
     ]);
+    expect(revalidator.paths).toEqual(
+      expect.arrayContaining([`/resource/${id}`, "/", "/exercises"]),
+    );
   });
 
   it("turns a Published Resource back into a Draft", async () => {
@@ -317,6 +346,7 @@ describe("publish and unpublish", () => {
     expect(
       stateOf(await db.resource.findUniqueOrThrow({ where: { id } })),
     ).toBe(ResourceState.DRAFT);
+    expect(revalidator.paths).toEqual([`/resource/${id}`, "/", "/exercises"]);
   });
 
   it("never publishes an Edit Proposal", async () => {
@@ -343,12 +373,20 @@ describe("delete", () => {
     const id = await resource(otherContributor, "PUBLISHED");
     const { resource: proposal } = await lifecycle.save(contributor, input(id));
 
+    revalidator.paths.length = 0;
+
     await lifecycle.delete(admin, id);
 
     expect(await db.resource.findUnique({ where: { id } })).toBeNull();
     expect(
       await db.resource.findUnique({ where: { id: proposal.id } }),
     ).toBeNull();
+    expect(revalidator.paths).toEqual([
+      `/resource/${id}`,
+      "/",
+      "/exercises",
+      `/resource/${proposal.id}`,
+    ]);
   });
 
   it("refuses an Edit Proposal, which is rejected instead", async () => {

@@ -41,8 +41,9 @@ export const ResourceEditPage: NextPage<{ id: string }> = ({ id }) => {
           void router.push("/user/my-proposed-resources");
           return;
         }
-        // The Resource's page is pre-built and may predate this save; fresher
-        // data in the cache wins over the page's when it loads
+        // Saving rebuilt the Resource's page, but this browser may have
+        // prefetched the old one (a link to it was on screen); fresher data
+        // in the cache wins over the page's when it loads
         await utils.resource.getById.fetch({ id: saved.id }, { staleTime: 0 });
         void router.push(`/resource/${saved.id}`);
       },
