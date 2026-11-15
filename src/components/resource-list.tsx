@@ -300,8 +300,11 @@ export const ResourceList = ({
   showFavourites = false,
   onSelectionChange,
   linkBadges = false,
+  initialRowCount,
   ...controlledState
 }: {
+  /** Render only this many rows at first; see DataTable */
+  initialRowCount?: number;
   /** Link type and category badges to their Landing Pages */
   linkBadges?: boolean;
   columnFilters?: ColumnFiltersState;
@@ -354,6 +357,7 @@ export const ResourceList = ({
       hiddenColumnsByDefault={["alternativeNames", "createdAt"]}
       hiddenColumnsOnMobile={["categories", "configuration"]}
       onSelectionChange={onSelectionChange}
+      initialRowCount={initialRowCount}
       {...controlledState}
       data-testid="resource-list"
     />

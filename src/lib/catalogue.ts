@@ -183,3 +183,9 @@ export function columnFiltersToState(
     sorting,
   };
 }
+
+/**
+ * Rows in the pre-built HTML; the rest render once the page is idle. Enough
+ * to fill a desktop screen several times over.
+ */
+export const CATALOGUE_INITIAL_ROWS = 50;
