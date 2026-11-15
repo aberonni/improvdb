@@ -1,4 +1,3 @@
-import { type LessonPlanVisibility, ResourceType } from "@prisma/client";
 import {
   MinusIcon,
   OpenInNewWindowIcon,
@@ -29,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { type LessonPlanVisibility, ResourceType } from "@/lib/enums";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,

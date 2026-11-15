@@ -1,12 +1,13 @@
 import {
-  ResourceConfiguration,
-  ResourceType,
-  type ResourceType as ResourceTypeValue,
-} from "@prisma/client";
-import {
   type ColumnFiltersState,
   type SortingState,
 } from "@tanstack/react-table";
+
+import {
+  ResourceConfiguration,
+  ResourceType,
+  type ResourceType as ResourceTypeValue,
+} from "@/lib/enums";
 
 /**
  * The Catalogue's filter and sort state, as it appears in the URL

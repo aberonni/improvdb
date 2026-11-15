@@ -31,8 +31,10 @@ const PAGE_ASSERTIONS = {
   "total-blocking-time": max(TIMING["total-blocking-time"][preset]),
   "largest-contentful-paint": max(TIMING["largest-contentful-paint"][preset]),
 
-  // Transfer sizes, in bytes. JS was ~320 KB, page weight up to ~600 KB.
-  "resource-summary:script:size": max(360 * KB),
+  // Transfer sizes, in bytes. JS was ~275–320 KB: on the home page, the
+  // Resource page's chunks (~42 KB) that Next.js prefetches for the visible
+  // rows land within some runs and not others. Page weight up to ~600 KB.
+  "resource-summary:script:size": max(350 * KB),
   "resource-summary:stylesheet:size": max(16 * KB),
   "resource-summary:font:size": max(55 * KB),
   "total-byte-weight": max(660 * KB),

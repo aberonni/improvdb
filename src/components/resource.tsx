@@ -1,4 +1,3 @@
-import { ResourceType } from "@prisma/client";
 import { uniqBy } from "lodash";
 import Link from "next/link";
 import { type AnchorHTMLAttributes, type RefAttributes, useMemo } from "react";
@@ -14,6 +13,7 @@ import { ResourceFavouriteButton } from "@/components/resource-favourite-button"
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { categoryLandingPath, TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import { ResourceType } from "@/lib/enums";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,

@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ResourceConfiguration, ResourceType } from "@prisma/client";
 import { ChevronDownIcon, PlusIcon } from "@radix-ui/react-icons";
 import { kebabCase, pickBy } from "lodash";
 import { useEffect, useMemo, useState } from "react";
@@ -36,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { ResourceConfiguration, ResourceType } from "@/lib/enums";
 import {
   ResourceConfigurationLabels,
   ResourceTypeLabels,
