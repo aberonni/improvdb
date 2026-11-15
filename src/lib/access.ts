@@ -35,7 +35,7 @@ export const publishedResourcesWhere = {
 } as const satisfies Prisma.ResourceWhereInput;
 
 /**
- * Published Resources, plus a viewer's own Proposals and Edit Proposals.
+ * Published Resources, plus a viewer's own Drafts and Edit Proposals.
  * Admins see everything.
  */
 export function canViewResource(

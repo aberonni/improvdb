@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useErrorToast } from "@/hooks/use-error-toast";
 import { isAdmin } from "@/lib/access";
 import { TYPE_LANDING_PAGES } from "@/lib/catalogue";
+import { ResourceState, stateOf } from "@/lib/resource-state";
 import { prefetchSiteFooter } from "@/server/helpers/siteFooterProps";
 import { generateSSGHelper } from "@/server/helpers/ssgHelper";
 import { type RouterOutputs, api, PRE_BUILT_STALE_TIME } from "@/utils/api";
@@ -26,38 +27,52 @@ const AdminToolbar = ({
   const { toast } = useToast();
   const showError = useErrorToast();
 
-  const { mutate: setPublished, isPending: isSettingPublishedStatus } =
-    api.resource.setPublished.useMutation({
-      onSuccess: () => {
-        void utils.resource.getById.invalidate();
-        toast({
-          title: "Success!",
-          description: `"${resource.title}" updated.`,
-        });
-      },
-      onError: (e) =>
-        showError(e, "Failed to update resource! Please try again later."),
-    });
+  const updated = {
+    onSuccess: () => {
+      void utils.resource.getById.invalidate();
+      toast({
+        title: "Success!",
+        description: `"${resource.title}" updated.`,
+      });
+    },
+    onError: (e: Parameters<typeof showError>[0]) =>
+      showError(e, "Failed to update resource! Please try again later."),
+  };
+  const publish = api.resource.publish.useMutation(updated);
+  const unpublish = api.resource.unpublish.useMutation(updated);
 
-  const { mutate: deleteResource, isPending: isDeletingResource } =
-    api.resource.delete.useMutation({
-      onSuccess: () => {
-        void router.back();
-        toast({
-          title: "Success!",
-          description: `"${resource.title}" deleted.`,
-        });
-      },
-      onError: (e) =>
-        showError(e, "Failed to delete resource! Please try again later."),
-    });
+  const deleteResource = api.resource.delete.useMutation({
+    onSuccess: () => {
+      void router.back();
+      toast({
+        title: "Success!",
+        description: `"${resource.title}" deleted.`,
+      });
+    },
+    onError: (e) =>
+      showError(e, "Failed to delete resource! Please try again later."),
+  });
+
+  const reject = api.resource.reject.useMutation({
+    onSuccess: () => {
+      void router.push(`/resource/${resource.editProposalOriginalResourceId}`);
+      toast({
+        title: "Success!",
+        description: "The Edit Proposal has been rejected.",
+      });
+    },
+    onError: (e) =>
+      showError(e, "Failed to reject the proposal! Please try again later."),
+  });
+
+  const state = stateOf(resource);
 
   return (
     <div className="mt-4 flex w-full items-center gap-2 rounded-md bg-accent p-2">
       <span className="mr-auto pl-2 text-sm font-bold uppercase text-muted-foreground">
         Admin Features
       </span>
-      {resource.editProposalOriginalResourceId ? (
+      {state === ResourceState.EDIT_PROPOSAL ? (
         <>
           <Link
             href={`/resource/${resource.editProposalOriginalResourceId}/`}
@@ -72,6 +87,19 @@ const AdminToolbar = ({
           >
             Review Proposal
           </Link>
+          <Button
+            onClick={() => {
+              const reason = window.prompt(
+                "Why is this edit not being accepted? (optional)",
+              );
+              if (reason === null) return;
+              reject.mutate({ id: resource.id, reason: reason.trim() });
+            }}
+            disabled={reject.isPending}
+            variant="destructive"
+          >
+            Reject
+          </Button>
         </>
       ) : (
         <>
@@ -81,41 +109,30 @@ const AdminToolbar = ({
           >
             Edit
           </Link>
-          {resource.published ? (
+          {state === ResourceState.PUBLISHED ? (
             <Button
-              onClick={() =>
-                setPublished({
-                  id: resource.id,
-                  published: false,
-                })
-              }
-              disabled={isSettingPublishedStatus}
+              onClick={() => unpublish.mutate({ id: resource.id })}
+              disabled={unpublish.isPending}
             >
               Un-publish
             </Button>
           ) : (
             <Button
-              onClick={() =>
-                setPublished({
-                  id: resource.id,
-                  published: true,
-                })
-              }
-              disabled={isSettingPublishedStatus}
+              onClick={() => publish.mutate({ id: resource.id })}
+              disabled={publish.isPending}
             >
               Publish
             </Button>
           )}
+          <Button
+            onClick={() => deleteResource.mutate({ id: resource.id })}
+            disabled={deleteResource.isPending}
+            variant="destructive"
+          >
+            Delete
+          </Button>
         </>
       )}
-
-      <Button
-        onClick={() => deleteResource({ id: resource.id })}
-        disabled={isDeletingResource}
-        variant="destructive"
-      >
-        Delete
-      </Button>
     </div>
   );
 };
@@ -162,7 +179,7 @@ export const SingleResourcePage: NextPage<{ id: string }> = ({ id }) => {
         {isAdmin(user) && <AdminToolbar resource={resource} />}
         <SingleResourceComponent
           resource={resource}
-          showProposeChanges={!resource.editProposalOriginalResourceId}
+          showProposeChanges={stateOf(resource) !== ResourceState.EDIT_PROPOSAL}
         />
       </PageLayout>
     </>

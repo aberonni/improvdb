@@ -42,7 +42,7 @@ import {
 } from "@/lib/resource-labels";
 import { cn } from "@/lib/utils";
 import { type RouterOutputs, api } from "@/utils/api";
-import { resourceCreateSchema, resourceProposalSchema } from "@/utils/zod";
+import { resourceCreateSchema, resourceSaveSchema } from "@/utils/zod";
 
 type CreateSchemaType = z.infer<typeof resourceCreateSchema>;
 
@@ -84,13 +84,12 @@ export default function ResourceEditForm({
   onSubmit,
   isSubmitting,
   isEditing = false,
-  isEditingProposal = false,
 }: {
   resource?: Readonly<RouterOutputs["resource"]["getById"]>;
   onSubmit: (values: z.infer<typeof resourceCreateSchema>) => void;
   isSubmitting: boolean;
+  /** Editing an existing Resource or Edit Proposal, whose id is fixed */
   isEditing?: boolean;
-  isEditingProposal?: boolean;
 }) {
   const [previewData, setPreviewData] = useState<CreateSchemaType | null>(null);
   const [optionalFieldsOpen, setOptionalFieldsOpen] = useState(true);
@@ -115,19 +114,14 @@ export default function ResourceEditForm({
         label: relatedResource.title,
         value: relatedResource.id,
       })),
-      alternativeNames: (resource.alternativeNames ?? "")
-        .split(";")
-        .filter((s) => s !== "")
-        .map((name) => ({
-          label: name,
-          value: name,
-        })),
+      alternativeNames: resource.alternativeNames.map((name) => ({
+        label: name,
+        value: name,
+      })),
     };
   }
 
-  const resolverSchema = isEditingProposal
-    ? resourceProposalSchema
-    : resourceCreateSchema;
+  const resolverSchema = isEditing ? resourceSaveSchema : resourceCreateSchema;
 
   const form = useForm<CreateSchemaType>({
     resolver: zodResolver(resolverSchema),

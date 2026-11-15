@@ -66,7 +66,7 @@ test.describe("Resource visibility", () => {
     );
     const { resource: proposal } = await mutate<{ resource: { id: string } }>(
       proposer,
-      "resource.proposeUpdate",
+      "resource.save",
       resourceInput(id, proposedTitle),
     );
 

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { type Browser, expect, test, type TestInfo } from "@playwright/test";
 
 import { mailpitUrl } from "@/../tests/auth";
 import { expectEmail } from "@/../tests/mailpit";
@@ -32,7 +32,7 @@ test.describe("Notification emails", () => {
     expect(proposed.HTML).toContain(creatorEmail);
 
     const admin = await signedInPage(browser, ADMIN);
-    await mutate(admin, "resource.setPublished", { id, published: true });
+    await mutate(admin, "resource.publish", { id });
 
     const published = await expectEmail(admin.request, {
       to: creatorEmail,
@@ -52,12 +52,12 @@ test.describe("Notification emails", () => {
 
     const admin = await signedInPage(browser, ADMIN);
     await mutate(admin, "resource.create", resourceInput(id, "Original"));
-    await mutate(admin, "resource.setPublished", { id, published: true });
+    await mutate(admin, "resource.publish", { id });
 
     const proposer = await signedInPage(browser, proposerEmail);
     const { resource: proposal } = await mutate<{ resource: { id: string } }>(
       proposer,
-      "resource.proposeUpdate",
+      "resource.save",
       resourceInput(id, proposedTitle),
     );
 
@@ -68,7 +68,7 @@ test.describe("Notification emails", () => {
     expect(proposed.Subject).toBe("New edit proposal");
     expect(proposed.HTML).toContain(proposerEmail);
 
-    await mutate(admin, "resource.acceptProposedUpdate", {
+    await mutate(admin, "resource.save", {
       ...resourceInput(proposal.id, proposedTitle),
     });
 
@@ -79,5 +79,100 @@ test.describe("Notification emails", () => {
     expect(accepted.Subject).toBe(
       `Your proposed edit to "${proposedTitle}" has been accepted`,
     );
+  });
+});
+
+test.describe("Reviewing an Edit Proposal", () => {
+  test.skip(!mailpitUrl, "Needs Mailpit: run with `npm run test:e2e`");
+
+  /** A published Resource, and an Edit Proposal to it by a new user */
+  async function proposeEdit(
+    browser: Browser,
+    testInfo: TestInfo,
+    proposedTitle: string,
+  ) {
+    const id = unique(testInfo, "original");
+    const proposerEmail = `${unique(testInfo, "proposer")}@example.com`;
+
+    const admin = await signedInPage(browser, ADMIN);
+    await mutate(admin, "resource.create", resourceInput(id, "Original"));
+    await mutate(admin, "resource.publish", { id });
+
+    const proposer = await signedInPage(browser, proposerEmail);
+    const { resource: proposal } = await mutate<{ resource: { id: string } }>(
+      proposer,
+      "resource.save",
+      resourceInput(id, proposedTitle),
+    );
+    return { admin, id, proposalId: proposal.id, proposerEmail };
+  }
+
+  test("an admin accepts it from the review form", async ({
+    browser,
+  }, testInfo) => {
+    const proposedTitle = `Accepted ${Date.now()}`;
+    const { admin, id, proposalId, proposerEmail } = await proposeEdit(
+      browser,
+      testInfo,
+      proposedTitle,
+    );
+
+    await admin.goto(`/resource/${proposalId}`);
+    await admin.getByRole("link", { name: "Review Proposal" }).click();
+    await expect(
+      admin.getByRole("heading", { name: /^Review Proposal:/ }),
+    ).toBeVisible();
+    await admin.getByRole("button", { name: "Save" }).click();
+    await admin
+      .getByRole("alertdialog")
+      .getByRole("button", { name: "Continue" })
+      .click();
+
+    await expect(admin).toHaveURL(new RegExp(`/resource/${id}$`));
+    await expect(
+      admin.getByRole("heading", { name: proposedTitle }),
+    ).toBeVisible();
+    const accepted = await expectEmail(admin.request, {
+      to: proposerEmail,
+      text: id,
+    });
+    expect(accepted.Subject).toBe(
+      `Your proposed edit to "${proposedTitle}" has been accepted`,
+    );
+  });
+
+  test("an admin rejects it with a reason", async ({ browser }, testInfo) => {
+    const { admin, id, proposalId, proposerEmail } = await proposeEdit(
+      browser,
+      testInfo,
+      `Rejected ${Date.now()}`,
+    );
+
+    await admin.goto(`/resource/${proposalId}`);
+    await expect(admin.getByRole("button", { name: "Delete" })).toHaveCount(0);
+    admin.once("dialog", (dialog) => {
+      expect(dialog.type()).toBe("prompt");
+      void dialog.accept("Duplicates <b>another</b> game");
+    });
+    await admin.getByRole("button", { name: "Reject" }).click();
+
+    await expect(admin).toHaveURL(new RegExp(`/resource/${id}$`));
+    const rejected = await expectEmail(admin.request, {
+      to: proposerEmail,
+      text: id,
+    });
+    expect(rejected.Subject).toBe(
+      'Your proposed edit to "Original" was not accepted',
+    );
+    expect(rejected.HTML).toContain(
+      "Reason: Duplicates &lt;b&gt;another&lt;/b&gt; game",
+    );
+
+    const response = await admin.request.get(
+      `/api/trpc/resource.getById?input=${encodeURIComponent(
+        JSON.stringify({ json: { id: proposalId } }),
+      )}`,
+    );
+    expect(response.status()).toBe(404);
   });
 });

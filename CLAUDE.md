@@ -40,6 +40,8 @@ npm test                 # Run unit tests once
 npx vitest               # Watch mode
 ```
 
+Integration tests (Vitest) exercise server modules against a real database, as `*.integration.test.ts` files next to the code, such as the Resource lifecycle module (`src/server/resource-lifecycle/`) with an in-memory Mailer. `scripts/e2e.sh` runs them (`npm run test:integration`) against its fresh database before Playwright, so `npm run test:e2e` runs both. They must delete what they create.
+
 E2E tests:
 
 > Requires Docker. Runs in the CI Playwright image against a throwaway, freshly seeded Postgres (does not touch the dev DB) and a production build of the app.
@@ -122,7 +124,7 @@ tests/                # Playwright E2E tests
 The app uses three tRPC procedure types (defined in `src/server/api/trpc.ts`):
 - **`publicProcedure`**: No authentication required (session may be null)
 - **`privateProcedure`**: Requires authenticated user (throws UNAUTHORIZED if not logged in)
-- **`adminProcedure`**: Requires user with ADMIN role
+- **`adminProcedure`**: Requires user with ADMIN role. Resource writes use `privateProcedure` instead: the Resource lifecycle module decides who may make each change (docs/adr/0002)
 
 All tRPC routers are combined in `src/server/api/root.ts` and exposed at `/api/trpc/[trpc].ts`.
 
@@ -185,7 +187,7 @@ UI components are from shadcn/ui and located in `src/components/ui/`. These are 
 
 ### Testing
 - **Always add E2E tests** for new features where applicable
-- **Add unit tests** (`*.test.ts` next to the code) for pure logic such as URL parsing or SEO rules
+- **Add unit tests** (`*.test.ts` next to the code) for pure logic such as URL parsing or SEO rules, and integration tests (`*.integration.test.ts`) for server modules that need the database
 - Tests go in the `tests/` directory using Playwright; tests that never depend on the browser go in `tests/http/`, tests that publish Resources in `tests/publishing/`
 - Include tests for SEO metadata when adding new pages
 - Test API endpoints return expected responses

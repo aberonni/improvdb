@@ -34,6 +34,28 @@ _Avoid_: Browse page, resource list
 A Catalogue view fixed to one type or one Category, with its own heading and introduction, meant to be found through search.
 _Avoid_: Hub, filtered page, SEO page
 
+### Resource lifecycle
+
+**Draft**:
+A Resource not yet visible to visitors, and not an Edit Proposal: newly submitted by a contributor, created by an admin but not published, or unpublished. In user-facing copy a contributor's Draft is a "Proposal".
+_Avoid_: Proposal (internal), pending, unpublished resource
+
+**Published**:
+The state of a Resource visitors can see and find in the Catalogue.
+_Avoid_: Live, public
+
+**Edit Proposal**:
+A contributor's suggested changes to an existing Resource, waiting for an admin to accept or reject them. It is never published itself.
+_Avoid_: Proposed edit, suggestion, change request
+
+**Accept**:
+An admin applying an Edit Proposal's changes to its original Resource, which ends the Edit Proposal.
+_Avoid_: Approve, merge
+
+**Reject**:
+An admin discarding an Edit Proposal without applying it.
+_Avoid_: Decline, deny
+
 ### Lesson plans
 
 **Lesson Plan**:

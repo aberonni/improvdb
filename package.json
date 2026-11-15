@@ -12,6 +12,7 @@
     "postinstall": "prisma generate",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:integration": "SKIP_ENV_VALIDATION=1 vitest run --config vitest.integration.config.ts",
     "start": "next start",
     "test:e2e": "./scripts/in-docker.sh ./scripts/e2e.sh",
     "test:e2e:update": "npm run test:e2e -- --update-snapshots",
