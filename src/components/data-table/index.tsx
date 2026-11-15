@@ -60,6 +60,13 @@ interface DataTableProps<
    * then the rest in chunks while the browser is idle
    */
   initialRowCount?: number;
+  /**
+   * Width classes for header cells, by column id. Lays the table out from
+   * these instead of from its content, so rows rendered later can't widen
+   * columns and shift the page. Columns left out share the remaining width.
+   * Only while the default columns are shown.
+   */
+  columnWidths?: Partial<Record<string, string>>;
 }
 
 /** Rows added per idle callback after initialRowCount */
@@ -90,6 +97,7 @@ export function DataTable<TData, TValue = unknown>({
   sorting: controlledSorting,
   onSortingChange,
   initialRowCount = Infinity,
+  columnWidths,
   ...props
 }: DataTableProps<TData, TValue>) {
   const [internalSorting, setInternalSorting] = useState<SortingState>([]);
@@ -109,9 +117,19 @@ export function DataTable<TData, TValue = unknown>({
     if (onColumnFiltersChange) onColumnFiltersChange(next);
     else setInternalColumnFilters(next);
   };
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    () => Object.fromEntries(hiddenColumnsByDefault.map((key) => [key, false])),
+  const [defaultColumnVisibility] = useState<VisibilityState>(() =>
+    Object.fromEntries(hiddenColumnsByDefault.map((key) => [key, false])),
   );
+  const [columnVisibility, setColumnVisibility] = useState(
+    defaultColumnVisibility,
+  );
+  /*
+   * Once the visitor picks other columns, widths for the default ones no
+   * longer fit (on phones, extra columns need the table to scroll), and
+   * shifts right after an interaction don't count as layout shift anyway.
+   */
+  const fixedColumnWidths =
+    columnVisibility === defaultColumnVisibility ? columnWidths : undefined;
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   /**
@@ -186,7 +204,7 @@ export function DataTable<TData, TValue = unknown>({
         />
       )}
       <div className="rounded-md border">
-        <Table>
+        <Table className={cn(fixedColumnWidths && "table-fixed")}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -196,6 +214,7 @@ export function DataTable<TData, TValue = unknown>({
                       key={header.id}
                       className={cn(
                         "capitalize",
+                        fixedColumnWidths?.[header.column.id],
                         responsiveClassName(header.column.id),
                       )}
                     >
