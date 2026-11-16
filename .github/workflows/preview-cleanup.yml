@@ -11,6 +11,9 @@ on:
   pull_request:
     types: [closed]
 
+# Only Vercel and Neon are called, never the GitHub API
+permissions: {}
+
 concurrency:
   group: preview-cleanup-${{ github.head_ref }}
 
