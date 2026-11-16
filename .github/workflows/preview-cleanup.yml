@@ -1,0 +1,68 @@
+# Deletes a PR's Vercel preview deployments and its Neon preview branch
+# (preview/<git-branch>, created by the Vercel–Neon integration) once the PR
+# closes, so they don't pile up against the Neon branch limit.
+#
+# Needs repository secrets NEON_API_KEY and VERCEL_TOKEN, and repository
+# variables NEON_PROJECT_ID and VERCEL_PROJECT_ID (plus VERCEL_TEAM_ID when
+# the Vercel project belongs to a team).
+name: Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: preview-cleanup-${{ github.head_ref }}
+
+jobs:
+  cleanup:
+    # Fork PRs get no secrets, and Vercel doesn't build them under our branch name
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      BRANCH: ${{ github.head_ref }}
+
+    steps:
+      - name: Delete Vercel preview deployments
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          team=${TEAM_ID:+&teamId=$TEAM_ID}
+          auth=(-H "Authorization: Bearer $VERCEL_TOKEN")
+          until_ts=""
+          ids=()
+          while :; do
+            page=$(curl -fsS "${auth[@]}" \
+              "https://api.vercel.com/v6/deployments?projectId=$PROJECT_ID&target=preview&limit=100${until_ts:+&until=$until_ts}$team")
+            mapfile -t -O "${#ids[@]}" ids < <(jq -r --arg b "$BRANCH" \
+              '.deployments[] | select(.meta.githubCommitRef == $b) | .uid' <<<"$page")
+            until_ts=$(jq -r '.pagination.next // empty' <<<"$page")
+            [ -n "$until_ts" ] || break
+          done
+          echo "Found ${#ids[@]} preview deployment(s) for $BRANCH"
+          for id in "${ids[@]}"; do
+            curl -fsS -X DELETE "${auth[@]}" \
+              "https://api.vercel.com/v13/deployments/$id?${team#&}" >/dev/null
+            echo "Deleted $id"
+          done
+
+      - name: Delete Neon preview branch
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          api="https://console.neon.tech/api/v2/projects/$PROJECT_ID/branches"
+          auth=(-H "Authorization: Bearer $NEON_API_KEY" -H "Accept: application/json")
+          name="preview/$BRANCH"
+          id=$(curl -fsS "${auth[@]}" "$api" \
+            | jq -r --arg n "$name" '.branches[] | select(.name == $n) | .id')
+          if [ -z "$id" ]; then
+            echo "No Neon branch named $name"
+            exit 0
+          fi
+          curl -fsS -X DELETE "${auth[@]}" "$api/$id" >/dev/null
+          echo "Deleted Neon branch $name ($id)"
