@@ -36,5 +36,8 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Playwright package matches Docker image
+        run: ./scripts/check-playwright-version.sh
+
       - name: Unit tests
         run: npm test

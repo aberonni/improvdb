@@ -26,7 +26,7 @@ services:
       - MP_SMTP_AUTH_ALLOW_INSECURE=true
 
   test:
-    image: mcr.microsoft.com/playwright:v1.65.0-jammy
+    image: mcr.microsoft.com/playwright:v1.65.1-jammy
     working_dir: /app
     environment:
       - DATABASE_URL=postgres://postgres:secret@postgres:5432/postgres
