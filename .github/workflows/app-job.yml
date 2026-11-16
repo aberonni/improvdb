@@ -45,7 +45,7 @@ jobs:
 
       # Catches emails sent by the app (see docker-compose.test.yml)
       mailpit:
-        image: axllent/mailpit:v1.33.0
+        image: axllent/mailpit:v1.33.1
         env:
           MP_ENABLE_CHAOS: "true"
           MP_SMTP_AUTH_ACCEPT_ANY: "true"
