@@ -22,6 +22,7 @@ export const siteFooterStaticProps: GetStaticProps = async () => {
     props: {
       trpcState: ssg.dehydrate(),
     },
-    revalidate: 3600,
+    // Categories rarely change, and each rebuild is billed as an ISR write
+    revalidate: 24 * 60 * 60,
   };
 };

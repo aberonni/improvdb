@@ -203,7 +203,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
       trpcState: ssg.dehydrate(),
       id,
     },
-    revalidate: 3600, // Revalidate every hour
+    // Every write to a Resource rebuilds this page at once (see `pagesShowing`
+    // in the Resource lifecycle module), so this is only a safety net. Crawlers
+    // visit every Resource page, and each hourly rebuild was billed as an ISR
+    // write on Vercel.
+    revalidate: 24 * 60 * 60,
   };
 };
 
