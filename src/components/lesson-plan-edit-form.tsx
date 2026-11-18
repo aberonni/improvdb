@@ -7,7 +7,6 @@ import {
   TrashIcon,
 } from "@radix-ui/react-icons";
 import { useMemo, useState } from "react";
-import AutowidthInput from "react-autowidth-input";
 import { type UseFormReturn, useForm, useFieldArray } from "react-hook-form";
 import type * as z from "zod";
 
@@ -146,12 +145,12 @@ const SectionItems = ({
                     <FormControl>
                       <>
                         <Label>
-                          <AutowidthInput
+                          {/* Grows with its value where field-sizing is
+                              supported, otherwise fits three digits */}
+                          <input
                             placeholder="0"
-                            minWidth={0}
-                            className="border-none bg-transparent p-0 outline-none focus-within:!ring-0"
+                            className="w-[3ch] min-w-[1ch] max-w-[6ch] border-none bg-transparent p-0 outline-none [field-sizing:content] focus-within:!ring-0 supports-[field-sizing:content]:w-auto"
                             type="number"
-                            extraWidth={3}
                             {...field}
                             {...register(
                               `sections.${sectionIndex}.items.${itemIndex}.duration`,
@@ -223,7 +222,7 @@ const SectionItems = ({
                     <Textarea
                       {...field}
                       rows={4}
-                      className="mt-2 border-none bg-transparent p-0 shadow-none outline-none focus-within:!ring-0"
+                      className="mt-2 max-h-[20lh] min-h-[4lh] border-none bg-transparent p-0 shadow-none outline-none [field-sizing:content] focus-within:!ring-0"
                       placeholder={"Item text (optional)..."}
                     />
                   </FormControl>

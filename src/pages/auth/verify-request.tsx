@@ -2,7 +2,7 @@ import { Logo } from "@/components/logo";
 
 export default function VerifyRequestPage() {
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-dvh items-center justify-center">
       <div className="rounded-md border p-8 text-center">
         <h1 className="mb-2 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Check your email

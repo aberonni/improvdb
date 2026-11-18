@@ -413,6 +413,7 @@ export default function ResourceEditForm({
                             <Textarea
                               placeholder="Show Introduction (what an MC would say before the game during a show)"
                               rows={3}
+                              className="max-h-[20lh] min-h-[3lh] [field-sizing:content]"
                               {...field}
                             />
                           </FormControl>
