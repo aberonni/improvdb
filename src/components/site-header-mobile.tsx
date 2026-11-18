@@ -69,7 +69,7 @@ export function SiteHeaderMobile({
               setOpen(false);
             }}
           />
-          <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10">
+          <ScrollArea className="my-4 h-[calc(100dvh-8rem)] pb-10">
             <div className="flex flex-col space-y-3 pl-6">
               {navigation.map((item) =>
                 item.children ? (

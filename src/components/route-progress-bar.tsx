@@ -62,11 +62,13 @@ export function RouteProgressBar() {
   return (
     <div
       aria-hidden
-      className={`pointer-events-none fixed left-0 top-0 z-[9999] h-[3px] bg-[#29D] shadow-[0_0_10px_#29D,0_0_5px_#29D] transition-[width,opacity] duration-200 ease-out print:hidden ${
+      // Scaled rather than resized so the animation skips layout. With
+      // reduced motion the bar jumps between steps and only the fade remains.
+      className={`pointer-events-none fixed left-0 top-0 z-[9999] h-[3px] w-full origin-left bg-[#29D] shadow-[0_0_10px_#29D,0_0_5px_#29D] transition-[scale,opacity] duration-200 ease-out motion-reduce:transition-opacity print:hidden ${
         progress === 1 ? "opacity-0" : "opacity-100"
       }`}
       // The only dynamic value; Tailwind can't express it
-      style={{ width: `${progress * 100}%` }}
+      style={{ scale: `${progress} 1` }}
     />
   );
 }

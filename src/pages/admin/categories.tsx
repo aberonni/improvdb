@@ -56,6 +56,7 @@ function CategoryDescriptionForm({ category }: { category: Category }) {
       <Textarea
         id={id}
         rows={4}
+        className="max-h-[20lh] min-h-[4lh] [field-sizing:content]"
         value={description}
         placeholder="Introduction shown at the top of the category page. Separate paragraphs with a blank line."
         onChange={(e) => setDescription(e.target.value)}

@@ -41,7 +41,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
         }
       `}</style>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <div className="min-h-screen bg-background antialiased">
+        <div className="min-h-dvh bg-background antialiased">
           <RouteProgressBar />
           <LazyToaster />
           <Component {...pageProps} />
