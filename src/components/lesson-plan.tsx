@@ -3,7 +3,6 @@ import {
   OpenInNewWindowIcon,
   PlusIcon,
 } from "@radix-ui/react-icons";
-import Link from "next/link";
 import {
   type AnchorHTMLAttributes,
   type RefAttributes,
@@ -13,6 +12,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import type * as z from "zod";
 
+import Link from "@/components/link";
 import {
   Collapsible,
   CollapsibleContent,

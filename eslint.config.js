@@ -111,6 +111,11 @@ export default [
                 "Its values bundle Prisma into the page. Import enums from @/lib/enums; types are fine.",
               allowTypeImports: true,
             },
+            {
+              name: "next/link",
+              message:
+                "Use @/components/link: next/link prefetches every link in view, and each prefetch counts against Vercel's CDN request quota.",
+            },
           ],
         },
       ],

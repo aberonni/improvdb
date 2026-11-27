@@ -1,9 +1,9 @@
 import { ChevronDownIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { type User } from "next-auth";
 import { signIn, signOut, useSession } from "next-auth/react";
 
+import Link from "@/components/link";
 import { Logo } from "@/components/logo";
 import { type SiteHeaderLinks } from "@/components/site-header";
 import { ThemeToggle } from "@/components/theme-toggle";

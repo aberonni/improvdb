@@ -90,5 +90,3 @@ jobs:
       MAILPIT_URL: "http://mailpit:8025"
       UPSTASH_REDIS_REST_URL: "https://upstash.invalid"
       UPSTASH_REDIS_REST_TOKEN: "e2e"
-      # See docker-compose.test.yml
-      NEXT_PUBLIC_DISABLE_SPEED_INSIGHTS: "true"
