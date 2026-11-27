@@ -1,8 +1,8 @@
 import type { GetStaticProps, NextPage } from "next";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 
+import Link from "@/components/link";
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import { SingleResourceComponent } from "@/components/resource";

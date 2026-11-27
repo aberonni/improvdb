@@ -1,10 +1,9 @@
-import Link from "next/link";
-
 import {
   Catalogue,
   CatalogueStructuredData,
   useLandingCatalogueState,
 } from "@/components/catalogue";
+import Link from "@/components/link";
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
 import { type CatalogueState } from "@/lib/catalogue";

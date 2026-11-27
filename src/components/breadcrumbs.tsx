@@ -1,7 +1,8 @@
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import Head from "next/head";
-import Link from "next/link";
 import { Fragment } from "react";
+
+import Link from "@/components/link";
 
 const SITE_URL = "https://improvdb.com";
 

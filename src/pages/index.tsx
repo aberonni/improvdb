@@ -1,11 +1,10 @@
-import Link from "next/link";
-
 import {
   Catalogue,
   CataloguePendingScript,
   CatalogueStructuredData,
   useUrlCatalogueState,
 } from "@/components/catalogue";
+import Link from "@/components/link";
 import { PageLayout } from "@/components/page-layout";
 import { SEO } from "@/components/seo";
 import { catalogueStaticProps } from "@/server/helpers/landingPageProps";

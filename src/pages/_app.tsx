@@ -1,5 +1,4 @@
 import { type AppType, type NextWebVitalsMetric } from "next/app";
-import dynamic from "next/dynamic";
 import { Inter as FontSans } from "next/font/google";
 import Head from "next/head";
 import { type Session } from "next-auth";
@@ -12,13 +11,6 @@ import { usePreserveScroll } from "@/hooks/use-preserve-scroll";
 import { api } from "@/utils/api";
 
 import "@/styles/globals.css";
-
-// Loaded on its own after hydration: its Next.js entry point brings App Router
-// navigation code into every page
-const SpeedInsights = dynamic(
-  () => import("@vercel/speed-insights/next").then((mod) => mod.SpeedInsights),
-  { ssr: false },
-);
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -45,11 +37,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
           <RouteProgressBar />
           <LazyToaster />
           <Component {...pageProps} />
-          {/* Read from process.env, not `@/env`, which would bundle zod into
-              every page (src/env.js still validates it at build time) */}
-          {process.env.NEXT_PUBLIC_DISABLE_SPEED_INSIGHTS !== "true" && (
-            <SpeedInsights />
-          )}
         </div>
       </ThemeProvider>
     </SessionProvider>
@@ -57,7 +44,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 };
 
 /**
- * Sends Core Web Vitals to Axiom. Next.js calls this from `_app` on every
+ * Sends Core Web Vitals to Axiom, the only reporter: each report is a request
+ * against Vercel's CDN quota, so Vercel Speed Insights is not loaded too.
+ * Next.js calls this from `_app` on every
  * page, so it replaces next-axiom's `<AxiomWebVitals />`, whose entry point
  * bundled all of next-axiom (server helpers included) into every page. The
  * sender loads once the first metric arrives, after the page has rendered.

@@ -9,12 +9,13 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import Link from "next/link";
+
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { type DataTableSortOption } from "@/components/data-table/data-table-sort-options";
 import { TitleCellContent } from "@/components/data-table/data-table-title-cell-content";
+import Link from "@/components/link";
 import {
   ListFavouriteButton,
   ListFavouritesProvider,
@@ -45,11 +46,6 @@ type SingleResourceType = ResourceListRow;
 
 const columnHelper = createColumnHelper<SingleResourceType>();
 
-/*
- * Type and Category badge links prefetch on hover only: there are several per
- * row but only a few dozen distinct Landing Pages. Title links keep
- * prefetching when they scroll into view.
- */
 function getColumns({
   showPublishedStatus,
   showEditProposals,
@@ -79,7 +75,6 @@ function getColumns({
           <Link
             href={TYPE_LANDING_PAGES[props.getValue()].path}
             className="hover:underline"
-            prefetch={false}
           >
             {ResourceTypeLabels[props.getValue()]}
           </Link>
@@ -105,7 +100,7 @@ function getColumns({
             .sort(({ name: a }, { name: b }) => a.localeCompare(b))
             .map(({ id, name }) => {
               return linkBadges ? (
-                <Link key={id} href={categoryLandingPath(id)} prefetch={false}>
+                <Link key={id} href={categoryLandingPath(id)}>
                   <Badge className="hover:opacity-80">{name}</Badge>
                 </Link>
               ) : (

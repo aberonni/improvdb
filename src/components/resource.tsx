@@ -1,9 +1,9 @@
 import { uniqBy } from "lodash";
-import Link from "next/link";
 import { type AnchorHTMLAttributes, type RefAttributes, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import type * as z from "zod";
 
+import Link from "@/components/link";
 import {
   SplitPageLayout,
   SplitPageLayoutContent,

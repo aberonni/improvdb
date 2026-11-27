@@ -1,7 +1,7 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useState } from "react";
 
+import Link from "@/components/link";
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import { Button } from "@/components/ui/button";

@@ -2,11 +2,11 @@ import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
+import Link from "@/components/link";
 import { Logo } from "@/components/logo";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";

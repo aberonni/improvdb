@@ -1,6 +1,5 @@
 import { DownloadIcon, Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import type { GetStaticProps, NextPage } from "next";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
@@ -10,6 +9,7 @@ import {
   SingleLessonPlanComponent,
 } from "@/components/lesson-plan";
 import { LessonPlanSharePopover } from "@/components/lesson-plan-share-popover";
+import Link from "@/components/link";
 import { LoadingPage } from "@/components/loading";
 import { PageLayout } from "@/components/page-layout";
 import { LessonPlanSEO } from "@/components/seo";

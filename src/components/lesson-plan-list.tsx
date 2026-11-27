@@ -1,12 +1,13 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { createColumnHelper } from "@tanstack/react-table";
 import type { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import Link from "next/link";
+
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { TitleCellContent } from "@/components/data-table/data-table-title-cell-content";
 import { LessonPlanVisibilityLabels } from "@/components/lesson-plan";
+import Link from "@/components/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import type { RouterOutputs } from "@/utils/api";
